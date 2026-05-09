@@ -27,6 +27,7 @@ class TSCEditor:
                 'open_tsc': 'Open .tsc...',
                 'open_project': 'Open .cstsc project...',
                 'open_folder': 'Open project folder...',
+                'delete_from_list': 'Delete loaded TSC from this list',
                 'export_tsc': 'Export .tsc...',
                 'save_project': 'Save project .cstsc...',
                 'settings': 'Settings...',
@@ -48,7 +49,6 @@ class TSCEditor:
                 'find_doukutsu': 'Find doukutsu.exe...',
                 'test_game': 'Test (F5)',
                 'help_menu': 'Help',
-                'tsc_commands': 'TSC commands...',
                 'about': 'About...',
                 'search_label': 'Search file:',
                 'clear_btn': 'X',
@@ -131,6 +131,7 @@ class TSCEditor:
                 'custom_cmd_name': 'Command name (without <):',
                 'custom_cmd_desc': 'Description:',
                 'custom_cmd_args': 'Number of arguments (0-4):',
+                'search_docs': 'Search command...',
             },
             'es': {
                 'window_title': 'TSC Editor+ - Edición Profesional',
@@ -138,6 +139,7 @@ class TSCEditor:
                 'open_tsc': 'Abrir .tsc...',
                 'open_project': 'Abrir proyecto .cstsc...',
                 'open_folder': 'Abrir carpeta de proyectos...',
+                'delete_from_list': 'Eliminar TSC cargado de esta lista',
                 'export_tsc': 'Exportar .tsc...',
                 'save_project': 'Guardar proyecto .cstsc...',
                 'settings': 'Configuración...',
@@ -159,7 +161,6 @@ class TSCEditor:
                 'find_doukutsu': 'Buscar doukutsu.exe...',
                 'test_game': 'Probar (F5)',
                 'help_menu': 'Ayuda',
-                'tsc_commands': 'Comandos TSC...',
                 'about': 'Acerca de...',
                 'search_label': 'Buscar archivo:',
                 'clear_btn': 'X',
@@ -242,6 +243,7 @@ class TSCEditor:
                 'custom_cmd_name': 'Nombre del comando (sin <):',
                 'custom_cmd_desc': 'Descripción:',
                 'custom_cmd_args': 'Número de argumentos (0-4):',
+                'search_docs': 'Buscar comando...',
             },
             'jp': {
                 'window_title': 'TSC Editor+ - プロフェッショナル版',
@@ -249,6 +251,7 @@ class TSCEditor:
                 'open_tsc': '.tscを開く...',
                 'open_project': '.cstscプロジェクトを開く...',
                 'open_folder': 'プロジェクトフォルダを開く...',
+                'delete_from_list': 'ロードしたTSCをこのリストから削除',
                 'export_tsc': '.tscにエクスポート...',
                 'save_project': 'プロジェクトを保存.cstsc...',
                 'settings': '設定...',
@@ -270,7 +273,6 @@ class TSCEditor:
                 'find_doukutsu': 'doukutsu.exeを検索...',
                 'test_game': 'テスト（F5）',
                 'help_menu': 'ヘルプ',
-                'tsc_commands': 'TSCコマンド...',
                 'about': 'このソフトについて...',
                 'search_label': 'ファイル検索:',
                 'clear_btn': 'X',
@@ -353,6 +355,7 @@ class TSCEditor:
                 'custom_cmd_name': 'コマンド名（<なし）:',
                 'custom_cmd_desc': '説明:',
                 'custom_cmd_args': '引数の数（0-4）:',
+                'search_docs': 'コマンドを検索...',
             }
         }
 
@@ -438,9 +441,7 @@ class TSCEditor:
             self.main_paned, wrap=tk.WORD, undo=True, autoseparators=True, maxundo=50
         )
         self.main_paned.add(self.text_area, minsize=400)
-        # Ctrl+MouseWheel para cambiar tamaño de fuente
         self.text_area.bind("<Control-MouseWheel>", self.on_ctrl_mousewheel)
-        # Para Linux, el evento puede ser <Control-Button-4> y <Control-Button-5>
         self.text_area.bind("<Control-Button-4>", lambda e: self.change_font_size(1))
         self.text_area.bind("<Control-Button-5>", lambda e: self.change_font_size(-1))
 
@@ -459,11 +460,21 @@ class TSCEditor:
         self.history_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.history_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # Quick Docs tab
+        # Quick Docs tab (con buscador)
         self.docs_tab = tk.Frame(self.right_notebook)
         self.right_notebook.add(self.docs_tab, text=self.tr['quick_docs'])
         docs_paned = tk.PanedWindow(self.docs_tab, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=4)
         docs_paned.pack(fill=tk.BOTH, expand=True)
+
+        # Buscador de comandos
+        search_docs_frame = tk.Frame(self.docs_tab)
+        search_docs_frame.pack(fill=tk.X, padx=5, pady=2)
+        tk.Label(search_docs_frame, text=self.tr['search_docs']).pack(side=tk.LEFT)
+        self.docs_search_var = tk.StringVar()
+        self.docs_search_var.trace_add('write', lambda *args: self.filter_quick_docs())
+        docs_search_entry = tk.Entry(search_docs_frame, textvariable=self.docs_search_var)
+        docs_search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5,0))
+
         top_frame = tk.Frame(docs_paned)
         docs_paned.add(top_frame, minsize=150)
         self.docs_listbox = tk.Listbox(top_frame, bg="#f0f0f0", selectbackground="#0078D7")
@@ -492,9 +503,7 @@ class TSCEditor:
         self.context_menu.add_command(label=self.tr['count_chars'], command=self.count_characters_normal)
         self.context_menu.add_command(label=self.tr['count_chars_face'], command=self.count_characters_face)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label=self.tr['tsc_commands'], command=self.show_command_info)
-        self.context_menu.add_separator()
-        self.context_menu.add_command(label="Filter Special Characters", command=self.filter_special_characters)
+        self.context_menu.add_command(label=self.tr['smart_replace'], command=self.smart_replace_special_chars)
         self.text_area.bind("<Button-3>", self.show_context_menu)
 
         self.update_font()
@@ -546,6 +555,7 @@ class TSCEditor:
         self.root.bind("<Control-z>", lambda e: self.undo_action())
         self.root.bind("<Control-y>", lambda e: self.redo_action())
         self.root.bind("<Control-f>", lambda e: self.focus_search_tab)
+        self.root.bind("<Control-r>", lambda e: self.smart_replace_special_chars())
         self.root.bind("<Control-k>", lambda e: self.open_settings())
         self.root.bind("<F5>", lambda e: self.test_game())
 
@@ -558,8 +568,6 @@ class TSCEditor:
 
     # ---------------------- CAMBIO DE FUENTE CON CTRL+RUEDA ------------------
     def on_ctrl_mousewheel(self, event):
-        # event.delta: positivo hacia arriba, negativo hacia abajo (Windows)
-        # En Linux, el evento es diferente, pero usamos los bindings de botones adicionales
         delta = event.delta
         if delta > 0:
             self.change_font_size(1)
@@ -571,7 +579,6 @@ class TSCEditor:
         if 8 <= new_size <= 24:
             self.base_font_size = new_size
             self.update_font()
-            # Actualizar la estadística (opcional)
             self.update_stats()
 
     # ---------------------- COMANDOS PERSONALIZABLES ------------------
@@ -701,7 +708,7 @@ class TSCEditor:
     def edit_custom_commands(self):
         win = Toplevel(self.root)
         win.title(self.tr['edit_custom_cmds_title'])
-        win.geometry("600x400")
+        win.geometry("700x500")
         win.transient(self.root)
         win.grab_set()
 
@@ -747,6 +754,27 @@ class TSCEditor:
             tree.insert("", tk.END, values=(name, args, desc))
             self.refresh_current_file()
 
+        def edit_cmd():
+            selected = tree.selection()
+            if not selected:
+                return
+            name = tree.item(selected[0])['values'][0]
+            if name not in self.custom_commands:
+                return
+            current_args, _, current_desc = self.custom_commands[name]
+            new_args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], initialvalue=int(current_args), minvalue=0, maxvalue=4, parent=win)
+            if new_args is None:
+                return
+            new_desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], initialvalue=current_desc, parent=win)
+            if new_desc is None:
+                return
+            self.custom_commands[name] = [str(new_args), "----", new_desc]
+            self.save_custom_commands()
+            self.update_commands_data()
+            self.populate_quick_docs()
+            tree.item(selected[0], values=(name, new_args, new_desc))
+            self.refresh_current_file()
+
         def remove_cmd():
             selected = tree.selection()
             if not selected:
@@ -761,8 +789,49 @@ class TSCEditor:
                 self.refresh_current_file()
 
         tk.Button(btn_frame, text="Add", command=add_cmd).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Edit", command=edit_cmd).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Remove", command=remove_cmd).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
+
+    # ---------------------- QUICK DOCS CON BUSCADOR ------------------
+    def populate_quick_docs(self):
+        self.all_docs_commands = sorted(self.commands_data.keys())
+        self.filter_quick_docs()
+
+    def filter_quick_docs(self):
+        search_text = self.docs_search_var.get().strip().lower()
+        self.docs_listbox.delete(0, tk.END)
+        for cmd in self.all_docs_commands:
+            if search_text == "" or search_text in cmd.lower():
+                self.docs_listbox.insert(tk.END, cmd)
+
+    def on_doc_select(self, event):
+        selection = self.docs_listbox.curselection()
+        if not selection:
+            return
+        cmd = self.docs_listbox.get(selection[0])
+        if cmd in self.commands_data:
+            num_args, types, desc = self.commands_data[cmd]
+            if num_args == "0":
+                syntax = f"<{cmd}>"
+            else:
+                arg_list = []
+                for i in range(int(num_args)):
+                    arg_char = types[i] if i < len(types) else "?"
+                    arg_list.append(f"<{arg_char}>")
+                syntax = f"<{cmd} " + " ".join(arg_list) + ">"
+            extra = ""
+            if cmd == "FAC":
+                extra = f"\n{self.tr['face_name']}: {self.face_names.get('0000', '?')}"
+            elif cmd == "CMU":
+                extra = f"\n{self.tr['music_name']}: Check music ID list"
+            info = f"{self.tr['command']}: {cmd}\n\n{self.tr['syntax']}: {syntax}\n\n{self.tr['description']}: {desc}\n"
+            if extra:
+                info += f"\n{self.tr['details']}:{extra}"
+            self.docs_detail.config(state=tk.NORMAL)
+            self.docs_detail.delete(1.0, tk.END)
+            self.docs_detail.insert(tk.END, info)
+            self.docs_detail.config(state=tk.DISABLED)
 
     # ---------------------- AUTO-DETECCIÓN ------------------
     def auto_detect_and_load(self, raw_data: bytes, file_path: str):
@@ -795,12 +864,10 @@ class TSCEditor:
                 else:
                     ratio = printable / total
                     bonus = 0
-                    if re.search(r'<[A-Z]{1,3}', text):
+                    if re.search(r'<[A-Z]{1,3}[+-]?', text):
                         bonus += 20
                     if re.search(r'#[0-9A-F]{4}', text):
                         bonus += 10
-                    if re.search(r'[a-zA-Z]', text):
-                        bonus += 5
                     score = ratio * 100 + bonus
                 if score > best_score:
                     best_score = score
@@ -837,7 +904,7 @@ class TSCEditor:
         except Exception as e:
             messagebox.showerror(self.tr['load_error'], f"Could not load {os.path.basename(file_path)}:\n{str(e)}")
 
-    # ---------------------- SINTÁXIS ------------------
+    # ---------------------- SINTÁXIS (ahora reconoce + y -) ------------------
     def check_syntax(self, text):
         errors = []
         i = 0
@@ -856,18 +923,21 @@ class TSCEditor:
                     i += 1
             elif ch == '<':
                 j = i+1
-                while j < n and text[j].isalpha() and (j - i) <= 3:
+                # Permitir letras y opcionalmente '+' o '-' al final
+                while j < n and (text[j].isalpha() or (j == i+1 and text[j] in '+-')):
                     j += 1
                 cmd_name = text[i+1:j].upper()
-                if cmd_name in self.commands_data:
-                    num_args = int(self.commands_data[cmd_name][0])
+                # Eliminar el '+/-' final si existe para la búsqueda en el diccionario
+                base_cmd = cmd_name.rstrip('+-')
+                if base_cmd in self.commands_data:
+                    num_args = int(self.commands_data[base_cmd][0])
                     pos = j
                     for arg_idx in range(num_args):
                         if pos+4 > n or not text[pos:pos+4].isdigit():
                             errors.append({
                                 'offset': pos,
                                 'length': min(4, n-pos),
-                                'message': f"Missing or invalid parameter {arg_idx+1} for command <{cmd_name}>."
+                                'message': f"Missing or invalid parameter {arg_idx+1} for command <{base_cmd}>."
                             })
                             break
                         pos += 4
@@ -878,11 +948,12 @@ class TSCEditor:
                                 errors.append({
                                     'offset': pos,
                                     'length': 1,
-                                    'message': f"Missing ':' separator for command <{cmd_name}>."
+                                    'message': f"Missing ':' separator for command <{base_cmd}>."
                                 })
                     i = pos
                 else:
-                    if len(cmd_name) <= 3:
+                    # No es comando conocido, marcar solo si el nombre es de 1-4 letras (sin contar +/-)
+                    if len(base_cmd) <= 4:
                         errors.append({
                             'offset': i,
                             'length': min(4, n-i),
@@ -917,8 +988,8 @@ class TSCEditor:
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("evento", start, end)
 
-        # Comandos (hasta 3 letras) + dígitos
-        patron_comando = r'<([A-Z]{1,3})([0-9]{4})?'
+        # Comandos (1-3 letras + opcional +/-) y opcional 4 dígitos
+        patron_comando = r'<([A-Z]{1,3}[+-]?)([0-9]{4})?'
         for match in re.finditer(patron_comando, texto):
             start_cmd = match.start()
             end_letters = match.end(1)
@@ -1085,7 +1156,6 @@ class TSCEditor:
                 self.text_area.tag_add(tk.SEL, start, end)
                 self.text_area.mark_set(tk.INSERT, end)
                 self.text_area.see(start)
-                self.search_status.config(text="")
             else:
                 matches = list(regex.finditer(text))
                 if matches:
@@ -1331,6 +1401,76 @@ class TSCEditor:
         msg += "\n(These characters may not display correctly in Cave Story.)"
         messagebox.showinfo("Filter Special Characters", msg)
 
+    # ---------------------- BARRA LATERAL Y BUSCADOR DE ARCHIVOS ------------------
+    def load_folder(self):
+        folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
+        if not folder:
+            return
+        self.current_folder = folder
+        self.refresh_file_list()
+        self.search_var.set("")
+        self.filter_files()
+
+    def refresh_file_list(self):
+        self.all_files = []
+        if not self.current_folder:
+            return
+        for root_dir, dirs, files in os.walk(self.current_folder):
+            for file in files:
+                if file.lower().endswith(".tsc"):
+                    rel_path = os.path.relpath(os.path.join(root_dir, file), self.current_folder)
+                    full_path = os.path.join(root_dir, file)
+                    self.all_files.append((rel_path, full_path))
+        self.all_files.sort(key=lambda x: x[0].lower())
+        self.filter_files()
+
+    def filter_files(self):
+        search_text = self.search_var.get().strip().lower()
+        self.file_listbox.delete(0, tk.END)
+        self.file_listbox._paths = {}
+        for rel_path, full_path in self.all_files:
+            filename = os.path.basename(rel_path)
+            name_no_ext = os.path.splitext(filename)[0].lower()
+            if search_text == "" or search_text in name_no_ext:
+                self.file_listbox.insert(tk.END, rel_path)
+                self.file_listbox._paths[rel_path] = full_path
+
+    def clear_search(self):
+        self.search_var.set("")
+        self.filter_files()
+
+    def on_file_select(self, event):
+        selection = self.file_listbox.curselection()
+        if not selection:
+            return
+        rel_path = self.file_listbox.get(selection[0])
+        full_path = getattr(self.file_listbox, '_paths', {}).get(rel_path)
+        if full_path and os.path.isfile(full_path):
+            self.load_specific_tsc(full_path)
+
+    def delete_current_from_list(self):
+        """Elimina el archivo actual de la lista lateral sin borrarlo del disco."""
+        if not self.current_file:
+            messagebox.showinfo("Info", "No hay un archivo cargado.")
+            return
+        rel_path = None
+        for rp, fp in self.all_files:
+            if fp == self.current_file:
+                rel_path = rp
+                break
+        if rel_path:
+            # Eliminar de la lista de archivos
+            self.all_files = [(r, f) for r, f in self.all_files if f != self.current_file]
+            self.filter_files()
+            # Cerrar el archivo actual y limpiar editor
+            self.text_area.delete("1.0", tk.END)
+            self.current_file = None
+            self.current_cipher = None
+            self.status_label.config(text="Archivo eliminado de la lista.")
+            self.add_history_entry("Removed current file from list")
+        else:
+            messagebox.showinfo("Info", "El archivo actual no está en la lista lateral.")
+
     # ---------------------- CARGA Y GUARDADO DE ARCHIVOS ------------------
     def load_text_to_editor(self, text, file_path, cipher, encoding, apply_load_conversion=False):
         self.text_area.delete("1.0", tk.END)
@@ -1431,91 +1571,9 @@ class TSCEditor:
     def confirm_save_with_errors(self):
         texto = self.text_area.get("1.0", tk.END)
         errors = self.check_syntax(texto)
-        if errors and messagebox.askyesno(self.tr['syntax_errors'], self.tr['syntax_errors_found']):
-            return True
-        return not errors  # solo salva si no hay errores, a menos que el usuario responda Sí
-
-    # ---------------------- BARRA LATERAL Y BUSCADOR DE ARCHIVOS ------------------
-    def load_folder(self):
-        folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
-        if not folder:
-            return
-        self.current_folder = folder
-        self.refresh_file_list()
-        self.search_var.set("")
-        self.filter_files()
-
-    def refresh_file_list(self):
-        self.all_files = []
-        if not self.current_folder:
-            return
-        for root_dir, dirs, files in os.walk(self.current_folder):
-            for file in files:
-                if file.lower().endswith(".tsc"):
-                    rel_path = os.path.relpath(os.path.join(root_dir, file), self.current_folder)
-                    full_path = os.path.join(root_dir, file)
-                    self.all_files.append((rel_path, full_path))
-        self.all_files.sort(key=lambda x: x[0].lower())
-        self.filter_files()
-
-    def filter_files(self):
-        search_text = self.search_var.get().strip().lower()
-        self.file_listbox.delete(0, tk.END)
-        self.file_listbox._paths = {}
-        for rel_path, full_path in self.all_files:
-            filename = os.path.basename(rel_path)
-            name_no_ext = os.path.splitext(filename)[0].lower()
-            if search_text == "" or search_text in name_no_ext:
-                self.file_listbox.insert(tk.END, rel_path)
-                self.file_listbox._paths[rel_path] = full_path
-
-    def clear_search(self):
-        self.search_var.set("")
-        self.filter_files()
-
-    def on_file_select(self, event):
-        selection = self.file_listbox.curselection()
-        if not selection:
-            return
-        rel_path = self.file_listbox.get(selection[0])
-        full_path = getattr(self.file_listbox, '_paths', {}).get(rel_path)
-        if full_path and os.path.isfile(full_path):
-            self.load_specific_tsc(full_path)
-
-    # ---------------------- QUICK DOCS ------------------
-    def populate_quick_docs(self):
-        self.docs_listbox.delete(0, tk.END)
-        cmds = sorted(self.commands_data.keys())
-        for cmd in cmds:
-            self.docs_listbox.insert(tk.END, cmd)
-
-    def on_doc_select(self, event):
-        selection = self.docs_listbox.curselection()
-        if not selection:
-            return
-        cmd = self.docs_listbox.get(selection[0])
-        if cmd in self.commands_data:
-            num_args, types, desc = self.commands_data[cmd]
-            if num_args == "0":
-                syntax = f"<{cmd}>"
-            else:
-                arg_list = []
-                for i in range(int(num_args)):
-                    arg_char = types[i] if i < len(types) else "?"
-                    arg_list.append(f"<{arg_char}>")
-                syntax = f"<{cmd} " + " ".join(arg_list) + ">"
-            extra = ""
-            if cmd == "FAC":
-                extra = f"\n{self.tr['face_name']}: {self.face_names.get('0000', '?')}"
-            elif cmd == "CMU":
-                extra = f"\n{self.tr['music_name']}: Check music ID list"
-            info = f"{self.tr['command']}: {cmd}\n\n{self.tr['syntax']}: {syntax}\n\n{self.tr['description']}: {desc}\n"
-            if extra:
-                info += f"\n{self.tr['details']}:{extra}"
-            self.docs_detail.config(state=tk.NORMAL)
-            self.docs_detail.delete(1.0, tk.END)
-            self.docs_detail.insert(tk.END, info)
-            self.docs_detail.config(state=tk.DISABLED)
+        if errors:
+            return messagebox.askyesno(self.tr['syntax_errors'], self.tr['syntax_errors_found'])
+        return True
 
     # ---------------------- CONFIGURACIÓN ------------------
     def detect_language(self):
@@ -1544,7 +1602,7 @@ class TSCEditor:
         self.context_menu.entryconfig(2, label=self.tr['cut'])
         self.context_menu.entryconfig(4, label=self.tr['count_chars'])
         self.context_menu.entryconfig(5, label=self.tr['count_chars_face'])
-        self.context_menu.entryconfig(7, label=self.tr['tsc_commands'])
+        self.context_menu.entryconfig(7, label=self.tr['smart_replace'])
         self.create_menus()
         self.update_stats()
 
@@ -1655,6 +1713,7 @@ class TSCEditor:
         file_menu.add_command(label=self.tr['open_tsc'], command=self.load_file, accelerator="Ctrl+O")
         file_menu.add_command(label=self.tr['open_project'], command=self.load_project)
         file_menu.add_command(label=self.tr['open_folder'], command=self.load_folder)
+        file_menu.add_command(label=self.tr['delete_from_list'], command=self.delete_current_from_list)
         file_menu.add_separator()
         file_menu.add_command(label=self.tr['export_tsc'], command=self.export_file, accelerator="Ctrl+Shift+S")
         file_menu.add_command(label=self.tr['save_project'], command=self.save_project, accelerator="Ctrl+S")
@@ -1670,7 +1729,7 @@ class TSCEditor:
         edit_menu.add_separator()
         edit_menu.add_command(label=self.tr['check_syntax'], command=self.check_syntax_cmd)
         edit_menu.add_separator()
-        edit_menu.add_command(label=self.tr['smart_replace'], command=self.smart_replace_special_chars)
+        edit_menu.add_command(label=self.tr['smart_replace'], command=self.smart_replace_special_chars, accelerator="Ctrl+R")
 
         view_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label=self.tr['view_menu'], menu=view_menu)
@@ -1692,7 +1751,6 @@ class TSCEditor:
 
         help_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label=self.tr['help_menu'], menu=help_menu)
-        help_menu.add_command(label=self.tr['tsc_commands'], command=self.show_tsc_docs)
         help_menu.add_command(label=self.tr['about'], command=self.show_about)
 
     def check_syntax_cmd(self):
@@ -1810,19 +1868,15 @@ class TSCEditor:
         except Exception as e:
             messagebox.showerror(self.tr['exe_not_found'], str(e))
 
-    def show_tsc_docs(self):
-        doc_text = "TSC commands:\n\n" + "\n".join([f"<{cmd} - {desc[2]}" for cmd, desc in self.commands_data.items()])
-        messagebox.showinfo(self.tr['tsc_commands'], doc_text)
-
     def show_about(self):
         messagebox.showinfo(self.tr['about'],
-            "TSC Editor+ v22.0\n"
+            "TSC Editor+ v23.0\n"
             "Editor profesional de archivos .tsc de Cave Story\n"
             "Cifrado compatible con Booster's Lab (Carrot Lord)\n"
             "Características: resaltado de sintaxis, historial, contadores, conteo de caracteres,\n"
-            "documentación rápida, búsqueda/reemplazo con resaltado, auto-guardado cada 6 minutos,\n"
-            "comandos personalizables, cambio rápido de fuente con Ctrl+rueda, soporte multilenguaje.\n"
-            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F (buscar), Ctrl+K, F5")
+            "documentación rápida con buscador, búsqueda/reemplazo con resaltado, auto-guardado cada 6 minutos,\n"
+            "comandos personalizables (con +/-), cambio rápido de fuente con Ctrl+rueda, soporte multilenguaje.\n"
+            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F (buscar), Ctrl+R (reemplazar acentos), Ctrl+K, F5")
 
     def show_hex_dump(self):
         if self.raw_bytes_for_hex is None:
@@ -1839,42 +1893,6 @@ class TSCEditor:
 
     def show_context_menu(self, event):
         self.context_menu.tk_popup(event.x_root, event.y_root)
-
-    def show_command_info(self):
-        cursor_pos = self.text_area.index(tk.INSERT)
-        line_start = f"{cursor_pos} linestart"
-        line_end = f"{cursor_pos} lineend"
-        line_text = self.text_area.get(line_start, line_end)
-        cursor_col = int(cursor_pos.split('.')[1])
-
-        start_col = cursor_col
-        while start_col > 0 and line_text[start_col-1] != '<':
-            start_col -= 1
-        if start_col == 0 or line_text[start_col-1] != '<':
-            messagebox.showinfo(self.tr['cmd_info_title'], self.tr['cmd_not_found'])
-            return
-        start_col -= 1
-
-        after_lt = line_text[start_col+1:]
-        match = re.match(r'[A-Z]{1,4}[0-9]{0,4}[+-]?', after_lt)
-        if not match:
-            messagebox.showinfo(self.tr['cmd_info_title'], self.tr['cmd_unrecognized'])
-            return
-        cmd_body = match.group(0)
-        cmd_key = ''.join(ch for ch in cmd_body if ch.isalpha())
-        if cmd_key in self.commands_data:
-            desc = self.commands_data[cmd_key][2]
-            extra = ""
-            if cmd_key == "FAC" and len(cmd_body) > 3:
-                face_id = cmd_body[3:7]
-                if face_id in self.face_names:
-                    extra = f"\nFace: {self.face_names[face_id]}"
-            elif cmd_key == "CMU" and len(cmd_body) > 3:
-                music_id = cmd_body[3:7]
-                extra = f"\nMusic ID: {music_id}"
-            messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_key}", f"{desc}{extra}")
-        else:
-            messagebox.showinfo(self.tr['cmd_info_title'], f"{self.tr['cmd_unknown']} '<{cmd_body}>'")
 
     # ---------------------- MÉTODOS DE CIFRADO ------------------
     @staticmethod
