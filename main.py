@@ -565,21 +565,21 @@ class TSCEditor:
         self.apply_theme()
 
         # Atajos de teclado
-        self.root.bind("<Control-o>", lambda e: self.load_file())
-        self.root.bind("<Control-s>", lambda e: self.save_project())
-        self.root.bind("<Control-Shift-S>", lambda e: self.export_file())
-        self.root.bind("<Control-z>", lambda e: self.undo_action())
-        self.root.bind("<Control-y>", lambda e: self.redo_action())
-        self.root.bind("<Control-f>", lambda e: self.focus_search_tab)
-        self.root.bind("<Control-r>", lambda e: self.smart_replace_special_chars())
-        self.root.bind("<Control-k>", lambda e: self.open_settings())
-        self.root.bind("<F5>", lambda e: self.test_game())
-        self.root.bind("<Alt-F4>", lambda e: self.root.quit())
-        self.root.bind("<Control-Shift-O>", lambda e: self.load_project())
-        self.root.bind("<Control-Shift-Alt-O>", lambda e: self.load_folder())
-        self.root.bind("<Control-Delete>", lambda e: self.delete_current_from_list())
+        self.root.bind("<Control-o>",            lambda e: self.load_file())
+        self.root.bind("<Control-s>",            lambda e: self.save_project())
+        self.root.bind("<Control-Shift-S>",      lambda e: self.export_file())
+        self.root.bind("<Control-z>",            lambda e: self.undo_action())
+        self.root.bind("<Control-y>",            lambda e: self.redo_action())
+        self.root.bind("<Control-f>",            lambda e: self.focus_search_tab())
+        self.root.bind("<Control-r>",            lambda e: self.smart_replace_special_chars())
+        self.root.bind("<Control-k>",            lambda e: self.open_settings())
+        self.root.bind("<F5>",                   lambda e: self.test_game())
+        self.root.bind("<Alt-F4>",               lambda e: self.root.quit())
+        self.root.bind("<Control-Shift-O>",      lambda e: self.load_project())
+        self.root.bind("<Control-Shift-Alt-O>",  lambda e: self.load_folder())
+        self.root.bind("<Control-Delete>",       lambda e: self.delete_current_from_list())
         self.root.bind("<Control-Shift-Delete>", lambda e: self.delete_all_from_list())
-        self.root.bind("<Control-h>", lambda e: self.focus_history_tab())
+        self.root.bind("<Control-h>",            lambda e: self.focus_history_tab())
 
         self.auto_save_timer = None
         if self.settings["auto_save"]:
@@ -623,8 +623,8 @@ class TSCEditor:
     # ---------------------- COMANDOS BASE ------------------
     def load_base_commands(self):
         return {
-            "AE": ["0", "----", "<AE+ Refill all weapon ammo."],
-            "AM": ["2", "aA--", "<AM+ Give weapon W with X ammo. Use 0000 for infinite ammo. <AM- Remove weapon W."],
+            "AE" : ["0", "----", "<AE+ Refill all weapon ammo."],
+            "AM" : ["2", "aA--", "<AM+ Give weapon W with X ammo. Use 0000 for infinite ammo. <AM- Remove weapon W."],
             "AMJ": ["2", "ae--", "Jump to event X if the PC has weapon W."],
             "ANP": ["3", "N#d-", "Animate entity W to scriptstate X and direction Y."],
             "BOA": ["1", "#---", "Give map-boss scriptstate W"],
@@ -643,13 +643,13 @@ class TSCEditor:
             "DNP": ["1", "N---", "Remove all entities W."],
             "ECJ": ["2", "#e--", "Jump to event X if any entities W exist."],
             "END": ["0", "----", "End current scripted event."],
-            "EQ": ["1", "E---", "<EQ+ Equip item W (Booster, Map System, etc). <EQ- Dequip item W."],
+            "EQ" : ["1", "E---", "<EQ+ Equip item W (Booster, Map System, etc). <EQ- Dequip item W."],
             "ESC": ["0", "----", "Quit to title screen."],
             "EVE": ["1", "e---", "Go to event W."],
             "FAC": ["1", "f---", "Show face W in message box."],
             "FAI": ["1", "d---", "Fade in with direction W."],
             "FAO": ["1", "d---", "Fade out with direction W."],
-            "FL": ["1", "F---", "<FL+ Set flag W. <FL- Clear flag W. <FLJ Jump to event X if flag W is set."],
+            "FL" : ["1", "F---", "<FL+ Set flag W. <FL- Clear flag W. <FLJ Jump to event X if flag W is set."],
             "FLA": ["0", "----", "Flash screen white."],
             "FMU": ["0", "----", "Fade music out."],
             "FOB": ["2", "N.--", "Focus on boss W in X ticks."],
@@ -660,7 +660,7 @@ class TSCEditor:
             "HMC": ["0", "----", "Hide PC."],
             "INI": ["0", "----", "Reset memory and restart game."],
             "INP": ["3", "Nnd-", "Change entity W to type X, direction Y, set flag 0x8000."],
-            "IT": ["1", "i---", "<IT+ Give item W. <IT- Remove item W."],
+            "IT":  ["1", "i---", "<IT+ Give item W. <IT- Remove item W."],
             "ITJ": ["2", "ie--", "Jump to event X if PC has item W."],
             "KEY": ["0", "----", "Lock player controls and hide status bars until <END."],
             "LDP": ["0", "----", "Load saved game."],
@@ -719,7 +719,19 @@ class TSCEditor:
             "RND": ["3", "###-", "Random number into variable."],
             "IMG": ["1", "#---", "Set TimgFILE.bmp over screen."],
             "PHY": ["2", "##--", "Change physics variables."],
-        }
+            # -- CS+ Switch Commands --
+            "I+N": ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
+            "2MV": ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
+            "HM2": ["0", "----", "Hides only the player that triggered this event (unlike <HMC, which hides both)."],
+            "FF-": ["2", "##--", "Unsets the first set flag in the range [xxxx:yyyy]."],
+            "KE2": ["0", "----", "Used in the inventory; sets g_GameFlags |= 0x11: Flag 0x10 prevents the OK button from restarting the item description event (resets when cursor moved) (does not prevent cancel button)."],
+            "FR2": ["0", "----", "Sets g_GameFlags &= ~0x11 and g_GameFlags |= 1."],
+            "2PJ": ["1", "#---", "Jump to event xxxx if P2 is active."],
+            "INJ": ["3", "###-", "Jump to event zzzz if player has at least yyyy quantity of item xxxx. Syntax: <INJxxxx:yyyy:zzzz"],
+            "POP": ["0", "----", "Event stack pop; restores read position from top of event stack."],
+            "PSH": ["1", "#---", "Event stack push; saves current read position (after this command) to a stack and then jumps to event xxxx. (CS+ Switch supports max 32 events on stack)."],
+            "ACH": ["1", "#---", "Get achievement xxxx."],
+                }
 
     def load_custom_commands(self):
         if os.path.exists(self.custom_commands_file):
@@ -805,18 +817,7 @@ class TSCEditor:
                 i += 1
         return errors
 
-    def highlight_syntax_errors(self):
-        self.text_area.tag_remove("error", "1.0", tk.END)
-        texto = self.text_area.get("1.0", tk.END)
-        errors = self.check_syntax(texto)
-        for err in errors:
-            start = f"1.0 + {err['offset']} chars"
-            end = f"1.0 + {err['offset'] + err['length']} chars"
-            # No sobreescribir tags de comandos válidos
-            tags = self.text_area.tag_names(start)
-            if not any(t in tags for t in ("comando_letras", "comando_digitos")):
-                self.text_area.tag_add("error", start, end)
-
+    # ---------- MÉTODO CORREGIDO DE RESALTADO ----------
     def highlight_syntax(self):
         for tag in ("evento", "comando_letras", "comando_digitos", "comando_id", "error", "special_warning"):
             self.text_area.tag_remove(tag, "1.0", tk.END)
@@ -825,28 +826,47 @@ class TSCEditor:
         if not texto:
             return
 
-        # Eventos
+        # Eventos #XXXX
         for match in re.finditer(r'#[0-9A-Fa-f]{4}\b', texto):
             start = f"1.0 + {match.start()} chars"
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("evento", start, end)
 
-        # Comandos (nombre y argumentos)
-        patron_comando = r'<([A-Z]{1,3}[0-9]?[+-]?)([0-9]{4})?'
+        # Comandos <XXX y argumentos
+        patron_comando = r'<([A-Z]{1,3}[+-]?)(\d{4})?'
         for match in re.finditer(patron_comando, texto):
             start_cmd = match.start()
-            end_letters = match.end(1)
-            start_pos = f"1.0 + {start_cmd} chars"
+            cmd_letters = match.group(1)   # ej: "CMU", "XX", "AM+"
+            arg_digits = match.group(2)    # ej: "0000", "1000", None
+
+            base_letters = cmd_letters.rstrip('+-')
+            cmd_name_for_hl = cmd_letters
+            arg_for_hl = arg_digits
+
+            # Verificar si el primer dígito pertenece al nombre (XX1, XX2)
+            if arg_digits and len(arg_digits) == 4:
+                first_digit = arg_digits[0]
+                candidate = base_letters + first_digit
+                if candidate in self.commands_data:
+                    cmd_name_for_hl = cmd_letters + first_digit
+                    arg_for_hl = arg_digits[1:] if len(arg_digits) > 1 else None
+
+            # Resaltar nombre del comando (azul)
+            start_letters = start_cmd
+            end_letters = start_cmd + len(cmd_name_for_hl) + 1  # +1 por '<'
+            start_letters_pos = f"1.0 + {start_letters} chars"
             end_letters_pos = f"1.0 + {end_letters} chars"
-            self.text_area.tag_add("comando_letras", start_pos, end_letters_pos)
-            if match.group(2):
-                start_digits = match.start(2)
-                end_digits = match.end(2)
+            self.text_area.tag_add("comando_letras", start_letters_pos, end_letters_pos)
+
+            # Resaltar argumentos (rosa)
+            if arg_for_hl and len(arg_for_hl) > 0:
+                start_digits = end_letters
+                end_digits = start_digits + len(arg_for_hl)
                 start_digits_pos = f"1.0 + {start_digits} chars"
                 end_digits_pos = f"1.0 + {end_digits} chars"
                 self.text_area.tag_add("comando_digitos", start_digits_pos, end_digits_pos)
 
-        # IDs sueltos
+        # IDs sueltos (####) que no pertenezcan a comandos
         patron_id = r'\b([0-9]{4})\b'
         for match in re.finditer(patron_id, texto):
             start_match = match.start()
@@ -873,7 +893,7 @@ class TSCEditor:
             if not any(t in tags for t in ("comando_letras", "comando_digitos")):
                 self.text_area.tag_add("error", start, end)
 
-        # Asegurar prioridad de comandos sobre error
+        # Prioridad
         self.text_area.tag_raise("comando_letras")
         self.text_area.tag_raise("comando_digitos")
 
@@ -1080,7 +1100,7 @@ class TSCEditor:
             (True, "cp932", "Cifrado + CP932"),
             (False, "latin-1", "Sin cifrado + Latin-1"),
             (False, "cp850", "Sin cifrado + CP850"),
-            (False, "utf-8", "Sin cifrado + UTF-8")
+            (True, "utf-8", "Sin cifrado + UTF-8")
         ]
         best_text = None
         best_score = -1
