@@ -28,6 +28,7 @@ class TSCEditor:
                 'open_project': 'Open .cstsc project...',
                 'open_folder': 'Open project folder...',
                 'delete_from_list': 'Delete loaded TSC from this list',
+                'delete_all_from_list': 'Delete all TSCs from this list',
                 'export_tsc': 'Export .tsc...',
                 'save_project': 'Save project .cstsc...',
                 'settings': 'Settings...',
@@ -51,7 +52,7 @@ class TSCEditor:
                 'help_menu': 'Help',
                 'about': 'About...',
                 'search_label': 'Search file:',
-                'clear_btn': 'X',
+                'clear_btn': 'Clear',
                 'status_ready': 'Ready',
                 'open_project_dialog_title': 'Open .cstsc project',
                 'save_project_dialog_title': 'Save project',
@@ -61,7 +62,9 @@ class TSCEditor:
                 'hex_window_title': 'Hex dump (first 512 bytes)',
                 'settings_window_title': 'Settings',
                 'auto_save_label': 'Auto-save project (.cstsc) every 6 minutes',
+                'dark_theme_label': 'Dark theme',
                 'language_label': 'Language:',
+                'default_font_label': 'Default font:',
                 'apply_btn': 'Apply',
                 'close_btn': 'Close',
                 'cmd_info_title': 'Info',
@@ -132,6 +135,7 @@ class TSCEditor:
                 'custom_cmd_desc': 'Description:',
                 'custom_cmd_args': 'Number of arguments (0-4):',
                 'search_docs': 'Search command...',
+                'tsc_commands': 'Show command info',
             },
             'es': {
                 'window_title': 'TSC Editor+ - Edición Profesional',
@@ -140,6 +144,7 @@ class TSCEditor:
                 'open_project': 'Abrir proyecto .cstsc...',
                 'open_folder': 'Abrir carpeta de proyectos...',
                 'delete_from_list': 'Eliminar TSC cargado de esta lista',
+                'delete_all_from_list': 'Eliminar todos los TSC de esta lista',
                 'export_tsc': 'Exportar .tsc...',
                 'save_project': 'Guardar proyecto .cstsc...',
                 'settings': 'Configuración...',
@@ -163,7 +168,7 @@ class TSCEditor:
                 'help_menu': 'Ayuda',
                 'about': 'Acerca de...',
                 'search_label': 'Buscar archivo:',
-                'clear_btn': 'X',
+                'clear_btn': 'Limpiar',
                 'status_ready': 'Listo',
                 'open_project_dialog_title': 'Abrir proyecto .cstsc',
                 'save_project_dialog_title': 'Guardar proyecto',
@@ -173,7 +178,9 @@ class TSCEditor:
                 'hex_window_title': 'Vista hexadecimal (primeros 512 bytes)',
                 'settings_window_title': 'Configuración',
                 'auto_save_label': 'Auto-guardar proyecto (.cstsc) cada 6 minutos',
+                'dark_theme_label': 'Tema oscuro',
                 'language_label': 'Idioma:',
+                'default_font_label': 'Fuente predeterminada:',
                 'apply_btn': 'Aplicar',
                 'close_btn': 'Cerrar',
                 'cmd_info_title': 'Información',
@@ -244,6 +251,7 @@ class TSCEditor:
                 'custom_cmd_desc': 'Descripción:',
                 'custom_cmd_args': 'Número de argumentos (0-4):',
                 'search_docs': 'Buscar comando...',
+                'tsc_commands': 'Mostrar información del comando',
             },
             'jp': {
                 'window_title': 'TSC Editor+ - プロフェッショナル版',
@@ -252,6 +260,7 @@ class TSCEditor:
                 'open_project': '.cstscプロジェクトを開く...',
                 'open_folder': 'プロジェクトフォルダを開く...',
                 'delete_from_list': 'ロードしたTSCをこのリストから削除',
+                'delete_all_from_list': 'すべてのTSCをリストから削除',
                 'export_tsc': '.tscにエクスポート...',
                 'save_project': 'プロジェクトを保存.cstsc...',
                 'settings': '設定...',
@@ -275,7 +284,7 @@ class TSCEditor:
                 'help_menu': 'ヘルプ',
                 'about': 'このソフトについて...',
                 'search_label': 'ファイル検索:',
-                'clear_btn': 'X',
+                'clear_btn': 'クリア',
                 'status_ready': '準備完了',
                 'open_project_dialog_title': '.cstscプロジェクトを開く',
                 'save_project_dialog_title': 'プロジェクトを保存',
@@ -285,7 +294,9 @@ class TSCEditor:
                 'hex_window_title': '16進ダンプ（最初の512バイト）',
                 'settings_window_title': '設定',
                 'auto_save_label': 'プロジェクトを自動保存（.cstsc）6分ごと',
+                'dark_theme_label': 'ダークテーマ',
                 'language_label': '言語:',
+                'default_font_label': 'デフォルトフォント:',
                 'apply_btn': '適用',
                 'close_btn': '閉じる',
                 'cmd_info_title': '情報',
@@ -356,13 +367,14 @@ class TSCEditor:
                 'custom_cmd_desc': '説明:',
                 'custom_cmd_args': '引数の数（0-4）:',
                 'search_docs': 'コマンドを検索...',
+                'tsc_commands': 'コマンド情報を表示',
             }
         }
 
         self.current_lang = self.detect_language()
-        self.tr = self.langs[self.current_lang]
+        self.tr = self.langs.get(self.current_lang, self.langs['en'])
 
-        # ---------- COMANDOS BASE + PERSONALIZADOS ----------
+        # ---------- COMANDOS BASE (incluyendo XX1, XX2) ----------
         self.base_commands_data = self.load_base_commands()
         self.custom_commands_file = os.path.join(os.path.dirname(sys.argv[0]), "custom_commands.json")
         self.load_custom_commands()
@@ -386,12 +398,14 @@ class TSCEditor:
             "auto_save": False,
             "language": self.current_lang,
             "show_history": True,
-            "show_quick_docs": False
+            "show_quick_docs": False,
+            "default_font": "Courier New",
+            "dark_theme": False
         }
         self.load_settings()
         if self.settings.get("language") != self.current_lang:
             self.current_lang = self.settings["language"]
-            self.tr = self.langs[self.current_lang]
+            self.tr = self.langs.get(self.current_lang, self.langs['en'])
 
         # Fuentes disponibles
         self.available_fonts = ["Courier New", "Consolas"]
@@ -402,7 +416,7 @@ class TSCEditor:
         lucida_font_path = os.path.join(script_dir, "Lucida Grande Regular.ttf")
         if os.path.isfile(lucida_font_path):
             self.available_fonts.append("Lucida Grande")
-        self.current_font_name = tk.StringVar(value="Courier New")
+        self.current_font_name = tk.StringVar(value=self.settings.get("default_font", "Courier New"))
         self.base_font_size = 10
 
         # ---------- INTERFAZ PRINCIPAL ----------
@@ -466,7 +480,6 @@ class TSCEditor:
         docs_paned = tk.PanedWindow(self.docs_tab, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=4)
         docs_paned.pack(fill=tk.BOTH, expand=True)
 
-        # Buscador de comandos
         search_docs_frame = tk.Frame(self.docs_tab)
         search_docs_frame.pack(fill=tk.X, padx=5, pady=2)
         tk.Label(search_docs_frame, text=self.tr['search_docs']).pack(side=tk.LEFT)
@@ -502,6 +515,8 @@ class TSCEditor:
         self.context_menu.add_separator()
         self.context_menu.add_command(label=self.tr['count_chars'], command=self.count_characters_normal)
         self.context_menu.add_command(label=self.tr['count_chars_face'], command=self.count_characters_face)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label=self.tr['tsc_commands'], command=self.show_command_info)
         self.context_menu.add_separator()
         self.context_menu.add_command(label=self.tr['smart_replace'], command=self.smart_replace_special_chars)
         self.text_area.bind("<Button-3>", self.show_context_menu)
@@ -549,6 +564,7 @@ class TSCEditor:
         self.create_menus()
         self.apply_theme()
 
+        # Atajos de teclado
         self.root.bind("<Control-o>", lambda e: self.load_file())
         self.root.bind("<Control-s>", lambda e: self.save_project())
         self.root.bind("<Control-Shift-S>", lambda e: self.export_file())
@@ -558,6 +574,12 @@ class TSCEditor:
         self.root.bind("<Control-r>", lambda e: self.smart_replace_special_chars())
         self.root.bind("<Control-k>", lambda e: self.open_settings())
         self.root.bind("<F5>", lambda e: self.test_game())
+        self.root.bind("<Alt-F4>", lambda e: self.root.quit())
+        self.root.bind("<Control-Shift-O>", lambda e: self.load_project())
+        self.root.bind("<Control-Shift-Alt-O>", lambda e: self.load_folder())
+        self.root.bind("<Control-Delete>", lambda e: self.delete_current_from_list())
+        self.root.bind("<Control-Shift-Delete>", lambda e: self.delete_all_from_list())
+        self.root.bind("<Control-h>", lambda e: self.focus_history_tab())
 
         self.auto_save_timer = None
         if self.settings["auto_save"]:
@@ -566,27 +588,43 @@ class TSCEditor:
         self.history = []
         self.add_history_entry("Editor started")
 
-    # ---------------------- CAMBIO DE FUENTE CON CTRL+RUEDA ------------------
-    def on_ctrl_mousewheel(self, event):
-        delta = event.delta
-        if delta > 0:
-            self.change_font_size(1)
-        else:
-            self.change_font_size(-1)
+    # ---------------------- IDIOMA ------------------
+    def detect_language(self):
+        try:
+            lang_code = locale.getdefaultlocale()[0]
+            if lang_code:
+                if lang_code.startswith('es'):
+                    return 'es'
+                elif lang_code.startswith('ja'):
+                    return 'jp'
+        except:
+            pass
+        return 'en'
 
-    def change_font_size(self, delta):
-        new_size = self.base_font_size + delta
-        if 8 <= new_size <= 24:
-            self.base_font_size = new_size
-            self.update_font()
-            self.update_stats()
+    def update_ui_language(self):
+        self.tr = self.langs[self.current_lang]
+        self.root.title(self.tr['window_title'])
+        self.search_label.config(text=self.tr['search_label'])
+        self.clear_btn.config(text=self.tr['clear_btn'])
+        self.status_label.config(text=self.tr['status_ready'])
+        self.right_notebook.tab(0, text=self.tr['history'])
+        self.right_notebook.tab(1, text=self.tr['quick_docs'])
+        self.right_notebook.tab(2, text=self.tr['search_tab'])
+        self.context_menu.entryconfig(0, label=self.tr['copy'])
+        self.context_menu.entryconfig(1, label=self.tr['paste'])
+        self.context_menu.entryconfig(2, label=self.tr['cut'])
+        self.context_menu.entryconfig(4, label=self.tr['count_chars'])
+        self.context_menu.entryconfig(5, label=self.tr['count_chars_face'])
+        self.context_menu.entryconfig(7, label=self.tr['tsc_commands'])
+        self.context_menu.entryconfig(9, label=self.tr['smart_replace'])
+        self.create_menus()
+        self.update_stats()
 
-    # ---------------------- COMANDOS PERSONALIZABLES ------------------
+    # ---------------------- COMANDOS BASE ------------------
     def load_base_commands(self):
         return {
-            "AE+": ["0", "----", "Refill all weapon ammo."],
-            "AM+": ["2", "aA--", "Give weapon W with X ammo. Use 0000 for infinite ammo."],
-            "AM-": ["1", "a---", "Remove weapon W."],
+            "AE": ["0", "----", "<AE+ Refill all weapon ammo."],
+            "AM": ["2", "aA--", "<AM+ Give weapon W with X ammo. Use 0000 for infinite ammo. <AM- Remove weapon W."],
             "AMJ": ["2", "ae--", "Jump to event X if the PC has weapon W."],
             "ANP": ["3", "N#d-", "Animate entity W to scriptstate X and direction Y."],
             "BOA": ["1", "#---", "Give map-boss scriptstate W"],
@@ -605,17 +643,14 @@ class TSCEditor:
             "DNP": ["1", "N---", "Remove all entities W."],
             "ECJ": ["2", "#e--", "Jump to event X if any entities W exist."],
             "END": ["0", "----", "End current scripted event."],
-            "EQ+": ["1", "E---", "Equip item W (Booster, Map System, etc)."],
-            "EQ-": ["1", "E---", "Dequip item W."],
+            "EQ": ["1", "E---", "<EQ+ Equip item W (Booster, Map System, etc). <EQ- Dequip item W."],
             "ESC": ["0", "----", "Quit to title screen."],
             "EVE": ["1", "e---", "Go to event W."],
             "FAC": ["1", "f---", "Show face W in message box."],
             "FAI": ["1", "d---", "Fade in with direction W."],
             "FAO": ["1", "d---", "Fade out with direction W."],
-            "FL+": ["1", "F---", "Set flag W."],
-            "FL-": ["1", "F---", "Clear flag W."],
+            "FL": ["1", "F---", "<FL+ Set flag W. <FL- Clear flag W. <FLJ Jump to event X if flag W is set."],
             "FLA": ["0", "----", "Flash screen white."],
-            "FLJ": ["2", "Fe--", "Jump to event X if flag W is set."],
             "FMU": ["0", "----", "Fade music out."],
             "FOB": ["2", "N.--", "Focus on boss W in X ticks."],
             "FOM": ["1", ".---", "Focus on PC in W ticks."],
@@ -625,8 +660,7 @@ class TSCEditor:
             "HMC": ["0", "----", "Hide PC."],
             "INI": ["0", "----", "Reset memory and restart game."],
             "INP": ["3", "Nnd-", "Change entity W to type X, direction Y, set flag 0x8000."],
-            "IT+": ["1", "i---", "Give item W."],
-            "IT-": ["1", "i---", "Remove item W."],
+            "IT": ["1", "i---", "<IT+ Give item W. <IT- Remove item W."],
             "ITJ": ["2", "ie--", "Jump to event X if PC has item W."],
             "KEY": ["0", "----", "Lock player controls and hide status bars until <END."],
             "LDP": ["0", "----", "Load saved game."],
@@ -672,7 +706,8 @@ class TSCEditor:
             "UNJ": ["2", "#e--", "Jump if movement type W."],
             "WAI": ["1", ".---", "Pause script for W ticks."],
             "WAS": ["0", "----", "Wait until PC on ground."],
-            "XX1": ["1", "l---", "Island falling: 0000 crash, 0001 halt."],
+            "XX1": ["1", "l---", "Show the island falling in manner W. Use 0000 to crash, 0001 to stop midway."],
+            "XX2": ["1", "#---", "Set TimgFILE.png over the screen. The 'tag' for the file name must be exactly 4 characters."],
             "YNJ": ["1", "e---", "Yes/No prompt; jump to event W if No."],
             "ZAM": ["0", "----", "Reset all weapon energy to zero."],
             "LRX": ["3", "eee-", "Jump to W,X,Y if Left/Right/Shoot."],
@@ -705,206 +740,7 @@ class TSCEditor:
         self.commands_data = self.base_commands_data.copy()
         self.commands_data.update(self.custom_commands)
 
-    def edit_custom_commands(self):
-        win = Toplevel(self.root)
-        win.title(self.tr['edit_custom_cmds_title'])
-        win.geometry("700x500")
-        win.transient(self.root)
-        win.grab_set()
-
-        frame = tk.Frame(win)
-        frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        columns = ("name", "args", "desc")
-        tree = ttk.Treeview(frame, columns=columns, show="headings")
-        tree.heading("name", text="Command")
-        tree.heading("args", text="Args")
-        tree.heading("desc", text="Description")
-        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=tree.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        tree.configure(yscrollcommand=scrollbar.set)
-
-        for cmd, data in self.custom_commands.items():
-            tree.insert("", tk.END, values=(cmd, data[0], data[2]))
-
-        btn_frame = tk.Frame(win)
-        btn_frame.pack(fill=tk.X, padx=5, pady=5)
-
-        def add_cmd():
-            name = simpledialog.askstring("Add Command", self.tr['custom_cmd_name'], parent=win)
-            if not name or len(name) < 1 or len(name) > 4:
-                messagebox.showerror("Error", "Command name must be 1-4 letters.", parent=win)
-                return
-            name = name.upper()
-            if name in self.commands_data:
-                messagebox.showerror("Error", "Command already exists.", parent=win)
-                return
-            args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], minvalue=0, maxvalue=4, parent=win)
-            if args is None:
-                return
-            desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], parent=win)
-            if desc is None:
-                desc = ""
-            self.custom_commands[name] = [str(args), "----", desc]
-            self.save_custom_commands()
-            self.update_commands_data()
-            self.populate_quick_docs()
-            tree.insert("", tk.END, values=(name, args, desc))
-            self.refresh_current_file()
-
-        def edit_cmd():
-            selected = tree.selection()
-            if not selected:
-                return
-            name = tree.item(selected[0])['values'][0]
-            if name not in self.custom_commands:
-                return
-            current_args, _, current_desc = self.custom_commands[name]
-            new_args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], initialvalue=int(current_args), minvalue=0, maxvalue=4, parent=win)
-            if new_args is None:
-                return
-            new_desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], initialvalue=current_desc, parent=win)
-            if new_desc is None:
-                return
-            self.custom_commands[name] = [str(new_args), "----", new_desc]
-            self.save_custom_commands()
-            self.update_commands_data()
-            self.populate_quick_docs()
-            tree.item(selected[0], values=(name, new_args, new_desc))
-            self.refresh_current_file()
-
-        def remove_cmd():
-            selected = tree.selection()
-            if not selected:
-                return
-            name = tree.item(selected[0])['values'][0]
-            if name in self.custom_commands:
-                del self.custom_commands[name]
-                self.save_custom_commands()
-                self.update_commands_data()
-                self.populate_quick_docs()
-                tree.delete(selected[0])
-                self.refresh_current_file()
-
-        tk.Button(btn_frame, text="Add", command=add_cmd).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Edit", command=edit_cmd).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Remove", command=remove_cmd).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
-
-    # ---------------------- QUICK DOCS CON BUSCADOR ------------------
-    def populate_quick_docs(self):
-        self.all_docs_commands = sorted(self.commands_data.keys())
-        self.filter_quick_docs()
-
-    def filter_quick_docs(self):
-        search_text = self.docs_search_var.get().strip().lower()
-        self.docs_listbox.delete(0, tk.END)
-        for cmd in self.all_docs_commands:
-            if search_text == "" or search_text in cmd.lower():
-                self.docs_listbox.insert(tk.END, cmd)
-
-    def on_doc_select(self, event):
-        selection = self.docs_listbox.curselection()
-        if not selection:
-            return
-        cmd = self.docs_listbox.get(selection[0])
-        if cmd in self.commands_data:
-            num_args, types, desc = self.commands_data[cmd]
-            if num_args == "0":
-                syntax = f"<{cmd}>"
-            else:
-                arg_list = []
-                for i in range(int(num_args)):
-                    arg_char = types[i] if i < len(types) else "?"
-                    arg_list.append(f"<{arg_char}>")
-                syntax = f"<{cmd} " + " ".join(arg_list) + ">"
-            extra = ""
-            if cmd == "FAC":
-                extra = f"\n{self.tr['face_name']}: {self.face_names.get('0000', '?')}"
-            elif cmd == "CMU":
-                extra = f"\n{self.tr['music_name']}: Check music ID list"
-            info = f"{self.tr['command']}: {cmd}\n\n{self.tr['syntax']}: {syntax}\n\n{self.tr['description']}: {desc}\n"
-            if extra:
-                info += f"\n{self.tr['details']}:{extra}"
-            self.docs_detail.config(state=tk.NORMAL)
-            self.docs_detail.delete(1.0, tk.END)
-            self.docs_detail.insert(tk.END, info)
-            self.docs_detail.config(state=tk.DISABLED)
-
-    # ---------------------- AUTO-DETECCIÓN ------------------
-    def auto_detect_and_load(self, raw_data: bytes, file_path: str):
-        candidates = [
-            (True, "shift_jis", "Cifrado + Shift-JIS"),
-            (True, "cp932", "Cifrado + CP932"),
-            (False, "latin-1", "Sin cifrado + Latin-1"),
-            (False, "cp850", "Sin cifrado + CP850"),
-            (False, "utf-8", "Sin cifrado + UTF-8")
-        ]
-        best_text = None
-        best_score = -1
-        best_cipher = None
-        best_encoding = None
-        best_desc = ""
-
-        for use_cipher, enc, desc in candidates:
-            try:
-                if use_cipher:
-                    cipher = self.get_cipher_from_tsc(raw_data)
-                    decrypted = self.decrypt_tsc(raw_data, cipher)
-                else:
-                    decrypted = raw_data
-                    cipher = 0
-                text = decrypted.decode(enc, errors="replace")
-                printable = sum(1 for c in text if c.isprintable() or c in '\n\r\t')
-                total = len(text)
-                if total == 0:
-                    score = 0
-                else:
-                    ratio = printable / total
-                    bonus = 0
-                    if re.search(r'<[A-Z]{1,3}[+-]?', text):
-                        bonus += 20
-                    if re.search(r'#[0-9A-F]{4}', text):
-                        bonus += 10
-                    score = ratio * 100 + bonus
-                if score > best_score:
-                    best_score = score
-                    best_text = text
-                    best_cipher = cipher if use_cipher else None
-                    best_encoding = enc
-                    best_desc = desc
-            except:
-                continue
-
-        if best_text is not None:
-            self.load_text_to_editor(best_text, file_path, best_cipher, best_encoding, apply_load_conversion=False)
-            self.status_label.config(text=f"Cargado: {os.path.basename(file_path)} | {best_desc}")
-            self.add_history_entry(f"Opened TSC: {os.path.basename(file_path)} (cipher={best_cipher}, enc={best_encoding})")
-        else:
-            messagebox.showerror("Error", "No se pudo decodificar el archivo con ninguna combinación.")
-
-    # ---------------------- CARGA DE .tsc ------------------
-    def load_file(self):
-        file_path = filedialog.askopenfilename(
-            title=self.tr['open_tsc'],
-            filetypes=[("Archivos TSC", "*.tsc"), ("Todos los archivos", "*.*")]
-        )
-        if not file_path:
-            return
-        self.load_specific_tsc(file_path)
-
-    def load_specific_tsc(self, file_path):
-        try:
-            with open(file_path, "rb") as f:
-                raw_data = f.read()
-            self.raw_bytes_for_hex = raw_data
-            self.auto_detect_and_load(raw_data, file_path)
-        except Exception as e:
-            messagebox.showerror(self.tr['load_error'], f"Could not load {os.path.basename(file_path)}:\n{str(e)}")
-
-    # ---------------------- SINTÁXIS (ahora reconoce + y -) ------------------
+    # ---------------------- SINTAXIS Y RESALTADO ------------------
     def check_syntax(self, text):
         errors = []
         i = 0
@@ -923,11 +759,17 @@ class TSCEditor:
                     i += 1
             elif ch == '<':
                 j = i+1
-                # Permitir letras y opcionalmente '+' o '-' al final
-                while j < n and (text[j].isalpha() or (j == i+1 and text[j] in '+-')):
+                letras = []
+                while j < n and text[j].isalpha() and len(letras) < 3:
+                    letras.append(text[j])
                     j += 1
-                cmd_name = text[i+1:j].upper()
-                # Eliminar el '+/-' final si existe para la búsqueda en el diccionario
+                if j < n and text[j].isdigit() and (j - i) <= 4:
+                    letras.append(text[j])
+                    j += 1
+                if j < n and text[j] in '+-':
+                    letras.append(text[j])
+                    j += 1
+                cmd_name = ''.join(letras).upper()
                 base_cmd = cmd_name.rstrip('+-')
                 if base_cmd in self.commands_data:
                     num_args = int(self.commands_data[base_cmd][0])
@@ -952,14 +794,13 @@ class TSCEditor:
                                 })
                     i = pos
                 else:
-                    # No es comando conocido, marcar solo si el nombre es de 1-4 letras (sin contar +/-)
                     if len(base_cmd) <= 4:
                         errors.append({
                             'offset': i,
-                            'length': min(4, n-i),
+                            'length': j - i,
                             'message': f"Unknown command '<{cmd_name}>' at position {i}."
                         })
-                    i += 1
+                    i = j
             else:
                 i += 1
         return errors
@@ -971,9 +812,11 @@ class TSCEditor:
         for err in errors:
             start = f"1.0 + {err['offset']} chars"
             end = f"1.0 + {err['offset'] + err['length']} chars"
-            self.text_area.tag_add("error", start, end)
+            # No sobreescribir tags de comandos válidos
+            tags = self.text_area.tag_names(start)
+            if not any(t in tags for t in ("comando_letras", "comando_digitos")):
+                self.text_area.tag_add("error", start, end)
 
-    # ---------------------- RESALTADO DE SINTAXIS ------------------
     def highlight_syntax(self):
         for tag in ("evento", "comando_letras", "comando_digitos", "comando_id", "error", "special_warning"):
             self.text_area.tag_remove(tag, "1.0", tk.END)
@@ -988,8 +831,8 @@ class TSCEditor:
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("evento", start, end)
 
-        # Comandos (1-3 letras + opcional +/-) y opcional 4 dígitos
-        patron_comando = r'<([A-Z]{1,3}[+-]?)([0-9]{4})?'
+        # Comandos (nombre y argumentos)
+        patron_comando = r'<([A-Z]{1,3}[0-9]?[+-]?)([0-9]{4})?'
         for match in re.finditer(patron_comando, texto):
             start_cmd = match.start()
             end_letters = match.end(1)
@@ -1014,19 +857,25 @@ class TSCEditor:
                 end_pos = f"1.0 + {match.end()} chars"
                 self.text_area.tag_add("comando_id", start_pos, end_pos)
 
-        # Caracteres no estándar (çÄËÏÖÜäëïöü) - advertencia roja
-        patron_extra = r'[çÄËÏÖÜäëïöü]'
-        for match in re.finditer(patron_extra, texto):
+        # Caracteres especiales (rojo)
+        patron_especial = r'[áéíóúüñÁÉÍÓÚÜÑ¡¿çÄËÏÖÜäëïöü]'
+        for match in re.finditer(patron_especial, texto):
             start = f"1.0 + {match.start()} chars"
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("special_warning", start, end)
 
-        # Errores de sintaxis
+        # Errores de sintaxis (evitar solapamiento)
         errors = self.check_syntax(texto)
         for err in errors:
             start = f"1.0 + {err['offset']} chars"
             end = f"1.0 + {err['offset'] + err['length']} chars"
-            self.text_area.tag_add("error", start, end)
+            tags = self.text_area.tag_names(start)
+            if not any(t in tags for t in ("comando_letras", "comando_digitos")):
+                self.text_area.tag_add("error", start, end)
+
+        # Asegurar prioridad de comandos sobre error
+        self.text_area.tag_raise("comando_letras")
+        self.text_area.tag_raise("comando_digitos")
 
     # ---------------------- BÚSQUEDA Y REEMPLAZO ------------------
     def create_search_widgets(self):
@@ -1114,7 +963,6 @@ class TSCEditor:
                     self.text_area.mark_set(tk.INSERT, end)
                     self.text_area.see(start)
                     return
-            # wrap around
             if len(regex.findall(text)) > 0:
                 match = regex.search(text)
                 start = f"1.0 + {match.start()} chars"
@@ -1225,254 +1073,59 @@ class TSCEditor:
         self.right_notebook.select(self.search_tab)
         self.search_entry.focus_set()
 
-    # ---------------------- MÉTODOS DE EDICIÓN Y HISTORIAL ------------------
-    def copy_text(self):
-        try:
-            self.text_area.event_generate("<<Copy>>")
-            self.add_history_entry("Copied")
-        except:
-            pass
+    # ---------------------- AUTO-DETECCIÓN DE CIFRADO ------------------
+    def auto_detect_and_load(self, raw_data: bytes, file_path: str):
+        candidates = [
+            (True, "shift_jis", "Cifrado + Shift-JIS"),
+            (True, "cp932", "Cifrado + CP932"),
+            (False, "latin-1", "Sin cifrado + Latin-1"),
+            (False, "cp850", "Sin cifrado + CP850"),
+            (False, "utf-8", "Sin cifrado + UTF-8")
+        ]
+        best_text = None
+        best_score = -1
+        best_cipher = None
+        best_encoding = None
+        best_desc = ""
 
-    def paste_text(self):
-        try:
-            self.text_area.event_generate("<<Paste>>")
-            self.add_history_entry("Pasted")
-        except:
-            pass
-
-    def cut_text(self):
-        try:
-            self.text_area.event_generate("<<Cut>>")
-            self.add_history_entry("Cut")
-        except:
-            pass
-
-    def add_history_entry(self, action):
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        entry = f"[{timestamp}] {action}"
-        self.history.append(entry)
-        self.history_listbox.insert(tk.END, entry)
-        self.history_listbox.see(tk.END)
-        if len(self.history) > 1000:
-            self.history.pop(0)
-            self.history_listbox.delete(0)
-
-    def on_paste(self, event=None):
-        self.root.after(10, lambda: self.add_history_entry("Pasted"))
-        self.update_stats()
-
-    def on_cut(self, event=None):
-        self.root.after(10, lambda: self.add_history_entry("Cut"))
-        self.update_stats()
-
-    def on_copy(self, event=None):
-        self.add_history_entry("Copied")
-
-    def on_backspace(self, event=None):
-        self.add_history_entry("Backspace")
-        self.update_stats()
-
-    def on_enter(self, event=None):
-        self.add_history_entry("Enter")
-        self.update_stats()
-
-    def on_space(self, event=None):
-        self.add_history_entry("Space")
-        self.update_stats()
-
-    def on_text_change(self, event=None):
-        self.delayed_highlight()
-        self.update_stats()
-        if self.settings["auto_save"] and self.current_file and self.current_file.endswith(".cstsc"):
-            self.save_project()
-        if event and event.char and event.char.isprintable():
-            self.add_history_entry("Handwrite")
-
-    def on_cursor_move(self, event=None):
-        self.update_stats()
-
-    def update_stats(self):
-        text = self.text_area.get("1.0", tk.END)
-        lines = len(text.splitlines())
-        chars = len(text) - 1
-        self.stats_label.config(text=f"{self.tr['lines']}: {lines}  |  {self.tr['chars']}: {chars}")
-
-    # ---------------------- SMART REPLACE SPECIAL CHARACTERS ------------------
-    def smart_replace_special_chars(self):
-        try:
-            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
-            has_selection = True
-        except tk.TclError:
-            selected = self.text_area.get("1.0", tk.END)
-            has_selection = False
-        if not selected.strip():
-            messagebox.showinfo(self.tr['smart_replace_title'], "No text to process.")
-            return
-
-        dialog = tk.Toplevel(self.root)
-        dialog.title(self.tr['smart_replace_title'])
-        dialog.geometry("450x320")
-        dialog.transient(self.root)
-        dialog.grab_set()
-        dialog.resizable(False, False)
-
-        var_nn = tk.BooleanVar(value=True)
-        var_accents = tk.BooleanVar(value=True)
-        var_symbols = tk.BooleanVar(value=True)
-        var_all = tk.BooleanVar(value=False)
-
-        def update_all():
-            if var_all.get():
-                var_nn.set(True)
-                var_accents.set(True)
-                var_symbols.set(True)
-
-        tk.Label(dialog, text="Select which characters to replace/remove:", font=("Segoe UI", 10, "bold")).pack(pady=10)
-        tk.Checkbutton(dialog, text=self.tr['option_nn'], variable=var_nn, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
-        tk.Checkbutton(dialog, text=self.tr['option_accents'], variable=var_accents, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
-        tk.Checkbutton(dialog, text=self.tr['option_symbols'], variable=var_symbols, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
-        tk.Checkbutton(dialog, text=self.tr['option_all'], variable=var_all, command=update_all).pack(anchor=tk.W, padx=20, pady=10)
-
-        btn_frame = tk.Frame(dialog)
-        btn_frame.pack(pady=20)
-
-        def apply_changes():
-            new_text = selected
-            if var_nn.get():
-                new_text = new_text.replace('ñ', 'n').replace('Ñ', 'N')
-            if var_accents.get():
-                accent_map = {
-                    'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
-                    'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U'
-                }
-                for acc, repl in accent_map.items():
-                    new_text = new_text.replace(acc, repl)
-            if var_symbols.get():
-                new_text = new_text.replace('¡', '').replace('¿', '')
-
-            if new_text != selected:
-                msg = self.tr['backup_warning']
-                if not messagebox.askyesno(self.tr['confirm'], msg, parent=dialog):
-                    return
-                if has_selection:
-                    self.text_area.delete(tk.SEL_FIRST, tk.SEL_LAST)
-                    self.text_area.insert(tk.INSERT, new_text)
+        for use_cipher, enc, desc in candidates:
+            try:
+                if use_cipher:
+                    cipher = self.get_cipher_from_tsc(raw_data)
+                    decrypted = self.decrypt_tsc(raw_data, cipher)
                 else:
-                    self.text_area.delete("1.0", tk.END)
-                    self.text_area.insert("1.0", new_text)
-                self.add_history_entry("Applied smart character replacement")
-                messagebox.showinfo(self.tr['done'], "Special characters replaced/removed.", parent=dialog)
-            else:
-                messagebox.showinfo(self.tr['no_changes'], "No characters to replace.", parent=dialog)
-            dialog.destroy()
+                    decrypted = raw_data
+                    cipher = 0
+                text = decrypted.decode(enc, errors="replace")
+                printable = sum(1 for c in text if c.isprintable() or c in '\n\r\t')
+                total = len(text)
+                if total == 0:
+                    score = 0
+                else:
+                    ratio = printable / total
+                    bonus = 0
+                    if re.search(r'<[A-Z]{1,3}[+-]?', text):
+                        bonus += 20
+                    if re.search(r'#[0-9A-F]{4}', text):
+                        bonus += 10
+                    score = ratio * 100 + bonus
+                if score > best_score:
+                    best_score = score
+                    best_text = text
+                    best_cipher = cipher if use_cipher else None
+                    best_encoding = enc
+                    best_desc = desc
+            except:
+                continue
 
-        tk.Button(btn_frame, text=self.tr['apply_btn'], command=apply_changes, width=10).pack(side=tk.LEFT, padx=10)
-        tk.Button(btn_frame, text=self.tr['close_btn'], command=dialog.destroy, width=10).pack(side=tk.LEFT, padx=10)
-
-    # ---------------------- FILTER SPECIAL CHARACTERS ------------------
-    def filter_special_characters(self):
-        try:
-            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
-        except tk.TclError:
-            selected = self.text_area.get("1.0", tk.END)
-        if not selected.strip():
-            messagebox.showinfo("Filter Special Characters", "No text to analyze.")
-            return
-
-        groups = {
-            'ñ': 'ñ', 'Ñ': 'Ñ',
-            'á': 'á', 'é': 'é', 'í': 'í', 'ó': 'ó', 'ú': 'ú',
-            'Á': 'Á', 'É': 'É', 'Í': 'Í', 'Ó': 'Ó', 'Ú': 'Ú',
-            'ü': 'ü', 'Ü': 'Ü', '¡': '¡', '¿': '¿',
-            'ç': 'ç', 'Ä': 'Ä', 'Ë': 'Ë', 'Ï': 'Ï', 'Ö': 'Ö', 'Ü': 'Ü', 'ä': 'ä', 'ë': 'ë', 'ï': 'ï', 'ö': 'ö', 'ü': 'ü'
-        }
-        counts = {}
-        total = 0
-        for ch in selected:
-            if ch in groups:
-                counts[ch] = counts.get(ch, 0) + 1
-                total += 1
-        if total == 0:
-            messagebox.showinfo("Filter Special Characters", "No special characters found.")
-            return
-        msg = f"Total special characters: {total}\n\n"
-        for ch, cnt in sorted(counts.items()):
-            msg += f"{ch}: {cnt}\n"
-        msg += "\n(These characters may not display correctly in Cave Story.)"
-        messagebox.showinfo("Filter Special Characters", msg)
-
-    # ---------------------- BARRA LATERAL Y BUSCADOR DE ARCHIVOS ------------------
-    def load_folder(self):
-        folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
-        if not folder:
-            return
-        self.current_folder = folder
-        self.refresh_file_list()
-        self.search_var.set("")
-        self.filter_files()
-
-    def refresh_file_list(self):
-        self.all_files = []
-        if not self.current_folder:
-            return
-        for root_dir, dirs, files in os.walk(self.current_folder):
-            for file in files:
-                if file.lower().endswith(".tsc"):
-                    rel_path = os.path.relpath(os.path.join(root_dir, file), self.current_folder)
-                    full_path = os.path.join(root_dir, file)
-                    self.all_files.append((rel_path, full_path))
-        self.all_files.sort(key=lambda x: x[0].lower())
-        self.filter_files()
-
-    def filter_files(self):
-        search_text = self.search_var.get().strip().lower()
-        self.file_listbox.delete(0, tk.END)
-        self.file_listbox._paths = {}
-        for rel_path, full_path in self.all_files:
-            filename = os.path.basename(rel_path)
-            name_no_ext = os.path.splitext(filename)[0].lower()
-            if search_text == "" or search_text in name_no_ext:
-                self.file_listbox.insert(tk.END, rel_path)
-                self.file_listbox._paths[rel_path] = full_path
-
-    def clear_search(self):
-        self.search_var.set("")
-        self.filter_files()
-
-    def on_file_select(self, event):
-        selection = self.file_listbox.curselection()
-        if not selection:
-            return
-        rel_path = self.file_listbox.get(selection[0])
-        full_path = getattr(self.file_listbox, '_paths', {}).get(rel_path)
-        if full_path and os.path.isfile(full_path):
-            self.load_specific_tsc(full_path)
-
-    def delete_current_from_list(self):
-        """Elimina el archivo actual de la lista lateral sin borrarlo del disco."""
-        if not self.current_file:
-            messagebox.showinfo("Info", "No hay un archivo cargado.")
-            return
-        rel_path = None
-        for rp, fp in self.all_files:
-            if fp == self.current_file:
-                rel_path = rp
-                break
-        if rel_path:
-            # Eliminar de la lista de archivos
-            self.all_files = [(r, f) for r, f in self.all_files if f != self.current_file]
-            self.filter_files()
-            # Cerrar el archivo actual y limpiar editor
-            self.text_area.delete("1.0", tk.END)
-            self.current_file = None
-            self.current_cipher = None
-            self.status_label.config(text="Archivo eliminado de la lista.")
-            self.add_history_entry("Removed current file from list")
+        if best_text is not None:
+            self.load_text_to_editor(best_text, file_path, best_cipher, best_encoding)
+            self.status_label.config(text=f"Cargado: {os.path.basename(file_path)} | {best_desc}")
+            self.add_history_entry(f"Opened TSC: {os.path.basename(file_path)} (cipher={best_cipher}, enc={best_encoding})")
         else:
-            messagebox.showinfo("Info", "El archivo actual no está en la lista lateral.")
+            messagebox.showerror("Error", "No se pudo decodificar el archivo con ninguna combinación.")
 
-    # ---------------------- CARGA Y GUARDADO DE ARCHIVOS ------------------
-    def load_text_to_editor(self, text, file_path, cipher, encoding, apply_load_conversion=False):
+    def load_text_to_editor(self, text, file_path, cipher, encoding):
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert("1.0", text)
         self.text_area.edit_reset()
@@ -1481,6 +1134,25 @@ class TSCEditor:
         self.current_encoding = encoding
         self.delayed_highlight()
         self.update_stats()
+
+    # ---------------------- CARGA Y GUARDADO DE ARCHIVOS ------------------
+    def load_file(self):
+        file_path = filedialog.askopenfilename(
+            title=self.tr['open_tsc'],
+            filetypes=[("Archivos TSC", "*.tsc"), ("Todos los archivos", "*.*")]
+        )
+        if not file_path:
+            return
+        self.load_specific_tsc(file_path)
+
+    def load_specific_tsc(self, file_path):
+        try:
+            with open(file_path, "rb") as f:
+                raw_data = f.read()
+            self.raw_bytes_for_hex = raw_data
+            self.auto_detect_and_load(raw_data, file_path)
+        except Exception as e:
+            messagebox.showerror(self.tr['load_error'], f"Could not load {os.path.basename(file_path)}:\n{str(e)}")
 
     def export_file(self):
         if not self.confirm_save_with_errors():
@@ -1555,7 +1227,7 @@ class TSCEditor:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 text = f.read()
-            self.load_text_to_editor(text, file_path, None, "utf-8", apply_load_conversion=False)
+            self.load_text_to_editor(text, file_path, None, "utf-8")
             self.status_label.config(text=f"Project loaded: {os.path.basename(file_path)}")
             self.add_history_entry(f"Opened project: {os.path.basename(file_path)}")
         except Exception as e:
@@ -1575,37 +1247,215 @@ class TSCEditor:
             return messagebox.askyesno(self.tr['syntax_errors'], self.tr['syntax_errors_found'])
         return True
 
-    # ---------------------- CONFIGURACIÓN ------------------
-    def detect_language(self):
-        try:
-            lang_code = locale.getdefaultlocale()[0]
-            if lang_code:
-                if lang_code.startswith('es'):
-                    return 'es'
-                elif lang_code.startswith('ja'):
-                    return 'jp'
-        except:
-            pass
-        return 'en'
+    # ---------------------- BARRA LATERAL Y BUSCADOR DE ARCHIVOS ------------------
+    def load_folder(self):
+        folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
+        if not folder:
+            return
+        self.current_folder = folder
+        self.refresh_file_list()
+        self.search_var.set("")
+        self.filter_files()
 
-    def update_ui_language(self):
-        self.tr = self.langs[self.current_lang]
-        self.root.title(self.tr['window_title'])
-        self.search_label.config(text=self.tr['search_label'])
-        self.clear_btn.config(text=self.tr['clear_btn'])
-        self.status_label.config(text=self.tr['status_ready'])
-        self.right_notebook.tab(0, text=self.tr['history'])
-        self.right_notebook.tab(1, text=self.tr['quick_docs'])
-        self.right_notebook.tab(2, text=self.tr['search_tab'])
-        self.context_menu.entryconfig(0, label=self.tr['copy'])
-        self.context_menu.entryconfig(1, label=self.tr['paste'])
-        self.context_menu.entryconfig(2, label=self.tr['cut'])
-        self.context_menu.entryconfig(4, label=self.tr['count_chars'])
-        self.context_menu.entryconfig(5, label=self.tr['count_chars_face'])
-        self.context_menu.entryconfig(7, label=self.tr['smart_replace'])
-        self.create_menus()
-        self.update_stats()
+    def refresh_file_list(self):
+        self.all_files = []
+        if not self.current_folder:
+            return
+        for root_dir, dirs, files in os.walk(self.current_folder):
+            for file in files:
+                if file.lower().endswith(".tsc"):
+                    rel_path = os.path.relpath(os.path.join(root_dir, file), self.current_folder)
+                    full_path = os.path.join(root_dir, file)
+                    self.all_files.append((rel_path, full_path))
+        self.all_files.sort(key=lambda x: x[0].lower())
+        self.filter_files()
 
+    def filter_files(self):
+        search_text = self.search_var.get().strip().lower()
+        self.file_listbox.delete(0, tk.END)
+        self.file_listbox._paths = {}
+        for rel_path, full_path in self.all_files:
+            filename = os.path.basename(rel_path)
+            name_no_ext = os.path.splitext(filename)[0].lower()
+            if search_text == "" or search_text in name_no_ext:
+                self.file_listbox.insert(tk.END, rel_path)
+                self.file_listbox._paths[rel_path] = full_path
+
+    def clear_search(self):
+        self.search_var.set("")
+        self.filter_files()
+
+    def on_file_select(self, event):
+        selection = self.file_listbox.curselection()
+        if not selection:
+            return
+        rel_path = self.file_listbox.get(selection[0])
+        full_path = getattr(self.file_listbox, '_paths', {}).get(rel_path)
+        if full_path and os.path.isfile(full_path):
+            self.load_specific_tsc(full_path)
+
+    def delete_current_from_list(self):
+        if not self.current_file:
+            messagebox.showinfo("Info", "No hay un archivo cargado.")
+            return
+        rel_path = None
+        for rp, fp in self.all_files:
+            if fp == self.current_file:
+                rel_path = rp
+                break
+        if rel_path:
+            self.all_files = [(r, f) for r, f in self.all_files if f != self.current_file]
+            self.filter_files()
+            self.text_area.delete("1.0", tk.END)
+            self.current_file = None
+            self.current_cipher = None
+            self.status_label.config(text="Archivo eliminado de la lista.")
+            self.add_history_entry("Removed current file from list")
+        else:
+            messagebox.showinfo("Info", "El archivo actual no está en la lista lateral.")
+
+    def delete_all_from_list(self):
+        if not self.all_files:
+            messagebox.showinfo("Info", "No hay archivos en la lista.")
+            return
+        if messagebox.askyesno("Confirmar", "¿Eliminar TODOS los archivos de la lista lateral?\n(NO se borrarán del disco)"):
+            self.all_files = []
+            self.filter_files()
+            self.text_area.delete("1.0", tk.END)
+            self.current_file = None
+            self.current_cipher = None
+            self.status_label.config(text="Lista limpiada.")
+            self.add_history_entry("Cleared all files from list")
+
+    # ---------------------- QUICK DOCS ------------------
+    def populate_quick_docs(self):
+        self.all_docs_commands = sorted(self.commands_data.keys())
+        self.filter_quick_docs()
+
+    def filter_quick_docs(self):
+        search_text = self.docs_search_var.get().strip().lower()
+        self.docs_listbox.delete(0, tk.END)
+        for cmd in self.all_docs_commands:
+            if search_text == "" or search_text in cmd.lower():
+                self.docs_listbox.insert(tk.END, cmd)
+
+    def on_doc_select(self, event):
+        selection = self.docs_listbox.curselection()
+        if not selection:
+            return
+        cmd = self.docs_listbox.get(selection[0])
+        if cmd in self.commands_data:
+            num_args, types, desc = self.commands_data[cmd]
+            if num_args == "0":
+                syntax = f"<{cmd}>"
+            else:
+                arg_list = []
+                for i in range(int(num_args)):
+                    arg_char = types[i] if i < len(types) else "?"
+                    arg_list.append(f"<{arg_char}>")
+                syntax = f"<{cmd} " + " ".join(arg_list) + ">"
+            extra = ""
+            if cmd == "FAC":
+                extra = f"\n{self.tr['face_name']}: {self.face_names.get('0000', '?')}"
+            elif cmd == "CMU":
+                extra = f"\n{self.tr['music_name']}: Check music ID list"
+            info = f"{self.tr['command']}: {cmd}\n\n{self.tr['syntax']}: {syntax}\n\n{self.tr['description']}: {desc}\n"
+            if extra:
+                info += f"\n{self.tr['details']}:{extra}"
+            self.docs_detail.config(state=tk.NORMAL)
+            self.docs_detail.delete(1.0, tk.END)
+            self.docs_detail.insert(tk.END, info)
+            self.docs_detail.config(state=tk.DISABLED)
+
+    def edit_custom_commands(self):
+        win = Toplevel(self.root)
+        win.title(self.tr['edit_custom_cmds_title'])
+        win.geometry("700x500")
+        win.transient(self.root)
+        win.grab_set()
+
+        frame = tk.Frame(win)
+        frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        columns = ("name", "args", "desc")
+        tree = ttk.Treeview(frame, columns=columns, show="headings")
+        tree.heading("name", text="Command")
+        tree.heading("args", text="Args")
+        tree.heading("desc", text="Description")
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        for cmd, data in self.custom_commands.items():
+            tree.insert("", tk.END, values=(cmd, data[0], data[2]))
+
+        btn_frame = tk.Frame(win)
+        btn_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        def add_cmd():
+            name = simpledialog.askstring("Add Command", self.tr['custom_cmd_name'], parent=win)
+            if not name or len(name) < 1 or len(name) > 4:
+                messagebox.showerror("Error", "Command name must be 1-4 letters.", parent=win)
+                return
+            name = name.upper()
+            if name in self.commands_data:
+                messagebox.showerror("Error", "Command already exists.", parent=win)
+                return
+            args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], minvalue=0, maxvalue=4, parent=win)
+            if args is None:
+                return
+            desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], parent=win)
+            if desc is None:
+                desc = ""
+            self.custom_commands[name] = [str(args), "----", desc]
+            self.save_custom_commands()
+            self.update_commands_data()
+            self.populate_quick_docs()
+            tree.insert("", tk.END, values=(name, args, desc))
+            self.refresh_current_file()
+
+        def edit_cmd():
+            selected = tree.selection()
+            if not selected:
+                return
+            name = tree.item(selected[0])['values'][0]
+            if name not in self.custom_commands:
+                return
+            current_args, _, current_desc = self.custom_commands[name]
+            new_args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], initialvalue=int(current_args), minvalue=0, maxvalue=4, parent=win)
+            if new_args is None:
+                return
+            new_desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], initialvalue=current_desc, parent=win)
+            if new_desc is None:
+                return
+            self.custom_commands[name] = [str(new_args), "----", new_desc]
+            self.save_custom_commands()
+            self.update_commands_data()
+            self.populate_quick_docs()
+            tree.item(selected[0], values=(name, new_args, new_desc))
+            self.refresh_current_file()
+
+        def remove_cmd():
+            selected = tree.selection()
+            if not selected:
+                return
+            name = tree.item(selected[0])['values'][0]
+            if name in self.custom_commands:
+                del self.custom_commands[name]
+                self.save_custom_commands()
+                self.update_commands_data()
+                self.populate_quick_docs()
+                tree.delete(selected[0])
+                self.refresh_current_file()
+
+        tk.Button(btn_frame, text="Add", command=add_cmd).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Edit", command=edit_cmd).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Remove", command=remove_cmd).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
+
+    # ---------------------- CONFIGURACIÓN Y TEMA OSCURO ------------------
     def load_settings(self):
         if os.path.exists(self.settings_file):
             try:
@@ -1620,12 +1470,32 @@ class TSCEditor:
             json.dump(self.settings, f, indent=2)
 
     def apply_theme(self):
-        bg_color = "#f0f0f0"
-        fg_color = "#000000"
-        select_bg = "#0078D7"
-        text_bg = "#ffffff"
-        paned_bg = "#f0f0f0"
-        button_bg = "#f0f0f0"
+        if self.settings.get("dark_theme", False):
+            bg_color = "#2b2b2b"
+            fg_color = "#ffffff"
+            select_bg = "#3c3c3c"
+            text_bg = "#1e1e1e"
+            paned_bg = "#2b2b2b"
+            button_bg = "#3c3c3c"
+            cmd_color = "#88AAFF"
+            digit_color = "#FF88BB"
+            id_color = "#FF88BB"
+            error_color = "#FF6666"
+            special_color = "#FF6666"
+            search_bg = "#444400"
+        else:
+            bg_color = "#f0f0f0"
+            fg_color = "#000000"
+            select_bg = "#0078D7"
+            text_bg = "#ffffff"
+            paned_bg = "#f0f0f0"
+            button_bg = "#f0f0f0"
+            cmd_color = "#0000FF"
+            digit_color = "#C7158C"
+            id_color = "#C7158C"
+            error_color = "#FF0000"
+            special_color = "#FF0000"
+            search_bg = "yellow"
 
         self.root.configure(bg=bg_color)
         self.main_paned.configure(bg=paned_bg, sashrelief=tk.RAISED)
@@ -1645,17 +1515,17 @@ class TSCEditor:
         self.clear_btn.configure(bg=button_bg, fg=fg_color)
         self.search_label.configure(bg=bg_color, fg=fg_color)
 
-        self.text_area.tag_configure("comando_letras", foreground="#0000FF")
-        self.text_area.tag_configure("comando_digitos", foreground="#C7158C")
-        self.text_area.tag_configure("comando_id", foreground="#C7158C")
-        self.text_area.tag_configure("error", foreground="#FF0000")
-        self.text_area.tag_configure("special_warning", foreground="#FF0000")
-        self.text_area.tag_configure("search_highlight", background="yellow")
+        self.text_area.tag_configure("comando_letras", foreground=cmd_color)
+        self.text_area.tag_configure("comando_digitos", foreground=digit_color)
+        self.text_area.tag_configure("comando_id", foreground=id_color)
+        self.text_area.tag_configure("error", foreground=error_color)
+        self.text_area.tag_configure("special_warning", foreground=special_color)
+        self.text_area.tag_configure("search_highlight", background=search_bg)
 
     def open_settings(self):
         win = Toplevel(self.root)
         win.title(self.tr['settings_window_title'])
-        win.geometry("450x300")
+        win.geometry("450x400")
         win.transient(self.root)
         win.grab_set()
 
@@ -1667,25 +1537,40 @@ class TSCEditor:
             else:
                 self.stop_auto_save()
             self.save_settings()
-        tk.Checkbutton(win, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto).pack(anchor=tk.W, padx=20, pady=10)
+        tk.Checkbutton(win, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto).pack(anchor=tk.W, padx=20, pady=5)
+
+        dark_var = BooleanVar(value=self.settings["dark_theme"])
+        def toggle_dark():
+            self.settings["dark_theme"] = dark_var.get()
+            self.apply_theme()
+            self.save_settings()
+        tk.Checkbutton(win, text=self.tr['dark_theme_label'], variable=dark_var, command=toggle_dark).pack(anchor=tk.W, padx=20, pady=5)
 
         tk.Label(win, text=self.tr['language_label']).pack(anchor=tk.W, padx=20, pady=(10,0))
         lang_var = tk.StringVar(value=self.current_lang)
         lang_menu = ttk.Combobox(win, textvariable=lang_var, values=['en', 'es', 'jp'], state="readonly")
         lang_menu.pack(anchor=tk.W, padx=20, pady=5)
 
+        tk.Label(win, text=self.tr['default_font_label']).pack(anchor=tk.W, padx=20, pady=(10,0))
+        font_var = tk.StringVar(value=self.current_font_name.get())
+        font_menu = ttk.Combobox(win, textvariable=font_var, values=self.available_fonts, state="readonly")
+        font_menu.pack(anchor=tk.W, padx=20, pady=5)
+
         def apply_settings():
             if lang_var.get() != self.current_lang:
                 self.current_lang = lang_var.get()
                 self.settings["language"] = self.current_lang
                 self.update_ui_language()
+            self.settings["default_font"] = font_var.get()
+            self.current_font_name.set(font_var.get())
+            self.update_font()
             self.save_settings()
             win.destroy()
 
         tk.Button(win, text=self.tr['apply_btn'], command=apply_settings).pack(pady=20)
         tk.Button(win, text=self.tr['close_btn'], command=win.destroy).pack(pady=5)
 
-    # ---------------------- AUTO-GUARDADO (6 minutos) ------------------
+    # ---------------------- AUTO-GUARDADO ------------------
     def start_auto_save(self):
         if self.auto_save_timer:
             self.root.after_cancel(self.auto_save_timer)
@@ -1711,16 +1596,17 @@ class TSCEditor:
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label=self.tr['file_menu'], menu=file_menu)
         file_menu.add_command(label=self.tr['open_tsc'], command=self.load_file, accelerator="Ctrl+O")
-        file_menu.add_command(label=self.tr['open_project'], command=self.load_project)
-        file_menu.add_command(label=self.tr['open_folder'], command=self.load_folder)
-        file_menu.add_command(label=self.tr['delete_from_list'], command=self.delete_current_from_list)
+        file_menu.add_command(label=self.tr['open_project'], command=self.load_project, accelerator="Ctrl+Shift+O")
+        file_menu.add_command(label=self.tr['open_folder'], command=self.load_folder, accelerator="Ctrl+Shift+Alt+O")
+        file_menu.add_command(label=self.tr['delete_from_list'], command=self.delete_current_from_list, accelerator="Ctrl+Del")
+        file_menu.add_command(label=self.tr['delete_all_from_list'], command=self.delete_all_from_list, accelerator="Ctrl+Shift+Del")
         file_menu.add_separator()
         file_menu.add_command(label=self.tr['export_tsc'], command=self.export_file, accelerator="Ctrl+Shift+S")
         file_menu.add_command(label=self.tr['save_project'], command=self.save_project, accelerator="Ctrl+S")
         file_menu.add_separator()
         file_menu.add_command(label=self.tr['settings'], command=self.open_settings, accelerator="Ctrl+K")
         file_menu.add_separator()
-        file_menu.add_command(label=self.tr['exit'], command=self.root.quit)
+        file_menu.add_command(label=self.tr['exit'], command=self.root.quit, accelerator="Alt+F4")
 
         edit_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label=self.tr['edit_menu'], menu=edit_menu)
@@ -1736,7 +1622,8 @@ class TSCEditor:
         view_menu.add_command(label=self.tr['font_size'], command=self.open_view_options)
         view_menu.add_command(label=self.tr['hex_dump'], command=self.show_hex_dump)
         view_menu.add_command(label=self.tr['see_quick_docs'], command=self.show_quick_docs)
-        view_menu.add_command(label=self.tr['search_tab'], command=self.focus_search_tab)
+        view_menu.add_command(label=self.tr['search_tab'], command=self.focus_search_tab, accelerator="Ctrl+F")
+        view_menu.add_command(label=self.tr['show_history'], command=self.focus_history_tab, accelerator="Ctrl+H")
         view_menu.add_command(label=self.tr['edit_custom_cmds'], command=self.edit_custom_commands)
 
         font_submenu = tk.Menu(view_menu, tearoff=0)
@@ -1768,6 +1655,81 @@ class TSCEditor:
     def show_quick_docs(self):
         self.right_notebook.select(self.docs_tab)
 
+    def focus_history_tab(self):
+        self.right_notebook.select(self.history_tab)
+
+    # ---------------------- MÉTODOS DE EDICIÓN Y HISTORIAL ------------------
+    def add_history_entry(self, action):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        entry = f"[{timestamp}] {action}"
+        self.history.append(entry)
+        self.history_listbox.insert(tk.END, entry)
+        self.history_listbox.see(tk.END)
+        if len(self.history) > 1000:
+            self.history.pop(0)
+            self.history_listbox.delete(0)
+
+    def on_paste(self, event=None):
+        self.root.after(10, lambda: self.add_history_entry("Pasted"))
+        self.update_stats()
+
+    def on_cut(self, event=None):
+        self.root.after(10, lambda: self.add_history_entry("Cut"))
+        self.update_stats()
+
+    def on_copy(self, event=None):
+        self.add_history_entry("Copied")
+
+    def on_backspace(self, event=None):
+        self.add_history_entry("Backspace")
+        self.update_stats()
+
+    def on_enter(self, event=None):
+        self.add_history_entry("Enter")
+        self.update_stats()
+
+    def on_space(self, event=None):
+        self.add_history_entry("Space")
+        self.update_stats()
+
+    def on_text_change(self, event=None):
+        self.delayed_highlight()
+        self.update_stats()
+        if self.settings["auto_save"] and self.current_file and self.current_file.endswith(".cstsc"):
+            self.save_project()
+        if event and event.char and event.char.isprintable():
+            self.add_history_entry("Handwrite")
+
+    def on_cursor_move(self, event=None):
+        self.update_stats()
+
+    def update_stats(self):
+        text = self.text_area.get("1.0", tk.END)
+        lines = len(text.splitlines())
+        chars = len(text) - 1
+        self.stats_label.config(text=f"{self.tr['lines']}: {lines}  |  {self.tr['chars']}: {chars}")
+
+    def copy_text(self):
+        try:
+            self.text_area.event_generate("<<Copy>>")
+            self.add_history_entry("Copied")
+        except:
+            pass
+
+    def paste_text(self):
+        try:
+            self.text_area.event_generate("<<Paste>>")
+            self.add_history_entry("Pasted")
+        except:
+            pass
+
+    def cut_text(self):
+        try:
+            self.text_area.event_generate("<<Cut>>")
+            self.add_history_entry("Cut")
+        except:
+            pass
+
     def undo_action(self):
         try:
             self.text_area.edit_undo()
@@ -1781,6 +1743,176 @@ class TSCEditor:
             self.add_history_entry("Redo")
         except:
             pass
+
+    # ---------------------- SMART REPLACE SPECIAL CHARACTERS ------------------
+    def smart_replace_special_chars(self):
+        try:
+            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
+            has_selection = True
+        except tk.TclError:
+            selected = self.text_area.get("1.0", tk.END)
+            has_selection = False
+        if not selected.strip():
+            messagebox.showinfo(self.tr['smart_replace_title'], "No text to process.")
+            return
+
+        dialog = tk.Toplevel(self.root)
+        dialog.title(self.tr['smart_replace_title'])
+        dialog.geometry("450x320")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        dialog.resizable(False, False)
+
+        var_nn = tk.BooleanVar(value=True)
+        var_accents = tk.BooleanVar(value=True)
+        var_symbols = tk.BooleanVar(value=True)
+        var_all = tk.BooleanVar(value=False)
+
+        def update_all():
+            if var_all.get():
+                var_nn.set(True)
+                var_accents.set(True)
+                var_symbols.set(True)
+
+        tk.Label(dialog, text="Select which characters to replace/remove:", font=("Segoe UI", 10, "bold")).pack(pady=10)
+        tk.Checkbutton(dialog, text=self.tr['option_nn'], variable=var_nn, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
+        tk.Checkbutton(dialog, text=self.tr['option_accents'], variable=var_accents, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
+        tk.Checkbutton(dialog, text=self.tr['option_symbols'], variable=var_symbols, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
+        tk.Checkbutton(dialog, text=self.tr['option_all'], variable=var_all, command=update_all).pack(anchor=tk.W, padx=20, pady=10)
+
+        btn_frame = tk.Frame(dialog)
+        btn_frame.pack(pady=20)
+
+        def apply_changes():
+            new_text = selected
+            if var_nn.get():
+                new_text = new_text.replace('ñ', 'n').replace('Ñ', 'N')
+            if var_accents.get():
+                accent_map = {
+                    'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
+                    'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U'
+                }
+                for acc, repl in accent_map.items():
+                    new_text = new_text.replace(acc, repl)
+            if var_symbols.get():
+                new_text = new_text.replace('¡', '').replace('¿', '')
+
+            if new_text != selected:
+                msg = self.tr['backup_warning']
+                if not messagebox.askyesno(self.tr['confirm'], msg, parent=dialog):
+                    return
+                if has_selection:
+                    self.text_area.delete(tk.SEL_FIRST, tk.SEL_LAST)
+                    self.text_area.insert(tk.INSERT, new_text)
+                else:
+                    self.text_area.delete("1.0", tk.END)
+                    self.text_area.insert("1.0", new_text)
+                self.add_history_entry("Applied smart character replacement")
+                messagebox.showinfo(self.tr['done'], "Special characters replaced/removed.", parent=dialog)
+            else:
+                messagebox.showinfo(self.tr['no_changes'], "No characters to replace.", parent=dialog)
+            dialog.destroy()
+
+        tk.Button(btn_frame, text=self.tr['apply_btn'], command=apply_changes, width=10).pack(side=tk.LEFT, padx=10)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=dialog.destroy, width=10).pack(side=tk.LEFT, padx=10)
+
+    # ---------------------- FILTRAR CARACTERES ESPECIALES ------------------
+    def filter_special_characters(self):
+        try:
+            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
+        except tk.TclError:
+            selected = self.text_area.get("1.0", tk.END)
+        if not selected.strip():
+            messagebox.showinfo("Filter Special Characters", "No text to analyze.")
+            return
+
+        groups = {
+            'ñ': 'ñ', 'Ñ': 'Ñ',
+            'á': 'á', 'é': 'é', 'í': 'í', 'ó': 'ó', 'ú': 'ú',
+            'Á': 'Á', 'É': 'É', 'Í': 'Í', 'Ó': 'Ó', 'Ú': 'Ú',
+            'ü': 'ü', 'Ü': 'Ü', '¡': '¡', '¿': '¿',
+            'ç': 'ç', 'Ä': 'Ä', 'Ë': 'Ë', 'Ï': 'Ï', 'Ö': 'Ö', 'Ü': 'Ü', 'ä': 'ä', 'ë': 'ë', 'ï': 'ï', 'ö': 'ö', 'ü': 'ü'
+        }
+        counts = {}
+        total = 0
+        for ch in selected:
+            if ch in groups:
+                counts[ch] = counts.get(ch, 0) + 1
+                total += 1
+        if total == 0:
+            messagebox.showinfo("Filter Special Characters", "No special characters found.")
+            return
+        msg = f"Total special characters: {total}\n\n"
+        for ch, cnt in sorted(counts.items()):
+            msg += f"{ch}: {cnt}\n"
+        msg += "\n(These characters may not display correctly in Cave Story.)"
+        messagebox.showinfo("Filter Special Characters", msg)
+
+    # ---------------------- SHOW COMMAND INFO ------------------
+    def show_command_info(self):
+        cursor_pos = self.text_area.index(tk.INSERT)
+        line_start = f"{cursor_pos} linestart"
+        line_end = f"{cursor_pos} lineend"
+        line_text = self.text_area.get(line_start, line_end)
+        cursor_col = int(cursor_pos.split('.')[1])
+
+        start_col = cursor_col
+        while start_col > 0 and line_text[start_col-1] != '<':
+            start_col -= 1
+        if start_col == 0 or line_text[start_col-1] != '<':
+            messagebox.showinfo(self.tr['cmd_info_title'], self.tr['cmd_not_found'])
+            return
+        start_col -= 1
+
+        after_lt = line_text[start_col+1:]
+        match = re.match(r'([A-Z]{1,4}[+-]?)', after_lt)
+        if not match:
+            messagebox.showinfo(self.tr['cmd_info_title'], self.tr['cmd_unrecognized'])
+            return
+        cmd_body = match.group(1)
+        base_cmd = cmd_body.rstrip('+-')
+        if base_cmd in self.commands_data:
+            desc = self.commands_data[base_cmd][2]
+            extra = ""
+            if base_cmd == "FAC":
+                id_match = re.search(r'[A-Z]{3,4}([0-9]{4})', after_lt)
+                if id_match:
+                    face_id = id_match.group(1)
+                    if face_id in self.face_names:
+                        extra = f"\n{self.tr['face_name']}: {self.face_names[face_id]}"
+            elif base_cmd == "CMU":
+                id_match = re.search(r'[A-Z]{3,4}([0-9]{4})', after_lt)
+                if id_match:
+                    music_id = id_match.group(1)
+                    extra = f"\n{self.tr['music_id']}: {music_id}"
+            messagebox.showinfo(f"{self.tr['cmd_info_title']}: {base_cmd}", f"{desc}{extra}")
+        else:
+            messagebox.showinfo(self.tr['cmd_info_title'], f"{self.tr['cmd_unknown']} '<{cmd_body}>'")
+
+    # ---------------------- MANEJO DE FUENTES ------------------
+    def update_font(self):
+        font_name = self.current_font_name.get()
+        self.text_area.config(font=(font_name, self.base_font_size))
+        self.text_area.tag_configure("evento", font=(self.current_font_name.get(), self.base_font_size, "bold"))
+        self.text_area.tag_configure("comando_letras", font=(self.current_font_name.get(), self.base_font_size, "bold"))
+        self.delayed_highlight()
+
+    def delayed_highlight(self):
+        self.root.after(50, self.highlight_syntax)
+
+    def on_ctrl_mousewheel(self, event):
+        delta = event.delta
+        if delta > 0:
+            self.change_font_size(1)
+        else:
+            self.change_font_size(-1)
+
+    def change_font_size(self, delta):
+        new_size = self.base_font_size + delta
+        if 8 <= new_size <= 24:
+            self.base_font_size = new_size
+            self.update_font()
+            self.update_stats()
 
     def open_view_options(self):
         win = Toplevel(self.root)
@@ -1797,42 +1929,7 @@ class TSCEditor:
         self.base_font_size = new_size
         self.update_font()
 
-    def update_font(self):
-        font_name = self.current_font_name.get()
-        self.text_area.config(font=(font_name, self.base_font_size))
-        self.text_area.tag_configure("evento", font=(self.current_font_name.get(), self.base_font_size, "bold"))
-        self.text_area.tag_configure("comando_letras", font=(self.current_font_name.get(), self.base_font_size, "bold"))
-        self.delayed_highlight()
-
-    def delayed_highlight(self):
-        self.root.after(50, self.highlight_syntax)
-
-    def count_characters_normal(self):
-        self.count_characters(with_face=False)
-
-    def count_characters_face(self):
-        self.count_characters(with_face=True)
-
-    def count_characters(self, with_face):
-        try:
-            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
-        except tk.TclError:
-            messagebox.showinfo(self.tr['count_normal_title'], "No text selected.")
-            return
-        if not selected.strip():
-            messagebox.showinfo(self.tr['count_normal_title'], "Selected text is empty.")
-            return
-        clean_text = re.sub(r'<[^>]+>', '', selected)
-        clean_text = re.sub(r'#[0-9]{4}\b', '', clean_text)
-        char_count = len(clean_text)
-        limit = 27 if with_face else 34
-        if char_count <= limit:
-            msg = f"{self.tr['fits']} ({self.tr['limit']}: {limit})"
-        else:
-            msg = f"{self.tr['not_fits']} ({self.tr['limit']}: {limit})"
-        title = self.tr['count_face_title'] if with_face else self.tr['count_normal_title']
-        messagebox.showinfo(title, f"{msg}\n\nCharacters: {char_count}\nLimit: {limit}")
-
+    # ---------------------- EJECUCIÓN DEL JUEGO ------------------
     def lookup_doukutsu(self):
         if self.current_file:
             base_dir = os.path.dirname(self.current_file)
@@ -1868,15 +1965,51 @@ class TSCEditor:
         except Exception as e:
             messagebox.showerror(self.tr['exe_not_found'], str(e))
 
+    # ---------------------- CONTADORES DE CARACTERES ------------------
+    def count_characters_normal(self):
+        self.count_characters(with_face=False)
+
+    def count_characters_face(self):
+        self.count_characters(with_face=True)
+
+    def count_characters(self, with_face):
+        try:
+            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
+        except tk.TclError:
+            messagebox.showinfo(self.tr['count_normal_title'], "No text selected.")
+            return
+        if not selected.strip():
+            messagebox.showinfo(self.tr['count_normal_title'], "Selected text is empty.")
+            return
+        clean_text = re.sub(r'<[^>]+>', '', selected)
+        clean_text = re.sub(r'#[0-9]{4}\b', '', clean_text)
+        char_count = len(clean_text)
+        limit = 27 if with_face else 34
+        if char_count <= limit:
+            msg = f"{self.tr['fits']} ({self.tr['limit']}: {limit})"
+        else:
+            msg = f"{self.tr['not_fits']} ({self.tr['limit']}: {limit})"
+        title = self.tr['count_face_title'] if with_face else self.tr['count_normal_title']
+        messagebox.showinfo(title, f"{msg}\n\nCharacters: {char_count}\nLimit: {limit}")
+
+    # ---------------------- MISC ------------------
     def show_about(self):
         messagebox.showinfo(self.tr['about'],
-            "TSC Editor+ v23.0\n"
+            "TSC Editor+ v27.0\n"
             "Editor profesional de archivos .tsc de Cave Story\n"
             "Cifrado compatible con Booster's Lab (Carrot Lord)\n"
-            "Características: resaltado de sintaxis, historial, contadores, conteo de caracteres,\n"
-            "documentación rápida con buscador, búsqueda/reemplazo con resaltado, auto-guardado cada 6 minutos,\n"
-            "comandos personalizables (con +/-), cambio rápido de fuente con Ctrl+rueda, soporte multilenguaje.\n"
-            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F (buscar), Ctrl+R (reemplazar acentos), Ctrl+K, F5")
+            "Características:\n"
+            "- Resaltado de sintaxis (comandos, eventos, números, caracteres especiales)\n"
+            "- Historial de acciones, contador de líneas y caracteres\n"
+            "- Búsqueda y reemplazo con resaltado en tiempo real\n"
+            "- Documentación rápida de comandos con buscador integrado\n"
+            "- Comandos personalizables (añadir/editar/eliminar)\n"
+            "- Auto-guardado cada 6 minutos\n"
+            "- Cambio rápido de fuente con Ctrl+rueda\n"
+            "- Modo oscuro\n"
+            "- Soporte multilenguaje (español, inglés, japonés)\n"
+            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Alt+F4\n"
+            "Creado para la comunidad de modding de Cave Story.")
 
     def show_hex_dump(self):
         if self.raw_bytes_for_hex is None:
