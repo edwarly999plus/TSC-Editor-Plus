@@ -12,17 +12,17 @@ import binascii
 import locale
 from datetime import datetime
 
-# ---------------------------- CLASE TSCEditor ----------------------------
+# ---------------------------- CLASS TSCEditor ----------------------------
 class TSCEditor:
     def __init__(self, root):
         self.root = root
         self.root.title("TSC Editor+")
         self.root.geometry("1300x700")
 
-        # ---------- IDIOMAS ----------
+        # ---------- LANGS ----------
         self.langs = {
             'en': {
-                'window_title': 'TSC Editor+ - Professional Edition',
+                'window_title': 'TSC Editor+',
                 'file_menu': 'File',
                 'open_tsc': 'Open .tsc...',
                 'open_project': 'Open .cstsc project...',
@@ -52,7 +52,7 @@ class TSCEditor:
                 'help_menu': 'Help',
                 'about': 'About...',
                 'search_label': 'Search file:',
-                'clear_btn': 'Clear',
+                'clear_btn': 'X',
                 'status_ready': 'Ready',
                 'open_project_dialog_title': 'Open .cstsc project',
                 'save_project_dialog_title': 'Save project',
@@ -200,7 +200,7 @@ class TSCEditor:
                 'help_menu': 'Ayuda',
                 'about': 'Acerca de...',
                 'search_label': 'Buscar archivo:',
-                'clear_btn': 'Limpiar',
+                'clear_btn': 'X',
                 'status_ready': 'Listo',
                 'open_project_dialog_title': 'Abrir proyecto .cstsc',
                 'save_project_dialog_title': 'Guardar proyecto',
@@ -348,7 +348,7 @@ class TSCEditor:
                 'help_menu': 'ヘルプ',
                 'about': 'このソフトについて...',
                 'search_label': 'ファイル検索:',
-                'clear_btn': 'クリア',
+                'clear_btn': 'X',
                 'status_ready': '準備完了',
                 'open_project_dialog_title': '.cstscプロジェクトを開く',
                 'save_project_dialog_title': 'プロジェクトを保存',
@@ -470,13 +470,13 @@ class TSCEditor:
         self.current_lang = self.detect_language()
         self.tr = self.langs.get(self.current_lang, self.langs['en'])
 
-        # ---------- COMANDOS BASE (incluyendo XX1, XX2, I+N, 2MV, 2PJ) ----------
+        # ---------- BASE COMMANDS ----------
         self.base_commands_data = self.load_base_commands()
         self.custom_commands_file = os.path.join(os.path.dirname(sys.argv[0]), "custom_commands.json")
         self.load_custom_commands()
         self.update_commands_data()
 
-        # Compilar regex de comandos una vez
+        # Build Commands Regex
         self.build_command_regex()
 
         self.face_names = {
@@ -491,11 +491,11 @@ class TSCEditor:
             "0028": "Itoh", "0029": "Ballos", "0030": "Out Of Bounds!",
         }
 
-        # ---------- CONFIGURACIÓN DE COLORES DE COMANDOS ----------
+        # ---------- COMMAND COLOR CONFIG ----------
         self.command_colors_file = os.path.join(os.path.dirname(sys.argv[0]), "command_colors.json")
         self.load_command_colors()
 
-        # ---------- CONFIGURACIÓN GENERAL ----------
+        # ---------- GENERAL CONFIG ----------
         self.settings_file = os.path.join(os.path.dirname(sys.argv[0]), "settings.json")
         self.settings = {
             "auto_save": False,
@@ -510,7 +510,7 @@ class TSCEditor:
             self.current_lang = self.settings["language"]
             self.tr = self.langs.get(self.current_lang, self.langs['en'])
 
-        # Fuentes disponibles
+        # FONTS
         self.available_fonts = ["Courier New", "Consolas"]
         script_dir = os.path.dirname(sys.argv[0])
         cave_font_path = os.path.join(script_dir, "Cave-Story.ttf")
@@ -522,11 +522,11 @@ class TSCEditor:
         self.current_font_name = tk.StringVar(value=self.settings.get("default_font", "Courier New"))
         self.base_font_size = 10
 
-        # ---------- INTERFAZ PRINCIPAL ----------
+        # ---------- UI ----------
         self.main_paned = tk.PanedWindow(root, orient=tk.HORIZONTAL, sashrelief=tk.RAISED, sashwidth=6)
         self.main_paned.pack(fill=tk.BOTH, expand=True)
 
-        # Barra lateral izquierda
+        # Sidebar (Left)
         self.sidebar_frame = tk.Frame(self.main_paned, width=250, height=700)
         self.main_paned.add(self.sidebar_frame, minsize=180, width=250)
         self.files_tab = tk.Frame(self.sidebar_frame)
@@ -553,7 +553,7 @@ class TSCEditor:
         self.current_folder = None
         self.all_files = []
 
-        # Panel central: editor
+        # Editor Canvas
         self.text_area = scrolledtext.ScrolledText(
             self.main_paned, wrap=tk.WORD, undo=True, autoseparators=True, maxundo=50
         )
@@ -562,11 +562,11 @@ class TSCEditor:
         self.text_area.bind("<Control-Button-4>", lambda e: self.change_font_size(1))
         self.text_area.bind("<Control-Button-5>", lambda e: self.change_font_size(-1))
 
-        # Panel derecho: Notebook (History, Quick Docs, Search)
+        # SideBar (Right) History, Quick Docs, Search)
         self.right_notebook = ttk.Notebook(self.main_paned)
         self.main_paned.add(self.right_notebook, minsize=250, width=250)
 
-        # History tab
+        # History Tab
         self.history_tab = tk.Frame(self.right_notebook)
         self.right_notebook.add(self.history_tab, text=self.tr['history'])
         self.history_label = tk.Label(self.history_tab, text=self.tr['history'], font=("Segoe UI", 10, "bold"))
@@ -577,7 +577,7 @@ class TSCEditor:
         self.history_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.history_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # Quick Docs tab (con buscador)
+        # Quick Docs Tab (With Search)
         self.docs_tab = tk.Frame(self.right_notebook)
         self.right_notebook.add(self.docs_tab, text=self.tr['quick_docs'])
         docs_paned = tk.PanedWindow(self.docs_tab, orient=tk.VERTICAL, sashrelief=tk.RAISED, sashwidth=4)
@@ -610,7 +610,7 @@ class TSCEditor:
         self.right_notebook.add(self.search_tab, text=self.tr['search_tab'])
         self.create_search_widgets()
 
-        # Menú contextual
+        # Right Click Menu
         self.context_menu = tk.Menu(self.text_area, tearoff=0)
         self.context_menu.add_command(label=self.tr['copy'], command=self.copy_text)
         self.context_menu.add_command(label=self.tr['paste'], command=self.paste_text)
@@ -626,7 +626,7 @@ class TSCEditor:
 
         self.update_font()
 
-        # Tags de resaltado
+        # Highlight Tags
         self.text_area.tag_configure("evento", font=(self.current_font_name.get(), self.base_font_size, "bold"))
         self.text_area.tag_configure("comando_letras", font=(self.current_font_name.get(), self.base_font_size, "bold"))
         self.text_area.tag_configure("comando_digitos", foreground="#C7158C")
@@ -634,7 +634,6 @@ class TSCEditor:
         self.text_area.tag_configure("error", foreground="#FF0000")
         self.text_area.tag_configure("search_highlight", background="yellow")
         self.text_area.tag_configure("special_warning", foreground="#FF0000")
-        # Tags para colores personalizados de comandos
         self.text_area.tag_configure("comando_personal_rosa", foreground="#C7158C")
         self.text_area.tag_configure("comando_personal_rojo", foreground="#FF0000")
 
@@ -642,7 +641,7 @@ class TSCEditor:
         self.search_case = False
         self.search_whole = False
 
-        # Eventos
+        # Events
         self.text_area.bind("<KeyRelease>", self.on_text_change)
         self.text_area.bind("<<Paste>>", self.on_paste)
         self.text_area.bind("<ButtonRelease-1>", self.on_cursor_move)
@@ -658,7 +657,7 @@ class TSCEditor:
         self.current_encoding = "shift_jis"
         self.raw_bytes_for_hex = None
 
-        # Barra de estado
+        # Status Bar
         self.status_frame = tk.Frame(self.root)
         self.status_frame.pack(side=tk.BOTTOM, fill=tk.X)
         self.status_label = tk.Label(self.status_frame, text=self.tr['status_ready'], bd=1, relief=tk.SUNKEN, anchor=tk.W)
@@ -670,7 +669,7 @@ class TSCEditor:
         self.create_menus()
         self.apply_theme()
 
-        # Atajos de teclado
+        # KeyBinds
         self.root.bind("<Control-o>",            lambda e: self.load_file())
         self.root.bind("<Control-s>",            lambda e: self.save_project())
         self.root.bind("<Control-Shift-S>",      lambda e: self.export_file())
@@ -695,7 +694,7 @@ class TSCEditor:
         self.history = []
         self.add_history_entry("Editor started")
 
-    # ---------------------- IDIOMA ------------------
+    # ---------------------- DETECT LANG ------------------
     def detect_language(self):
         try:
             lang_code = locale.getdefaultlocale()[0]
@@ -727,13 +726,13 @@ class TSCEditor:
         self.create_menus()
         self.update_stats()
 
-    # ---------------------- COMANDOS BASE ------------------
+    # ---------------------- DOCUMENTATION ------------------
     def load_base_commands(self):
         return {
             "AE+" :  ["0", "----", "Refill all weapon ammo."],
             "AM+" :  ["2", "aA--", "Give weapon W with X ammo. Use 0000 for infinite ammo."],
             "AM-" :  ["1", "a--", "Remove weapon W."],
-            "AMJ" :  ["2",  "ae--", "Jump to event X if the PC has weapon W."],
+            "AMJ" :  ["2", "ae--", "Jump to event X if the PC has weapon W."],
             "ANP" :  ["3", "N#d-", "Animate entity W to scriptstate X and direction Y."],
             "BOA" :  ["1", "#---", "Give map-boss scriptstate W"],
             "BSL" :  ["1", "N---", "Start boss fight with entity W. Use 0000 to end the boss fight."],
@@ -753,10 +752,10 @@ class TSCEditor:
             "END" :  ["0", "----", "End current scripted event."],
             "EQ+" :  ["1", "E---", "Equip item W (Booster, Map System, etc)."],
             "EQ-" :  ["1", "E---", "Dequip item W."],
-            "ESC" : ["0", "----", "Quit to title screen."],
-            "EVE" : ["1", "e---", "Go to event W."],
-            "FAC" : ["1", "f---", "Show face W in message box."],
-            "FAI" : ["1", "d---", "Fade in with direction W."],
+            "ESC" :  ["0",  "----", "Quit to title screen."],
+            "EVE" :  ["1",  "e---", "Go to event W."],
+            "FAC" :  ["1",  "f---", "Show face W in message box."],
+            "FAI" : ["1",  "d---", "Fade in with direction W."],
             "FAO" : ["1", "d---", "Fade out with direction W."],
             "FL+" : ["1", "F---", "Set flag W."],
             "FL-" : ["1", "F---", "Clear flag W."],
@@ -863,20 +862,19 @@ class TSCEditor:
     def update_commands_data(self):
         self.commands_data = self.base_commands_data.copy()
         self.commands_data.update(self.custom_commands)
-        self.build_command_regex()  # reconstruir regex cuando cambian los comandos
+        self.build_command_regex() 
 
     def build_command_regex(self):
         """Construye una expresión regular que reconoce todos los nombres de comandos (con <)."""
         if not self.commands_data:
-            self.command_pattern = re.compile(r'<[A-Z0-9+\-]+')  # fallback
+            self.command_pattern = re.compile(r'<[A-Z0-9+\-]+')
             return
-        # Ordenar de mayor a menor longitud para que coincidan los más largos primero
         cmds = sorted(self.commands_data.keys(), key=len, reverse=True)
         escaped_cmds = (re.escape(cmd) for cmd in cmds)
         pattern = r'<(' + '|'.join(escaped_cmds) + r')'
         self.command_pattern = re.compile(pattern)
 
-    # ---------------------- COLORES PERSONALIZADOS DE COMANDOS ------------------
+    # ---------------------- CUSTOM COMMAND COLORS ------------------
     def load_command_colors(self):
         if os.path.exists(self.command_colors_file):
             try:
@@ -912,7 +910,7 @@ class TSCEditor:
         tree.heading("color", text=self.tr['current_color'])
         tree.pack(fill=tk.BOTH, expand=True)
 
-        # Cargar todos los comandos conocidos (base + personalizados)
+        # LOAD BASE COMMANDS + CUSTOM
         all_cmds = sorted(self.commands_data.keys())
         for cmd in all_cmds:
             color = self.command_colors.get(cmd, "blue")
@@ -938,14 +936,14 @@ class TSCEditor:
             else:
                 self.command_colors[cmd] = color
             self.save_command_colors()
-            # Actualizar vista
+            # Update View
             new_display = {
                 "blue": self.tr['color_blue'],
                 "pink": self.tr['color_pink'],
                 "red": self.tr['color_red']
             }.get(color, self.tr['color_blue']) if color != "reset" else self.tr['color_blue']
             tree.item(item, values=(cmd, new_display))
-            # Refrescar editor
+            # Update Editor
             self.delayed_highlight()
 
         tk.Button(btn_frame, text=self.tr['color_blue'], command=lambda: set_color("blue")).pack(side=tk.LEFT, padx=5)
@@ -976,14 +974,14 @@ class TSCEditor:
                 match = self.command_pattern.match(text, i)
                 if match:
                     cmd_name = match.group(1)
-                    base_cmd = cmd_name.rstrip('+-')
-                    if base_cmd in self.commands_data:
-                        num_args = int(self.commands_data[base_cmd][0])
+                    # Ahora buscar directamente cmd_name en commands_data (ya incluye + y -)
+                    if cmd_name in self.commands_data:
+                        num_args = int(self.commands_data[cmd_name][0])
                         pos = match.end()
                         arg_idx = 0
-                        while arg_idx < num_args:
-                            # Saltar dos puntos opcionales
-                            if pos < n and text[pos] == ':':
+                        # Extraer argumentos (4 dígitos separados opcionalmente por ':')
+                        while arg_idx < num_args and pos < n:
+                            if text[pos] == ':':
                                 pos += 1
                             if pos+4 <= n and text[pos:pos+4].isdigit():
                                 pos += 4
@@ -992,7 +990,7 @@ class TSCEditor:
                                 errors.append({
                                     'offset': pos,
                                     'length': min(4, n-pos),
-                                    'message': f"Missing or invalid parameter {arg_idx+1} for command <{base_cmd}>."
+                                    'message': f"Missing or invalid parameter {arg_idx+1} for command <{cmd_name}>."
                                 })
                                 break
                         i = pos
@@ -1744,15 +1742,14 @@ class TSCEditor:
                 return
 
         cmd_name = match.group(1)
-        base_cmd = cmd_name.rstrip('+-')
-
-        if base_cmd not in self.commands_data:
+        # cmd_name ya incluye + o - si corresponde
+        if cmd_name not in self.commands_data:
             result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
             result_widget.insert(tk.END, self.tr['unknown_command'] + f" '{cmd_name}'\n", "error")
             result_widget.insert(tk.END, line, "error")
             return
 
-        num_args, types, desc = self.commands_data[base_cmd]
+        num_args, types, desc = self.commands_data[cmd_name]
         num_args = int(num_args)
 
         after_cmd = line[match.end():]
@@ -2004,7 +2001,7 @@ class TSCEditor:
             messagebox.showwarning(self.tr['syntax_error_window_title'], msg)
         else:
             messagebox.showinfo(self.tr['syntax_error_window_title'], self.tr['syntax_no_errors'])
-        self.highlight_syntax_errors()
+        # No llamar a highlight_syntax_errors (no existe), el resaltado ya se actualiza automáticamente
 
     def show_quick_docs(self):
         self.right_notebook.select(self.docs_tab)
@@ -2227,11 +2224,10 @@ class TSCEditor:
             return
 
         cmd_name = match.group(1)
-        base_cmd = cmd_name.rstrip('+-')
-        if base_cmd in self.commands_data:
-            desc = self.commands_data[base_cmd][2]
+        if cmd_name in self.commands_data:
+            desc = self.commands_data[cmd_name][2]
             extra = ""
-            if base_cmd == "FAC":
+            if cmd_name == "FAC":
                 # Buscar ID de cara después del comando
                 after = substring[match.end():]
                 id_match = re.search(r'(\d{4})', after)
@@ -2239,13 +2235,13 @@ class TSCEditor:
                     face_id = id_match.group(1)
                     if face_id in self.face_names:
                         extra = f"\n{self.tr['face_name']}: {self.face_names[face_id]}"
-            elif base_cmd == "CMU":
+            elif cmd_name == "CMU":
                 after = substring[match.end():]
                 id_match = re.search(r'(\d{4})', after)
                 if id_match:
                     music_id = id_match.group(1)
                     extra = f"\n{self.tr['music_id']}: {music_id}"
-            messagebox.showinfo(f"{self.tr['cmd_info_title']}: {base_cmd}", f"{desc}{extra}")
+            messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", f"{desc}{extra}")
         else:
             messagebox.showinfo(self.tr['cmd_info_title'], f"{self.tr['cmd_unknown']} '<{cmd_name}>'")
 
@@ -2355,23 +2351,23 @@ class TSCEditor:
     # ---------------------- MISC ------------------
     def show_about(self):
         messagebox.showinfo(self.tr['about'],
-            "TSC Editor+ v27.0\n"
-            "Editor profesional de archivos .tsc de Cave Story\n"
-            "Cifrado compatible con Booster's Lab (Carrot Lord)\n"
-            "Características:\n"
-            "- Resaltado de sintaxis (comandos, eventos, números, caracteres especiales)\n"
-            "- Personalización de colores de comandos (azul/rosa/rojo)\n"
-            "- Historial de acciones, contador de líneas y caracteres\n"
-            "- Búsqueda y reemplazo con resaltado en tiempo real\n"
-            "- Documentación rápida de comandos con buscador integrado\n"
-            "- Comandos personalizables (añadir/editar/eliminar)\n"
-            "- Auto-guardado cada 6 minutos\n"
-            "- Cambio rápido de fuente con Ctrl+rueda\n"
-            "- Modo oscuro\n"
-            "- Soporte multilenguaje (español, inglés, japonés)\n"
-            "- Ventana de Análisis de Sintaxis de Comandos (Ctrl+Shift+C)\n"
-            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Alt+F4\n"
-            "Creado para la comunidad de modding de Cave Story.")
+        "TSC Editor+ v1.0\n"
+        "Professional editor for Cave Story .tsc files\n"
+        "Encryption compatible with Booster's Lab (Carrot Lord)\n"
+        "Features:\n"
+        "- Syntax highlighting (commands, events, numbers, special characters)\n"
+        "- Customizable command colors (blue/pink/red)\n"
+        "- Action history, line and character counter\n"
+        "- Search and replace with real-time highlighting\n"
+        "- Quick command documentation with integrated search\n"
+        "- Customizable commands (add/edit/delete)\n"
+        "- Auto-save every 6 minutes\n"
+        "- Quick font size change with Ctrl+Wheel\n"
+        "- Dark mode\n"
+        "- Multilingual support (Spanish, English, Japanese)\n"
+        "- Command Syntax Analysis window (Ctrl+Shift+C)\n"
+        "Shortcuts: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Alt+F4\n"
+        "Created for the Cave Story modding community.")
 
     def show_hex_dump(self):
         if self.raw_bytes_for_hex is None:
