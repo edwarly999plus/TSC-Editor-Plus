@@ -476,6 +476,9 @@ class TSCEditor:
         self.load_custom_commands()
         self.update_commands_data()
 
+        # Compilar regex de comandos una vez
+        self.build_command_regex()
+
         self.face_names = {
             "0000": "Nothing",
             "0001": "Sue Smile", "0002": "Sue Serious", "0003": "Sue Angry", "0004": "Sue Injured",
@@ -727,114 +730,119 @@ class TSCEditor:
     # ---------------------- COMANDOS BASE ------------------
     def load_base_commands(self):
         return {
-            "AE" : ["0", "----", "<AE+ Refill all weapon ammo."],
-            "AM" : ["2", "aA--", "<AM+ Give weapon W with X ammo. Use 0000 for infinite ammo. <AM- Remove weapon W."],
-            "AMJ": ["2", "ae--", "Jump to event X if the PC has weapon W."],
-            "ANP": ["3", "N#d-", "Animate entity W to scriptstate X and direction Y."],
-            "BOA": ["1", "#---", "Give map-boss scriptstate W"],
-            "BSL": ["1", "N---", "Start boss fight with entity W. Use 0000 to end the boss fight."],
-            "CAT": ["0", "----", "Instantly display text until <END."],
-            "CIL": ["0", "----", "Clear illustration (during credits)."],
-            "CLO": ["0", "----", "Close message box."],
-            "CLR": ["0", "----", "Clear message box."],
-            "CMP": ["3", "xyt-", "Change tile at coordinates W:X to type Y (with smoke)."],
-            "CMU": ["1", "u---", "Change music to song W."],
-            "CNP": ["3", "Nnd-", "Change all entities W to type X, direction Y."],
-            "CPS": ["0", "----", "Stop propeller sound."],
-            "CRE": ["0", "----", "Roll credits."],
-            "CSS": ["0", "----", "Stop stream sound."],
-            "DNA": ["1", "n---", "Remove all entities of type W."],
-            "DNP": ["1", "N---", "Remove all entities W."],
-            "ECJ": ["2", "#e--", "Jump to event X if any entities W exist."],
-            "END": ["0", "----", "End current scripted event."],
-            "EQ" : ["1", "E---", "<EQ+ Equip item W (Booster, Map System, etc). <EQ- Dequip item W."],
-            "ESC": ["0", "----", "Quit to title screen."],
-            "EVE": ["1", "e---", "Go to event W."],
-            "FAC": ["1", "f---", "Show face W in message box."],
-            "FAI": ["1", "d---", "Fade in with direction W."],
-            "FAO": ["1", "d---", "Fade out with direction W."],
-            "FL" : ["1", "F---", "<FL+ Set flag W. <FL- Clear flag W. <FLJ Jump to event X if flag W is set."],
-            "FLA": ["0", "----", "Flash screen white."],
-            "FMU": ["0", "----", "Fade music out."],
-            "FOB": ["2", "N.--", "Focus on boss W in X ticks."],
-            "FOM": ["1", ".---", "Focus on PC in W ticks."],
-            "FON": ["2", "N.--", "Focus on entity W in X ticks."],
-            "FRE": ["0", "----", "Free game action and PC."],
-            "GIT": ["1", "g---", "Display item/weapon icon (add 1000 for items)."],
-            "HMC": ["0", "----", "Hide PC."],
-            "INI": ["0", "----", "Reset memory and restart game."],
-            "INP": ["3", "Nnd-", "Change entity W to type X, direction Y, set flag 0x8000."],
-            "IT" : ["1", "i---", "<IT+ Give item W. <IT- Remove item W."],
-            "ITJ": ["2", "ie--", "Jump to event X if PC has item W."],
-            "KEY": ["0", "----", "Lock player controls and hide status bars until <END."],
-            "LDP": ["0", "----", "Load saved game."],
-            "LI+": ["1", "#---", "Recover W health."],
-            "ML+": ["1", "#---", "Increase max health by W."],
-            "MLP": ["0", "----", "Display map of current area."],
-            "MM0": ["0", "----", "Halt PC's forward motion."],
-            "MNA": ["0", "----", "Display map name."],
-            "MNP": ["4", "Nxyd", "Move entity W to coordinates X:Y, direction Z."],
-            "MOV": ["2", "xy--", "Move PC to coordinates W:X."],
-            "MP+": ["1", "#---", "Set map flag W (0-127)."],
-            "MPJ": ["1", "e---", "Jump to event W if current map flag set."],
-            "MS2": ["0", "----", "Open invisible message box at top."],
-            "MS3": ["0", "----", "Open message box at top."],
-            "MSG": ["0", "----", "Open message box at bottom."],
-            "MYB": ["1", "d---", "Bump PC in opposite direction."],
-            "MYD": ["1", "d---", "Set PC direction."],
-            "NCJ": ["2", "ne--", "Jump to event X if any entity type W exists."],
-            "NOD": ["0", "----", "Wait for player input."],
-            "NUM": ["1", "#---", "Print numeric value."],
-            "PRI": ["0", "----", "Lock controls and freeze game action."],
-            "PS+": ["2", "#m--", "Set teleporter slot W to event X."],
-            "QUA": ["1", ".---", "Shake screen for W ticks."],
-            "RMU": ["0", "----", "Resume previous music."],
-            "SAT": ["0", "----", "Instantly display text until <END."],
-            "SIL": ["1", "l---", "Show illustration W (credits)."],
-            "SK+": ["1", "F---", "Set skipflag W."],
-            "SK-": ["1", "F---", "Clear skipflag W."],
-            "SKJ": ["2", "Fe--", "Jump to event X if skipflag W set."],
-            "SLP": ["0", "----", "Show teleporter menu."],
-            "SMC": ["0", "----", "Unhide PC."],
-            "SMP": ["2", "xy--", "Subtract 1 from tile type at W:X (no smoke)."],
-            "SNP": ["4", "nxyd", "Create entity type W at X:Y, direction Z."],
-            "SOU": ["1", "s---", "Play sound effect W."],
-            "SPS": ["0", "----", "Start propeller sound."],
-            "SSS": ["1", "#---", "Start stream sound with volume W."],
-            "STC": ["0", "----", "Save current time to 290.rec."],
-            "SVP": ["0", "----", "Save current game."],
-            "TAM": ["3", "aaA-", "Trade weapon W for X, set max ammo Y."],
-            "TRA": ["4", "mexy", "Travel to map W, run event X, move to Y:Z."],
-            "TUR": ["0", "----", "Instantly display text until next <MSG/END."],
-            "UNI": ["1", "#---", "Set movement type (0000 normal, 0001 zero-G)."],
-            "UNJ": ["2", "#e--", "Jump if movement type W."],
-            "WAI": ["1", ".---", "Pause script for W ticks."],
-            "WAS": ["0", "----", "Wait until PC on ground."],
-            "XX1": ["1", "l---", "Show the island falling in manner W. Use 0000 to crash, 0001 to stop midway."],
-            "XX2": ["1", "#---", "Set TimgFILE.png over the screen. The 'tag' for the file name must be exactly 4 characters."],
-            "YNJ": ["1", "e---", "Yes/No prompt; jump to event W if No."],
-            "ZAM": ["0", "----", "Reset all weapon energy to zero."],
-            "LRX": ["3", "eee-", "Jump to W,X,Y if Left/Right/Shoot."],
-            "FNJ": ["2", "Fe--", "Jump if flag X not set."],
-            "VAR": ["2", "##--", "Store XXXX into variable WWWW."],
-            "VAZ": ["2", "##--", "Zero XXXX variables starting at WWWW."],
-            "VAO": ["2", "##--", "Perform operation on variable."],
-            "VAJ": ["4", "###e", "Compare variables and jump."],
-            "RND": ["3", "###-", "Random number into variable."],
-            "IMG": ["1", "#---", "Set TimgFILE.bmp over screen."],
-            "PHY": ["2", "##--", "Change physics variables."],
+            "AE+" :  ["0", "----", "Refill all weapon ammo."],
+            "AM+" :  ["2", "aA--", "Give weapon W with X ammo. Use 0000 for infinite ammo."],
+            "AM-" :  ["1", "a--", "Remove weapon W."],
+            "AMJ" :  ["2",  "ae--", "Jump to event X if the PC has weapon W."],
+            "ANP" :  ["3", "N#d-", "Animate entity W to scriptstate X and direction Y."],
+            "BOA" :  ["1", "#---", "Give map-boss scriptstate W"],
+            "BSL" :  ["1", "N---", "Start boss fight with entity W. Use 0000 to end the boss fight."],
+            "CAT" :  ["0", "----", "Instantly display text until <END."],
+            "CIL" :  ["0", "----", "Clear illustration (during credits)."],
+            "CLO" :  ["0", "----", "Close message box."],
+            "CLR" :  ["0", "----", "Clear message box."],
+            "CMP" :  ["3", "xyt-", "Change tile at coordinates W:X to type Y (with smoke)."],
+            "CMU" :  ["1", "u---", "Change music to song W."],
+            "CNP" :  ["3", "Nnd-", "Change all entities W to type X, direction Y."],
+            "CPS" :  ["0", "----", "Stop propeller sound."],
+            "CRE" :  ["0", "----", "Roll credits."],
+            "CSS" :  ["0", "----", "Stop stream sound."],
+            "DNA" :  ["1", "n---", "Remove all entities of type W."],
+            "DNP" :  ["1", "N---", "Remove all entities W."],
+            "ECJ" :  ["2", "#e--", "Jump to event X if any entities W exist."],
+            "END" :  ["0", "----", "End current scripted event."],
+            "EQ+" :  ["1", "E---", "Equip item W (Booster, Map System, etc)."],
+            "EQ-" :  ["1", "E---", "Dequip item W."],
+            "ESC" : ["0", "----", "Quit to title screen."],
+            "EVE" : ["1", "e---", "Go to event W."],
+            "FAC" : ["1", "f---", "Show face W in message box."],
+            "FAI" : ["1", "d---", "Fade in with direction W."],
+            "FAO" : ["1", "d---", "Fade out with direction W."],
+            "FL+" : ["1", "F---", "Set flag W."],
+            "FL-" : ["1", "F---", "Clear flag W."],
+            "FLJ" : ["2", "##--", "Jump to event X if flag W is set."],
+            "FLA" :  ["0", "----", "Flash screen white."],
+            "FMU" : ["0", "----", "Fade music out."],
+            "FOB" : ["2", "N.--", "Focus on boss W in X ticks."],
+            "FOM" : ["1", ".---", "Focus on PC in W ticks."],
+            "FON" : ["2", "N.--", "Focus on entity W in X ticks."],
+            "FRE" : ["0", "----", "Free game action and PC."],
+            "GIT" : ["1", "g---", "Display item/weapon icon (add 1000 for items)."],
+            "HMC" : ["0", "----", "Hide PC."],
+            "INI" : ["0", "----", "Reset memory and restart game."],
+            "INP" : ["3", "Nnd-", "Change entity W to type X, direction Y, set flag 0x8000."],
+            "IT+" : ["1", "i---", "Give item W."],
+            "IT-" : ["1", "i---", "Remove item W."],
+            "ITJ" : ["2", "ie--", "Jump to event X if PC has item W."],
+            "KEY" : ["0", "----", "Lock player controls and hide status bars until <END."],
+            "LDP" : ["0", "----", "Load saved game."],
+            "LI+" : ["1", "#---", "Recover W health."],
+            "ML+" : ["1", "#---", "Increase max health by W."],
+            "MLP" : ["0", "----", "Display map of current area."],
+            "MM0" : ["0", "----", "Halt PC's forward motion."],
+            "MNA" : ["0", "----", "Display map name."],
+            "MNP" : ["4", "Nxyd", "Move entity W to coordinates X:Y, direction Z."],
+            "MOV" : ["2", "xy--", "Move PC to coordinates W:X."],
+            "MP+" : ["1", "#---", "Set map flag W (0-127)."],
+            "MPJ" : ["1", "e---", "Jump to event W if current map flag set."],
+            "MS2" : ["0", "----", "Open invisible message box at top."],
+            "MS3" : ["0", "----", "Open message box at top."],
+            "MSG" : ["0", "----", "Open message box at bottom."],
+            "MYB" : ["1", "d---", "Bump PC in opposite direction."],
+            "MYD" : ["1", "d---", "Set PC direction."],
+            "NCJ" : ["2", "ne--", "Jump to event X if any entity type W exists."],
+            "NOD" : ["0", "----", "Wait for player input."],
+            "NUM" : ["1", "#---", "Print numeric value."],
+            "PRI" : ["0", "----", "Lock controls and freeze game action."],
+            "PS+" : ["2", "#m--", "Set teleporter slot W to event X."],
+            "QUA" : ["1", ".---", "Shake screen for W ticks."],
+            "RMU" : ["0", "----", "Resume previous music."],
+            "SAT" : ["0", "----", "Instantly display text until <END."],
+            "SIL" : ["1", "l---", "Show illustration W (credits)."],
+            "SK+" : ["1", "F---", "Set skipflag W."],
+            "SK-" : ["1", "F---", "Clear skipflag W."],
+            "SKJ" : ["2", "Fe--", "Jump to event X if skipflag W set."],
+            "SLP" : ["0", "----", "Show teleporter menu."],
+            "SMC" : ["0", "----", "Unhide PC."],
+            "SMP" : ["2", "xy--", "Subtract 1 from tile type at W:X (no smoke)."],
+            "SNP" : ["4", "nxyd", "Create entity type W at X:Y, direction Z."],
+            "SOU" : ["1", "s---", "Play sound effect W."],
+            "SPS" : ["0", "----", "Start propeller sound."],
+            "SSS" : ["1", "#---", "Start stream sound with volume W."],
+            "STC" : ["0", "----", "Save current time to 290.rec."],
+            "SVP" : ["0", "----", "Save current game."],
+            "TAM" : ["3", "aaA-", "Trade weapon W for X, set max ammo Y."],
+            "TRA" : ["4", "mexy", "Travel to map W, run event X, move to Y:Z."],
+            "TUR" : ["0", "----", "Instantly display text until next <MSG/END."],
+            "UNI" : ["1", "#---", "Set movement type (0000 normal, 0001 zero-G)."],
+            "UNJ" : ["2", "#e--", "Jump if movement type W."],
+            "WAI" : ["1", ".---", "Pause script for W ticks."],
+            "WAS" : ["0", "----", "Wait until PC on ground."],
+            "XX1" : ["1", "l---", "Show the island falling in manner W. Use 0000 to crash, 0001 to stop midway."],
+            "XX2" : ["1", "#---", "Set TimgFILE.png over the screen. The 'tag' for the file name must be exactly 4 characters."],
+            "YNJ" : ["1", "e---", "Yes/No prompt; jump to event W if No."],
+            "ZAM" : ["0", "----", "Reset all weapon energy to zero."],
+            "LRX" : ["3", "eee-", "Jump to W,X,Y if Left/Right/Shoot."],
+            "FNJ" : ["2", "Fe--", "Jump if flag X not set."],
+            "VAR" : ["2", "##--", "Store XXXX into variable WWWW."],
+            "VAZ" : ["2", "##--", "Zero XXXX variables starting at WWWW."],
+            "VAO" : ["2", "##--", "Perform operation on variable."],
+            "VAJ" : ["4", "###e", "Compare variables and jump."],
+            "RND" : ["3", "###-", "Random number into variable."],
+            "IMG" : ["1", "#---", "Set TimgFILE.bmp over screen."],
+            "PHY" : ["2", "##--", "Change physics variables."],
             # -- CS+ Switch Commands --
-            "I+N": ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
-            "2MV": ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
-            "2PJ": ["1", "#---", "Jump to event xxxx if P2 is active."],
-            "HM2": ["0", "----", "Hides only the player that triggered this event (unlike <HMC, which hides both)."],
-            "FF-": ["2", "##--", "Unsets the first set flag in the range [xxxx:yyyy]."],
-            "KE2": ["0", "----", "Used in the inventory; sets g_GameFlags |= 0x11: Flag 0x10 prevents the OK button from restarting the item description event (resets when cursor moved) (does not prevent cancel button)."],
-            "FR2": ["0", "----", "Sets g_GameFlags &= ~0x11 and g_GameFlags |= 1."],
-            "INJ": ["3", "###-", "Jump to event zzzz if player has at least yyyy quantity of item xxxx. Syntax: <INJxxxx:yyyy:zzzz"],
-            "POP": ["0", "----", "Event stack pop; restores read position from top of event stack."],
-            "PSH": ["1", "#---", "Event stack push; saves current read position (after this command) to a stack and then jumps to event xxxx. (CS+ Switch supports max 32 events on stack)."],
-            "ACH": ["1", "#---", "Get achievement xxxx."],
+            "I+N" : ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
+            "2MV" : ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
+            "2PJ" : ["1", "#---", "Jump to event xxxx if P2 is active."],
+            "HM2" : ["0", "----", "Hides only the player that triggered this event (unlike <HMC, which hides both)."],
+            "FF-" : ["2", "##--", "Unsets the first set flag in the range [xxxx:yyyy]."],
+            "KE2" : ["0", "----", "Used in the inventory; sets g_GameFlags |= 0x11: Flag 0x10 prevents the OK button from restarting the item description event (resets when cursor moved) (does not prevent cancel button)."],
+            "FR2" : ["0", "----", "Sets g_GameFlags &= ~0x11 and g_GameFlags |= 1."],
+            "INJ" : ["3", "###-", "Jump to event zzzz if player has at least yyyy quantity of item xxxx. Syntax: <INJxxxx:yyyy:zzzz"],
+            "POP" : ["0", "----", "Event stack pop; restores read position from top of event stack."],
+            "PSH" : ["1", "#---", "Event stack push; saves current read position (after this command) to a stack and then jumps to event xxxx. (CS+ Switch supports max 32 events on stack)."],
+            "ACH" : ["1", "#---", "Get achievement xxxx."],
                 }
 
     def load_custom_commands(self):
@@ -855,6 +863,18 @@ class TSCEditor:
     def update_commands_data(self):
         self.commands_data = self.base_commands_data.copy()
         self.commands_data.update(self.custom_commands)
+        self.build_command_regex()  # reconstruir regex cuando cambian los comandos
+
+    def build_command_regex(self):
+        """Construye una expresión regular que reconoce todos los nombres de comandos (con <)."""
+        if not self.commands_data:
+            self.command_pattern = re.compile(r'<[A-Z0-9+\-]+')  # fallback
+            return
+        # Ordenar de mayor a menor longitud para que coincidan los más largos primero
+        cmds = sorted(self.commands_data.keys(), key=len, reverse=True)
+        escaped_cmds = (re.escape(cmd) for cmd in cmds)
+        pattern = r'<(' + '|'.join(escaped_cmds) + r')'
+        self.command_pattern = re.compile(pattern)
 
     # ---------------------- COLORES PERSONALIZADOS DE COMANDOS ------------------
     def load_command_colors(self):
@@ -952,49 +972,41 @@ class TSCEditor:
                     })
                     i += 1
             elif ch == '<':
-                j = i+1
-                letras = []
-                while j < n and text[j].isalpha() and len(letras) < 3:
-                    letras.append(text[j])
-                    j += 1
-                if j < n and text[j].isdigit() and (j - i) <= 4:
-                    letras.append(text[j])
-                    j += 1
-                if j < n and text[j] in '+-':
-                    letras.append(text[j])
-                    j += 1
-                cmd_name = ''.join(letras).upper()
-                base_cmd = cmd_name.rstrip('+-')
-                if base_cmd in self.commands_data:
-                    num_args = int(self.commands_data[base_cmd][0])
-                    pos = j
-                    for arg_idx in range(num_args):
-                        if pos+4 > n or not text[pos:pos+4].isdigit():
-                            errors.append({
-                                'offset': pos,
-                                'length': min(4, n-pos),
-                                'message': f"Missing or invalid parameter {arg_idx+1} for command <{base_cmd}>."
-                            })
-                            break
-                        pos += 4
-                        if arg_idx < num_args - 1:
+                # Buscar comando conocido usando la regex
+                match = self.command_pattern.match(text, i)
+                if match:
+                    cmd_name = match.group(1)
+                    base_cmd = cmd_name.rstrip('+-')
+                    if base_cmd in self.commands_data:
+                        num_args = int(self.commands_data[base_cmd][0])
+                        pos = match.end()
+                        arg_idx = 0
+                        while arg_idx < num_args:
+                            # Saltar dos puntos opcionales
                             if pos < n and text[pos] == ':':
                                 pos += 1
+                            if pos+4 <= n and text[pos:pos+4].isdigit():
+                                pos += 4
+                                arg_idx += 1
                             else:
                                 errors.append({
                                     'offset': pos,
-                                    'length': 1,
-                                    'message': f"Missing ':' separator for command <{base_cmd}>."
+                                    'length': min(4, n-pos),
+                                    'message': f"Missing or invalid parameter {arg_idx+1} for command <{base_cmd}>."
                                 })
-                    i = pos
-                else:
-                    if len(base_cmd) <= 4:
+                                break
+                        i = pos
+                    else:
+                        # Comando desconocido
                         errors.append({
                             'offset': i,
-                            'length': j - i,
+                            'length': match.end() - i,
                             'message': f"Unknown command '<{cmd_name}>' at position {i}."
                         })
-                    i = j
+                        i = match.end()
+                else:
+                    # No es un comando conocido, avanzar
+                    i += 1
             else:
                 i += 1
         return errors
@@ -1014,48 +1026,40 @@ class TSCEditor:
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("evento", start, end)
 
-        # Comandos <XXX y argumentos
-        patron_comando = r'<([A-Z]{1,3}[+-]?)(\d{4})?'
-        for match in re.finditer(patron_comando, texto):
+        # Resaltado de comandos completos y sus argumentos
+        for match in self.command_pattern.finditer(texto):
+            cmd_name = match.group(1)
             start_cmd = match.start()
-            cmd_letters = match.group(1)   # ej: "CMU", "XX", "AM+"
-            arg_digits = match.group(2)    # ej: "0000", "1000", None
+            end_cmd = match.end()
+            start_cmd_pos = f"1.0 + {start_cmd} chars"
+            end_cmd_pos = f"1.0 + {end_cmd} chars"
 
-            base_letters = cmd_letters.rstrip('+-')
-            cmd_name_for_hl = cmd_letters
-            arg_for_hl = arg_digits
-
-            # Verificar si el primer dígito pertenece al nombre (XX1, XX2, I+N, 2MV, 2PJ)
-            if arg_digits and len(arg_digits) == 4:
-                first_digit = arg_digits[0]
-                candidate = base_letters + first_digit
-                if candidate in self.commands_data:
-                    cmd_name_for_hl = cmd_letters + first_digit
-                    arg_for_hl = arg_digits[1:] if len(arg_digits) > 1 else None
-
-            # Resaltar nombre del comando con color personalizado o por defecto azul
-            start_letters = start_cmd
-            end_letters = start_cmd + len(cmd_name_for_hl) + 1  # +1 por '<'
-            start_letters_pos = f"1.0 + {start_letters} chars"
-            end_letters_pos = f"1.0 + {end_letters} chars"
-
-            custom_color = self.get_command_color(cmd_name_for_hl)
+            # Aplicar color personalizado o azul por defecto
+            custom_color = self.get_command_color(cmd_name)
             if custom_color == "pink":
-                self.text_area.tag_add("comando_personal_rosa", start_letters_pos, end_letters_pos)
+                self.text_area.tag_add("comando_personal_rosa", start_cmd_pos, end_cmd_pos)
             elif custom_color == "red":
-                self.text_area.tag_add("comando_personal_rojo", start_letters_pos, end_letters_pos)
-            else:  # blue o None
-                self.text_area.tag_add("comando_letras", start_letters_pos, end_letters_pos)
+                self.text_area.tag_add("comando_personal_rojo", start_cmd_pos, end_cmd_pos)
+            else:
+                self.text_area.tag_add("comando_letras", start_cmd_pos, end_cmd_pos)
 
-            # Resaltar argumentos (rosa)
-            if arg_for_hl and len(arg_for_hl) > 0:
-                start_digits = end_letters
-                end_digits = start_digits + len(arg_for_hl)
-                start_digits_pos = f"1.0 + {start_digits} chars"
-                end_digits_pos = f"1.0 + {end_digits} chars"
-                self.text_area.tag_add("comando_digitos", start_digits_pos, end_digits_pos)
+            # Resaltar argumentos: grupos de 4 dígitos que sigan al comando (separados opcionalmente por ':')
+            pos = end_cmd
+            n = len(texto)
+            while pos < n and texto[pos] in '0123456789:':
+                if texto[pos] == ':':
+                    pos += 1
+                elif texto[pos].isdigit() and pos+4 <= n and texto[pos:pos+4].isdigit():
+                    start_arg = pos
+                    end_arg = pos+4
+                    start_arg_pos = f"1.0 + {start_arg} chars"
+                    end_arg_pos = f"1.0 + {end_arg} chars"
+                    self.text_area.tag_add("comando_digitos", start_arg_pos, end_arg_pos)
+                    pos = end_arg
+                else:
+                    break
 
-        # IDs sueltos (####) que no pertenezcan a comandos
+        # IDs sueltos (####) que no pertenezcan a comandos ni eventos
         patron_id = r'\b([0-9]{4})\b'
         for match in re.finditer(patron_id, texto):
             start_match = match.start()
@@ -1725,8 +1729,8 @@ class TSCEditor:
             result_widget.insert(tk.END, line, "error")
             return
 
-        pattern = r'<([A-Z]{1,3}[+-]?)(\d{4})?(?::(\d{4}))?(?::(\d{4}))?(?::(\d{4}))?'
-        match = re.match(pattern, line)
+        # Usar la misma regex de comandos
+        match = self.command_pattern.match(line)
         if not match:
             if re.fullmatch(r'\d{4}', line):
                 result_widget.insert(tk.END, "🔵 " + self.tr['id_type'] + ": ", "command")
@@ -1739,49 +1743,38 @@ class TSCEditor:
                 result_widget.insert(tk.END, line, "error")
                 return
 
-        cmd_letters = match.group(1)
-        first_digit = match.group(2) if match.group(2) else ""
-        full_cmd_name = cmd_letters
-        remaining_digits = first_digit
-        if first_digit and len(first_digit) == 4:
-            candidate = cmd_letters + first_digit[0]
-            if candidate in self.commands_data:
-                full_cmd_name = candidate
-                remaining_digits = first_digit[1:] if len(first_digit) > 1 else ""
+        cmd_name = match.group(1)
+        base_cmd = cmd_name.rstrip('+-')
 
-        base_cmd = full_cmd_name.rstrip('+-')
         if base_cmd not in self.commands_data:
             result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
-            result_widget.insert(tk.END, self.tr['unknown_command'] + f" '{full_cmd_name}'\n", "error")
+            result_widget.insert(tk.END, self.tr['unknown_command'] + f" '{cmd_name}'\n", "error")
             result_widget.insert(tk.END, line, "error")
             return
 
         num_args, types, desc = self.commands_data[base_cmd]
         num_args = int(num_args)
 
-        after_cmd = line[len(full_cmd_name)+1:]
-        arg_matches = re.findall(r':(\d{4})', after_cmd)
-        args = []
-        if remaining_digits:
-            args = [remaining_digits] + arg_matches
-        else:
-            args = arg_matches
+        after_cmd = line[match.end():]
+        # Extraer argumentos: grupos de 4 dígitos opcionalmente precedidos por ':'
+        arg_matches = re.findall(r':?(\d{4})', after_cmd)
+        args = arg_matches[:num_args]
 
         # Mostrar comando con color personalizado si existe
-        custom_color = self.get_command_color(full_cmd_name)
+        custom_color = self.get_command_color(cmd_name)
         result_widget.insert(tk.END, "🔵 " + self.tr['command_type'] + ": ", "command")
         if custom_color == "pink":
-            result_widget.insert(tk.END, f"<{full_cmd_name} ", "id")
+            result_widget.insert(tk.END, f"<{cmd_name} ", "id")
         elif custom_color == "red":
-            result_widget.insert(tk.END, f"<{full_cmd_name} ", "error")
+            result_widget.insert(tk.END, f"<{cmd_name} ", "error")
         else:
-            result_widget.insert(tk.END, f"<{full_cmd_name} ", "command")
+            result_widget.insert(tk.END, f"<{cmd_name} ", "command")
 
         result_widget.insert(tk.END, "\n" + "🩷 " + self.tr['id_type'] + "s: ", "id")
         if num_args == 0:
             result_widget.insert(tk.END, "ninguno\n", "id")
         else:
-            for idx, arg in enumerate(args[:num_args]):
+            for idx, arg in enumerate(args):
                 if arg and len(arg) == 4 and arg.isdigit():
                     result_widget.insert(tk.END, f"{arg} ", "id")
                 else:
@@ -2217,6 +2210,7 @@ class TSCEditor:
         line_text = self.text_area.get(line_start, line_end)
         cursor_col = int(cursor_pos.split('.')[1])
 
+        # Buscar '<' hacia atrás
         start_col = cursor_col
         while start_col > 0 and line_text[start_col-1] != '<':
             start_col -= 1
@@ -2225,30 +2219,35 @@ class TSCEditor:
             return
         start_col -= 1
 
-        after_lt = line_text[start_col+1:]
-        match = re.match(r'([A-Z]{1,4}[+-]?)', after_lt)
+        # Intentar matchear el comando desde esa posición
+        substring = line_text[start_col:]
+        match = self.command_pattern.match(substring)
         if not match:
             messagebox.showinfo(self.tr['cmd_info_title'], self.tr['cmd_unrecognized'])
             return
-        cmd_body = match.group(1)
-        base_cmd = cmd_body.rstrip('+-')
+
+        cmd_name = match.group(1)
+        base_cmd = cmd_name.rstrip('+-')
         if base_cmd in self.commands_data:
             desc = self.commands_data[base_cmd][2]
             extra = ""
             if base_cmd == "FAC":
-                id_match = re.search(r'[A-Z]{3,4}([0-9]{4})', after_lt)
+                # Buscar ID de cara después del comando
+                after = substring[match.end():]
+                id_match = re.search(r'(\d{4})', after)
                 if id_match:
                     face_id = id_match.group(1)
                     if face_id in self.face_names:
                         extra = f"\n{self.tr['face_name']}: {self.face_names[face_id]}"
             elif base_cmd == "CMU":
-                id_match = re.search(r'[A-Z]{3,4}([0-9]{4})', after_lt)
+                after = substring[match.end():]
+                id_match = re.search(r'(\d{4})', after)
                 if id_match:
                     music_id = id_match.group(1)
                     extra = f"\n{self.tr['music_id']}: {music_id}"
             messagebox.showinfo(f"{self.tr['cmd_info_title']}: {base_cmd}", f"{desc}{extra}")
         else:
-            messagebox.showinfo(self.tr['cmd_info_title'], f"{self.tr['cmd_unknown']} '<{cmd_body}>'")
+            messagebox.showinfo(self.tr['cmd_info_title'], f"{self.tr['cmd_unknown']} '<{cmd_name}>'")
 
     # ---------------------- MANEJO DE FUENTES ------------------
     def update_font(self):
