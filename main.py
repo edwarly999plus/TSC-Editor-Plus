@@ -16,7 +16,7 @@ from datetime import datetime
 class TSCEditor:
     def __init__(self, root):
         self.root = root
-        self.root.title("TSC Editor+ - Professional Edition")
+        self.root.title("TSC Editor+")
         self.root.geometry("1300x700")
 
         # ---------- IDIOMAS ----------
@@ -136,6 +136,38 @@ class TSCEditor:
                 'custom_cmd_args': 'Number of arguments (0-4):',
                 'search_docs': 'Search command...',
                 'tsc_commands': 'Show command info',
+                # Custom Command Syntax window
+                'custom_cmd_syntax': 'Custom Command Syntax...',
+                'cmd_syntax_window_title': 'Command Syntax Analyzer',
+                'cmd_input_label': 'Command line (e.g. <CMU0000 or <FAC0001):',
+                'parse_button': 'Analyze',
+                'syntax_result_title': 'Analysis result:',
+                'syntax_error_purpose': 'Force syntax error (invalid command)',
+                'clear_button': 'Clear',
+                'command_type': 'Command',
+                'id_type': 'ID',
+                'error_type': 'Error',
+                'command_color': 'Blue',
+                'id_color': 'Pink',
+                'error_color': 'Red',
+                'unknown_command': 'Unknown command',
+                'missing_param': 'Missing parameter',
+                'invalid_param': 'Invalid parameter (must be 4 digits)',
+                'extra_text': 'Extra text after command',
+                'command_header': 'Command name',
+                'id_header': 'ID/Parameter',
+                'error_header': 'Error description',
+                # Command color customization
+                'customize_command_colors': 'Customize Command Colors...',
+                'cmd_colors_title': 'Command Color Customization',
+                'cmd_color_instruction': 'Select a command and assign a color:',
+                'cmd_list': 'Command',
+                'current_color': 'Current Color',
+                'assign_color': 'Assign Color',
+                'color_blue': 'Blue (default)',
+                'color_pink': 'Pink (like ID)',
+                'color_red': 'Red (error)',
+                'color_reset': 'Reset to default',
             },
             'es': {
                 'window_title': 'TSC Editor+ - Edición Profesional',
@@ -252,6 +284,38 @@ class TSCEditor:
                 'custom_cmd_args': 'Número de argumentos (0-4):',
                 'search_docs': 'Buscar comando...',
                 'tsc_commands': 'Mostrar información del comando',
+                # Custom Command Syntax window
+                'custom_cmd_syntax': 'Sintaxis de comando personalizado...',
+                'cmd_syntax_window_title': 'Analizador de sintaxis de comandos',
+                'cmd_input_label': 'Línea de comando (ej. <CMU0000 o <FAC0001):',
+                'parse_button': 'Analizar',
+                'syntax_result_title': 'Resultado del análisis:',
+                'syntax_error_purpose': 'Forzar error de sintaxis (comando inválido)',
+                'clear_button': 'Limpiar',
+                'command_type': 'Comando',
+                'id_type': 'ID',
+                'error_type': 'Error',
+                'command_color': 'Azul',
+                'id_color': 'Rosa',
+                'error_color': 'Rojo',
+                'unknown_command': 'Comando desconocido',
+                'missing_param': 'Parámetro faltante',
+                'invalid_param': 'Parámetro inválido (deben ser 4 dígitos)',
+                'extra_text': 'Texto extra después del comando',
+                'command_header': 'Nombre del comando',
+                'id_header': 'ID/Parámetro',
+                'error_header': 'Descripción del error',
+                # Command color customization
+                'customize_command_colors': 'Personalizar colores de comandos...',
+                'cmd_colors_title': 'Personalización de colores de comandos',
+                'cmd_color_instruction': 'Selecciona un comando y asígnale un color:',
+                'cmd_list': 'Comando',
+                'current_color': 'Color actual',
+                'assign_color': 'Asignar color',
+                'color_blue': 'Azul (por defecto)',
+                'color_pink': 'Rosa (como ID)',
+                'color_red': 'Rojo (error)',
+                'color_reset': 'Restablecer a por defecto',
             },
             'jp': {
                 'window_title': 'TSC Editor+ - プロフェッショナル版',
@@ -368,13 +432,45 @@ class TSCEditor:
                 'custom_cmd_args': '引数の数（0-4）:',
                 'search_docs': 'コマンドを検索...',
                 'tsc_commands': 'コマンド情報を表示',
+                # Custom Command Syntax window
+                'custom_cmd_syntax': 'カスタムコマンド構文...',
+                'cmd_syntax_window_title': 'コマンド構文アナライザ',
+                'cmd_input_label': 'コマンドライン (例: <CMU0000 または <FAC0001):',
+                'parse_button': '分析',
+                'syntax_result_title': '分析結果:',
+                'syntax_error_purpose': '構文エラーを強制 (無効なコマンド)',
+                'clear_button': 'クリア',
+                'command_type': 'コマンド',
+                'id_type': 'ID',
+                'error_type': 'エラー',
+                'command_color': '青',
+                'id_color': 'ピンク',
+                'error_color': '赤',
+                'unknown_command': '不明なコマンド',
+                'missing_param': 'パラメータ不足',
+                'invalid_param': '無効なパラメータ (4桁必要)',
+                'extra_text': 'コマンド後の余分なテキスト',
+                'command_header': 'コマンド名',
+                'id_header': 'ID/パラメータ',
+                'error_header': 'エラー説明',
+                # Command color customization
+                'customize_command_colors': 'コマンドの色をカスタマイズ...',
+                'cmd_colors_title': 'コマンドの色設定',
+                'cmd_color_instruction': 'コマンドを選択して色を割り当て:',
+                'cmd_list': 'コマンド',
+                'current_color': '現在の色',
+                'assign_color': '色を割り当て',
+                'color_blue': '青 (デフォルト)',
+                'color_pink': 'ピンク (ID風)',
+                'color_red': '赤 (エラー)',
+                'color_reset': 'デフォルトに戻す',
             }
         }
 
         self.current_lang = self.detect_language()
         self.tr = self.langs.get(self.current_lang, self.langs['en'])
 
-        # ---------- COMANDOS BASE (incluyendo XX1, XX2) ----------
+        # ---------- COMANDOS BASE (incluyendo XX1, XX2, I+N, 2MV, 2PJ) ----------
         self.base_commands_data = self.load_base_commands()
         self.custom_commands_file = os.path.join(os.path.dirname(sys.argv[0]), "custom_commands.json")
         self.load_custom_commands()
@@ -392,7 +488,11 @@ class TSCEditor:
             "0028": "Itoh", "0029": "Ballos", "0030": "Out Of Bounds!",
         }
 
-        # ---------- CONFIGURACIÓN ----------
+        # ---------- CONFIGURACIÓN DE COLORES DE COMANDOS ----------
+        self.command_colors_file = os.path.join(os.path.dirname(sys.argv[0]), "command_colors.json")
+        self.load_command_colors()
+
+        # ---------- CONFIGURACIÓN GENERAL ----------
         self.settings_file = os.path.join(os.path.dirname(sys.argv[0]), "settings.json")
         self.settings = {
             "auto_save": False,
@@ -531,6 +631,9 @@ class TSCEditor:
         self.text_area.tag_configure("error", foreground="#FF0000")
         self.text_area.tag_configure("search_highlight", background="yellow")
         self.text_area.tag_configure("special_warning", foreground="#FF0000")
+        # Tags para colores personalizados de comandos
+        self.text_area.tag_configure("comando_personal_rosa", foreground="#C7158C")
+        self.text_area.tag_configure("comando_personal_rojo", foreground="#FF0000")
 
         self.search_text = ""
         self.search_case = False
@@ -580,6 +683,7 @@ class TSCEditor:
         self.root.bind("<Control-Delete>",       lambda e: self.delete_current_from_list())
         self.root.bind("<Control-Shift-Delete>", lambda e: self.delete_all_from_list())
         self.root.bind("<Control-h>",            lambda e: self.focus_history_tab())
+        self.root.bind("<Control-Shift-C>",      lambda e: self.open_custom_command_syntax_window())
 
         self.auto_save_timer = None
         if self.settings["auto_save"]:
@@ -660,7 +764,7 @@ class TSCEditor:
             "HMC": ["0", "----", "Hide PC."],
             "INI": ["0", "----", "Reset memory and restart game."],
             "INP": ["3", "Nnd-", "Change entity W to type X, direction Y, set flag 0x8000."],
-            "IT":  ["1", "i---", "<IT+ Give item W. <IT- Remove item W."],
+            "IT" : ["1", "i---", "<IT+ Give item W. <IT- Remove item W."],
             "ITJ": ["2", "ie--", "Jump to event X if PC has item W."],
             "KEY": ["0", "----", "Lock player controls and hide status bars until <END."],
             "LDP": ["0", "----", "Load saved game."],
@@ -722,11 +826,11 @@ class TSCEditor:
             # -- CS+ Switch Commands --
             "I+N": ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
             "2MV": ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
+            "2PJ": ["1", "#---", "Jump to event xxxx if P2 is active."],
             "HM2": ["0", "----", "Hides only the player that triggered this event (unlike <HMC, which hides both)."],
             "FF-": ["2", "##--", "Unsets the first set flag in the range [xxxx:yyyy]."],
             "KE2": ["0", "----", "Used in the inventory; sets g_GameFlags |= 0x11: Flag 0x10 prevents the OK button from restarting the item description event (resets when cursor moved) (does not prevent cancel button)."],
             "FR2": ["0", "----", "Sets g_GameFlags &= ~0x11 and g_GameFlags |= 1."],
-            "2PJ": ["1", "#---", "Jump to event xxxx if P2 is active."],
             "INJ": ["3", "###-", "Jump to event zzzz if player has at least yyyy quantity of item xxxx. Syntax: <INJxxxx:yyyy:zzzz"],
             "POP": ["0", "----", "Event stack pop; restores read position from top of event stack."],
             "PSH": ["1", "#---", "Event stack push; saves current read position (after this command) to a stack and then jumps to event xxxx. (CS+ Switch supports max 32 events on stack)."],
@@ -751,6 +855,84 @@ class TSCEditor:
     def update_commands_data(self):
         self.commands_data = self.base_commands_data.copy()
         self.commands_data.update(self.custom_commands)
+
+    # ---------------------- COLORES PERSONALIZADOS DE COMANDOS ------------------
+    def load_command_colors(self):
+        if os.path.exists(self.command_colors_file):
+            try:
+                with open(self.command_colors_file, "r", encoding="utf-8") as f:
+                    self.command_colors = json.load(f)
+            except:
+                self.command_colors = {}
+        else:
+            self.command_colors = {}
+
+    def save_command_colors(self):
+        with open(self.command_colors_file, "w", encoding="utf-8") as f:
+            json.dump(self.command_colors, f, indent=2)
+
+    def get_command_color(self, cmd_name):
+        return self.command_colors.get(cmd_name, None)
+
+    def customize_command_colors(self):
+        win = tk.Toplevel(self.root)
+        win.title(self.tr['cmd_colors_title'])
+        win.geometry("600x500")
+        win.transient(self.root)
+        win.grab_set()
+
+        frame = tk.Frame(win)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        tk.Label(frame, text=self.tr['cmd_color_instruction']).pack(anchor=tk.W)
+
+        columns = ("command", "color")
+        tree = ttk.Treeview(frame, columns=columns, show="headings")
+        tree.heading("command", text=self.tr['cmd_list'])
+        tree.heading("color", text=self.tr['current_color'])
+        tree.pack(fill=tk.BOTH, expand=True)
+
+        # Cargar todos los comandos conocidos (base + personalizados)
+        all_cmds = sorted(self.commands_data.keys())
+        for cmd in all_cmds:
+            color = self.command_colors.get(cmd, "blue")
+            color_display = {
+                "blue": self.tr['color_blue'],
+                "pink": self.tr['color_pink'],
+                "red": self.tr['color_red']
+            }.get(color, self.tr['color_blue'])
+            tree.insert("", tk.END, values=(cmd, color_display), tags=(cmd,))
+
+        btn_frame = tk.Frame(frame)
+        btn_frame.pack(fill=tk.X, pady=10)
+
+        def set_color(color):
+            selected = tree.selection()
+            if not selected:
+                return
+            item = selected[0]
+            cmd = tree.item(item, "values")[0]
+            if color == "reset":
+                if cmd in self.command_colors:
+                    del self.command_colors[cmd]
+            else:
+                self.command_colors[cmd] = color
+            self.save_command_colors()
+            # Actualizar vista
+            new_display = {
+                "blue": self.tr['color_blue'],
+                "pink": self.tr['color_pink'],
+                "red": self.tr['color_red']
+            }.get(color, self.tr['color_blue']) if color != "reset" else self.tr['color_blue']
+            tree.item(item, values=(cmd, new_display))
+            # Refrescar editor
+            self.delayed_highlight()
+
+        tk.Button(btn_frame, text=self.tr['color_blue'], command=lambda: set_color("blue")).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['color_pink'], command=lambda: set_color("pink")).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['color_red'], command=lambda: set_color("red")).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['color_reset'], command=lambda: set_color("reset")).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
 
     # ---------------------- SINTAXIS Y RESALTADO ------------------
     def check_syntax(self, text):
@@ -817,9 +999,9 @@ class TSCEditor:
                 i += 1
         return errors
 
-    # ---------- MÉTODO CORREGIDO DE RESALTADO ----------
     def highlight_syntax(self):
-        for tag in ("evento", "comando_letras", "comando_digitos", "comando_id", "error", "special_warning"):
+        for tag in ("evento", "comando_letras", "comando_digitos", "comando_id", "error", "special_warning",
+                    "comando_personal_rosa", "comando_personal_rojo"):
             self.text_area.tag_remove(tag, "1.0", tk.END)
 
         texto = self.text_area.get("1.0", tk.END)
@@ -843,7 +1025,7 @@ class TSCEditor:
             cmd_name_for_hl = cmd_letters
             arg_for_hl = arg_digits
 
-            # Verificar si el primer dígito pertenece al nombre (XX1, XX2)
+            # Verificar si el primer dígito pertenece al nombre (XX1, XX2, I+N, 2MV, 2PJ)
             if arg_digits and len(arg_digits) == 4:
                 first_digit = arg_digits[0]
                 candidate = base_letters + first_digit
@@ -851,12 +1033,19 @@ class TSCEditor:
                     cmd_name_for_hl = cmd_letters + first_digit
                     arg_for_hl = arg_digits[1:] if len(arg_digits) > 1 else None
 
-            # Resaltar nombre del comando (azul)
+            # Resaltar nombre del comando con color personalizado o por defecto azul
             start_letters = start_cmd
             end_letters = start_cmd + len(cmd_name_for_hl) + 1  # +1 por '<'
             start_letters_pos = f"1.0 + {start_letters} chars"
             end_letters_pos = f"1.0 + {end_letters} chars"
-            self.text_area.tag_add("comando_letras", start_letters_pos, end_letters_pos)
+
+            custom_color = self.get_command_color(cmd_name_for_hl)
+            if custom_color == "pink":
+                self.text_area.tag_add("comando_personal_rosa", start_letters_pos, end_letters_pos)
+            elif custom_color == "red":
+                self.text_area.tag_add("comando_personal_rojo", start_letters_pos, end_letters_pos)
+            else:  # blue o None
+                self.text_area.tag_add("comando_letras", start_letters_pos, end_letters_pos)
 
             # Resaltar argumentos (rosa)
             if arg_for_hl and len(arg_for_hl) > 0:
@@ -872,7 +1061,7 @@ class TSCEditor:
             start_match = match.start()
             start_index = f"1.0 + {start_match} chars"
             tags = self.text_area.tag_names(start_index)
-            if not any(t in tags for t in ("evento", "comando_letras", "comando_digitos")):
+            if not any(t in tags for t in ("evento", "comando_letras", "comando_digitos", "comando_personal_rosa", "comando_personal_rojo")):
                 start_pos = f"1.0 + {start_match} chars"
                 end_pos = f"1.0 + {match.end()} chars"
                 self.text_area.tag_add("comando_id", start_pos, end_pos)
@@ -890,11 +1079,13 @@ class TSCEditor:
             start = f"1.0 + {err['offset']} chars"
             end = f"1.0 + {err['offset'] + err['length']} chars"
             tags = self.text_area.tag_names(start)
-            if not any(t in tags for t in ("comando_letras", "comando_digitos")):
+            if not any(t in tags for t in ("comando_letras", "comando_digitos", "comando_personal_rosa", "comando_personal_rojo")):
                 self.text_area.tag_add("error", start, end)
 
         # Prioridad
         self.text_area.tag_raise("comando_letras")
+        self.text_area.tag_raise("comando_personal_rosa")
+        self.text_area.tag_raise("comando_personal_rojo")
         self.text_area.tag_raise("comando_digitos")
 
     # ---------------------- BÚSQUEDA Y REEMPLAZO ------------------
@@ -1416,8 +1607,8 @@ class TSCEditor:
 
         def add_cmd():
             name = simpledialog.askstring("Add Command", self.tr['custom_cmd_name'], parent=win)
-            if not name or len(name) < 1 or len(name) > 4:
-                messagebox.showerror("Error", "Command name must be 1-4 letters.", parent=win)
+            if not name or len(name) < 2 or len(name) > 3:
+                messagebox.showerror("Error", "Command name must be 2-3 letters.", parent=win)
                 return
             name = name.upper()
             if name in self.commands_data:
@@ -1475,6 +1666,148 @@ class TSCEditor:
         tk.Button(btn_frame, text="Remove", command=remove_cmd).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
 
+    # ---------------------- VENTANA DE SINTAXIS DE COMANDO PERSONALIZADO ------------------
+    def open_custom_command_syntax_window(self):
+        win = tk.Toplevel(self.root)
+        win.title(self.tr['cmd_syntax_window_title'])
+        win.geometry("700x500")
+        win.transient(self.root)
+        win.grab_set()
+
+        force_error = tk.BooleanVar(value=False)
+
+        main_frame = tk.Frame(win)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        tk.Label(main_frame, text=self.tr['cmd_input_label'], anchor=tk.W).pack(fill=tk.X)
+        input_entry = tk.Entry(main_frame, font=("Courier New", 10))
+        input_entry.pack(fill=tk.X, pady=(5, 10))
+        input_entry.insert(0, "<CMU0000")
+
+        error_cb = tk.Checkbutton(main_frame, text=self.tr['syntax_error_purpose'], variable=force_error)
+        error_cb.pack(anchor=tk.W, pady=5)
+
+        btn_frame = tk.Frame(main_frame)
+        btn_frame.pack(fill=tk.X, pady=10)
+        parse_btn = tk.Button(btn_frame, text=self.tr['parse_button'], command=lambda: self.analyze_command_syntax(input_entry.get(), result_text, force_error.get()))
+        parse_btn.pack(side=tk.LEFT, padx=5)
+        clear_btn = tk.Button(btn_frame, text=self.tr['clear_button'], command=lambda: result_text.delete(1.0, tk.END))
+        clear_btn.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(main_frame, text=self.tr['syntax_result_title'], anchor=tk.W).pack(fill=tk.X, pady=(10,0))
+        result_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, height=15, font=("Courier New", 10))
+        result_text.pack(fill=tk.BOTH, expand=True, pady=5)
+
+        # Configurar tags de color para esta ventana
+        if not self.settings.get("dark_theme", False):
+            result_text.tag_configure("command", foreground="#0000FF")
+            result_text.tag_configure("id", foreground="#C7158C")
+            result_text.tag_configure("error", foreground="#FF0000")
+            result_text.tag_configure("bold", font=("Courier New", 10, "bold"))
+        else:
+            result_text.tag_configure("command", foreground="#88AAFF")
+            result_text.tag_configure("id", foreground="#FF88BB")
+            result_text.tag_configure("error", foreground="#FF6666")
+            result_text.tag_configure("bold", font=("Courier New", 10, "bold"))
+
+        parse_btn.invoke()
+
+    def analyze_command_syntax(self, line: str, result_widget: scrolledtext.ScrolledText, force_error: bool):
+        result_widget.delete(1.0, tk.END)
+        line = line.strip()
+        if not line:
+            result_widget.insert(tk.END, "⚠️ " + self.tr['cmd_not_found'])
+            return
+
+        if force_error:
+            result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+            result_widget.insert(tk.END, self.tr['syntax_error_purpose'] + "\n", "error")
+            result_widget.insert(tk.END, line, "error")
+            return
+
+        pattern = r'<([A-Z]{1,3}[+-]?)(\d{4})?(?::(\d{4}))?(?::(\d{4}))?(?::(\d{4}))?'
+        match = re.match(pattern, line)
+        if not match:
+            if re.fullmatch(r'\d{4}', line):
+                result_widget.insert(tk.END, "🔵 " + self.tr['id_type'] + ": ", "command")
+                result_widget.insert(tk.END, line + "\n", "id")
+                result_widget.insert(tk.END, self.tr['id_header'] + ": " + line)
+                return
+            else:
+                result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+                result_widget.insert(tk.END, self.tr['unknown_command'] + "\n", "error")
+                result_widget.insert(tk.END, line, "error")
+                return
+
+        cmd_letters = match.group(1)
+        first_digit = match.group(2) if match.group(2) else ""
+        full_cmd_name = cmd_letters
+        remaining_digits = first_digit
+        if first_digit and len(first_digit) == 4:
+            candidate = cmd_letters + first_digit[0]
+            if candidate in self.commands_data:
+                full_cmd_name = candidate
+                remaining_digits = first_digit[1:] if len(first_digit) > 1 else ""
+
+        base_cmd = full_cmd_name.rstrip('+-')
+        if base_cmd not in self.commands_data:
+            result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+            result_widget.insert(tk.END, self.tr['unknown_command'] + f" '{full_cmd_name}'\n", "error")
+            result_widget.insert(tk.END, line, "error")
+            return
+
+        num_args, types, desc = self.commands_data[base_cmd]
+        num_args = int(num_args)
+
+        after_cmd = line[len(full_cmd_name)+1:]
+        arg_matches = re.findall(r':(\d{4})', after_cmd)
+        args = []
+        if remaining_digits:
+            args = [remaining_digits] + arg_matches
+        else:
+            args = arg_matches
+
+        # Mostrar comando con color personalizado si existe
+        custom_color = self.get_command_color(full_cmd_name)
+        result_widget.insert(tk.END, "🔵 " + self.tr['command_type'] + ": ", "command")
+        if custom_color == "pink":
+            result_widget.insert(tk.END, f"<{full_cmd_name} ", "id")
+        elif custom_color == "red":
+            result_widget.insert(tk.END, f"<{full_cmd_name} ", "error")
+        else:
+            result_widget.insert(tk.END, f"<{full_cmd_name} ", "command")
+
+        result_widget.insert(tk.END, "\n" + "🩷 " + self.tr['id_type'] + "s: ", "id")
+        if num_args == 0:
+            result_widget.insert(tk.END, "ninguno\n", "id")
+        else:
+            for idx, arg in enumerate(args[:num_args]):
+                if arg and len(arg) == 4 and arg.isdigit():
+                    result_widget.insert(tk.END, f"{arg} ", "id")
+                else:
+                    result_widget.insert(tk.END, f"[{arg if arg else '???'}] ", "error")
+            result_widget.insert(tk.END, "\n")
+            if len(args) < num_args:
+                result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+                result_widget.insert(tk.END, self.tr['missing_param'] + f" (se esperaban {num_args})\n", "error")
+            elif len(args) > num_args:
+                result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+                result_widget.insert(tk.END, self.tr['extra_text'] + f" (se esperaban {num_args})\n", "error")
+
+        result_widget.insert(tk.END, "\n📖 " + self.tr['description'] + ": ", "bold")
+        result_widget.insert(tk.END, desc + "\n")
+        result_widget.insert(tk.END, "\n" + "─" * 50 + "\n")
+        result_widget.insert(tk.END, "📝 " + self.tr['cmd_input_label'] + " ", "bold")
+        result_widget.insert(tk.END, line + "\n")
+
+        errors = self.check_syntax(line + "\n")
+        if errors:
+            result_widget.insert(tk.END, "\n🔴 " + self.tr['syntax_errors'] + ":\n", "error")
+            for err in errors:
+                result_widget.insert(tk.END, f"  • {err['message']}\n", "error")
+        else:
+            result_widget.insert(tk.END, "\n✅ " + self.tr['syntax_no_errors'] + "\n")
+
     # ---------------------- CONFIGURACIÓN Y TEMA OSCURO ------------------
     def load_settings(self):
         if os.path.exists(self.settings_file):
@@ -1497,12 +1830,14 @@ class TSCEditor:
             text_bg = "#1e1e1e"
             paned_bg = "#2b2b2b"
             button_bg = "#3c3c3c"
-            cmd_color = "#88AAFF"
-            digit_color = "#FF88BB"
+            cmd_color = "#88AAFF"      # azul claro
+            digit_color = "#FF88BB"    # rosa
             id_color = "#FF88BB"
             error_color = "#FF6666"
             special_color = "#FF6666"
             search_bg = "#444400"
+            cmd_pink = "#FF88BB"
+            cmd_red = "#FF6666"
         else:
             bg_color = "#f0f0f0"
             fg_color = "#000000"
@@ -1510,12 +1845,14 @@ class TSCEditor:
             text_bg = "#ffffff"
             paned_bg = "#f0f0f0"
             button_bg = "#f0f0f0"
-            cmd_color = "#0000FF"
-            digit_color = "#C7158C"
+            cmd_color = "#0000FF"      # azul
+            digit_color = "#C7158C"    # rosa
             id_color = "#C7158C"
             error_color = "#FF0000"
             special_color = "#FF0000"
             search_bg = "yellow"
+            cmd_pink = "#C7158C"
+            cmd_red = "#FF0000"
 
         self.root.configure(bg=bg_color)
         self.main_paned.configure(bg=paned_bg, sashrelief=tk.RAISED)
@@ -1541,6 +1878,8 @@ class TSCEditor:
         self.text_area.tag_configure("error", foreground=error_color)
         self.text_area.tag_configure("special_warning", foreground=special_color)
         self.text_area.tag_configure("search_highlight", background=search_bg)
+        self.text_area.tag_configure("comando_personal_rosa", foreground=cmd_pink)
+        self.text_area.tag_configure("comando_personal_rojo", foreground=cmd_red)
 
     def open_settings(self):
         win = Toplevel(self.root)
@@ -1645,6 +1984,8 @@ class TSCEditor:
         view_menu.add_command(label=self.tr['search_tab'], command=self.focus_search_tab, accelerator="Ctrl+F")
         view_menu.add_command(label=self.tr['show_history'], command=self.focus_history_tab, accelerator="Ctrl+H")
         view_menu.add_command(label=self.tr['edit_custom_cmds'], command=self.edit_custom_commands)
+        view_menu.add_command(label=self.tr['custom_cmd_syntax'], command=self.open_custom_command_syntax_window, accelerator="Ctrl+Shift+C")
+        view_menu.add_command(label=self.tr['customize_command_colors'], command=self.customize_command_colors)
 
         font_submenu = tk.Menu(view_menu, tearoff=0)
         view_menu.add_cascade(label=self.tr['font_submenu'], menu=font_submenu)
@@ -2020,6 +2361,7 @@ class TSCEditor:
             "Cifrado compatible con Booster's Lab (Carrot Lord)\n"
             "Características:\n"
             "- Resaltado de sintaxis (comandos, eventos, números, caracteres especiales)\n"
+            "- Personalización de colores de comandos (azul/rosa/rojo)\n"
             "- Historial de acciones, contador de líneas y caracteres\n"
             "- Búsqueda y reemplazo con resaltado en tiempo real\n"
             "- Documentación rápida de comandos con buscador integrado\n"
@@ -2028,7 +2370,8 @@ class TSCEditor:
             "- Cambio rápido de fuente con Ctrl+rueda\n"
             "- Modo oscuro\n"
             "- Soporte multilenguaje (español, inglés, japonés)\n"
-            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Alt+F4\n"
+            "- Ventana de Análisis de Sintaxis de Comandos (Ctrl+Shift+C)\n"
+            "Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Alt+F4\n"
             "Creado para la comunidad de modding de Cave Story.")
 
     def show_hex_dump(self):
