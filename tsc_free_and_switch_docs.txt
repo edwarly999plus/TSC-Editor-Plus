@@ -1,3 +1,5 @@
+# -- Freeware Commands --
+
 Command--Args--IDs---Description
 "AE+" :  ["0", "----", "Refill all weapon ammo."],
 "AM+" :  ["2", "aA--", "Give weapon W with X ammo. Use 0000 for infinite ammo."],
@@ -101,7 +103,8 @@ Command--Args--IDs---Description
 "PHY" : ["2", "##--", "Change physics variables."],
             
 # -- CS+ Switch Commands --
-            
+
+Command--Args--IDs---Description
 "I+N" : ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
 "2MV" : ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
 "2PJ" : ["1", "#---", "Jump to event xxxx if P2 is active."],
