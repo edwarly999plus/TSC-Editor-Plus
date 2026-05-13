@@ -1292,7 +1292,7 @@ class TSCEditor:
             (True, "cp932", "Cypher + CP932"), #Steam + Freeware
             (False, "latin-1", "No Cypher + Latin-1"), #Steam
             (False, "cp850", "No Cypher + CP850"), #Steam
-            (True, "utf-8", "No Cypher + UTF-8") #Switch
+            (False, "utf-8", "No Cypher + UTF-8") #Switch
         ]
         best_text = None
         best_score = -1
