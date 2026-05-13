@@ -1,6 +1,9 @@
-# -- Freeware/Steam Commands --
+# TSC Editor+ Documentation
 
-Command--Args--IDs---Description
+## Freeware/Steam Commands
+
+```bash
+|Command||Args||IDs||Description|
 "AE+" :  ["0", "----", "Refill all weapon ammo."],
 "AM+" :  ["2", "aA--", "Give weapon W with X ammo. Use 0000 for infinite ammo."],
 "AM-" :  ["1", "a--", "Remove weapon W."],
@@ -101,10 +104,11 @@ Command--Args--IDs---Description
 "VAJ" : ["4", "###e", "Compare variables and jump."],
 "RND" : ["3", "###-", "Random number into variable."],
 "PHY" : ["2", "##--", "Change physics variables."],
-            
-# -- CS+ Switch Commands --
+```           
+## Cave Story+ Switch Commands
 
-Command--Args--IDs---Description
+```bash
+|Command||Args||IDs||Description|
 "I+N" : ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
 "2MV" : ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
 "2PJ" : ["1", "#---", "Jump to event xxxx if P2 is active."],
@@ -116,3 +120,4 @@ Command--Args--IDs---Description
 "POP" : ["0", "----", "Event stack pop; restores read position from top of event stack."],
 "PSH" : ["1", "#---", "Event stack push; saves current read position (after this command) to a stack and then jumps to event xxxx. (CS+ Switch supports max 32 events on stack)."],
 "ACH" : ["1", "#---", "Get achievement xxxx."],
+```
