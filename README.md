@@ -1,105 +1,122 @@
-# TSC Editor+
+# 🚀 TSC Editor+
+
+![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
+![Tkinter](https://img.shields.io/badge/GUI-Tkinter-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Cave Story](https://img.shields.io/badge/Game-Cave%20Story-orange)
+![Encoding](https://img.shields.io/badge/Encoding-Shift--JIS%20%7C%20UTF--8-informational)
+![Version](https://img.shields.io/badge/Version-1.0-blueviolet)
 
 A powerful multi-language editor for `.tsc` script files used in the Cave Story engine and its variants.
-Built with Python and Tkinter, **TSC Editor+** focuses on script editing, syntax highlighting, quick documentation, project management, and workflow improvements for modders.
+Built with **Python + Tkinter**, **TSC Editor+** is focused on improving the workflow of modders, translators, and script editors with advanced tools, syntax highlighting, documentation systems, and project management features.
 
 ---
 
-## Features
+# ✨ Features
 
-* Multi-language interface
+## 🌍 Multi-language Interface
 
-  * English
-  * Español
-  * 日本語
+Supports:
 
-* Advanced `.tsc` support
-
-  * Automatic encoding detection
-  * Cipher detection/decryption
-  * Syntax highlighting
-  * Syntax validation
-  * Smart special character replacement
-
-* Project tools
-
-  * Open/save `.cstsc` projects
-  * Load full project folders
-  * Auto-save support
-  * History tracking
-
-* Editing utilities
-
-  * Search & Replace
-  * Whole word / case sensitive search
-  * Character counters
-  * Hex dump viewer
-  * Undo / Redo support
-
-* Command system
-
-  * Built-in TSC command documentation
-  * Quick Docs panel
-  * Custom commands
-  * Custom command syntax analyzer
-  * Command color customization
-
-* Game integration
-
-  * Launch game directly with `doukutsu.exe`
-  * Quick testing with `F5`
-
-* UI customization
-
-  * Dark theme
-  * Configurable fonts
-  * Adjustable font sizes
+* 🇺🇸 English
+* 🇪🇸 Español
+* 🇯🇵 日本語
 
 ---
 
-## Screenshots
-<img width="1366" height="719" alt="image" src="https://github.com/user-attachments/assets/e4d92741-0381-4349-85f4-e84f3abb4e6a"/>
+## 🛠️ Advanced `.tsc` Support
 
+* 🔍 Automatic encoding detection
+* 🔐 Cipher/encryption detection
+* 🎨 Syntax highlighting
+* ⚠️ Syntax validation
+* 🧠 Smart replacement of unsupported special characters
+* 🧾 Quick command documentation
+* 🧩 Custom command support
 
 ---
 
-## Requirements
+## 📁 Project Management
 
-* Python 3.9+
-* Tkinter
+* 📂 Open/save `.cstsc` projects
+* 📦 Load full folders of `.tsc` files
+* 💾 Auto-save system
+* 🕘 Edit history tracking
 
 ---
 
-## Installation
+## ✏️ Editing Utilities
+
+* 🔎 Search & Replace
+* 🔠 Whole word / case-sensitive search
+* 📏 Character counters
+* 🧮 Syntax analyzer
+* 🧬 Hex dump viewer
+* ↩️ Undo / Redo support
+
+---
+
+## 🎮 Game Integration
+
+* 🚀 Launch the game directly using `doukutsu.exe`
+* ⚡ Quick testing with `F5`
+
+---
+
+## 🎨 UI Customization
+
+* 🌙 Dark theme
+* 🔤 Custom fonts
+* 🔍 Adjustable font sizes
+* 🎨 Custom command colors
+
+---
+
+# 📸 Screenshots
+
+<img width="1366" height="720" alt="image" src="https://github.com/user-attachments/assets/18e40019-d640-4935-b837-e62af0daccb1" />
+
+---
+
+# 📦 Requirements
+
+* 🐍 Python 3.9+
+* 🪟 Tkinter
+
+---
+
+# ⚙️ Installation
 
 Clone the repository:
 
-```bash
-git clone https://github.com/edwarly999plus/TSC-Editor-Plus.git
+```bash id="gup3g1"
+git clone https://github.com/edwarly999plus/tsc-editor-plus.git
 cd tsc-editor-plus
 ```
 
 Run the editor:
 
-```bash
+```bash id="jlwmc5"
 python main.py
 ```
 
 ---
 
-## Supported File Types
+# 📂 Supported File Types
 
-| Extension | Description               |
-| --------- | ------------------------- |
-| `.tsc`    | Cave Story script files   |
-| `.cstsc`  | TSC Editor+ project files |
-| `.txt`    | Plain text                |
+| 📄 Extension | 📘 Description            |
+| ------------ | ------------------------- |
+| `.tsc`       | Cave Story script files   |
+| `.cstsc`     | TSC Editor+ project files |
+| `.txt`       | Plain text files          |
 
 ---
 
-## Keyboard Shortcuts
+# ⌨️ Keyboard Shortcuts
 
-| Shortcut                 | Action                  |
+| ⌨️ Shortcut              | 🧩 Action               |
 | ------------------------ | ----------------------- |
 | `Ctrl + O`               | Open `.tsc`             |
 | `Ctrl + Shift + O`       | Open project            |
@@ -116,23 +133,23 @@ python main.py
 
 ---
 
-## Built-In Tools
+# 🧠 Built-In Tools
 
-### Syntax Highlighting
+## 🎨 Syntax Highlighting
 
 TSC commands, IDs, events, and errors are highlighted automatically.
 
-### Quick Documentation
+## 📚 Quick Documentation
 
 Browse built-in command documentation directly inside the editor.
 
-### Smart Replace
+## 🧹 Smart Replace
 
 Automatically converts problematic characters commonly unsupported by classic TSC encodings.
 
-### Auto Encoding Detection
+## 🔍 Auto Encoding Detection
 
-The editor attempts to detect:
+The editor can automatically detect:
 
 * Shift-JIS
 * CP932
@@ -144,9 +161,9 @@ It also supports encrypted/freeware TSC formats.
 
 ---
 
-## Project Structure
+# 🗂️ Project Structure
 
-```text
+```text id="c5ncmr"
 project/
 │
 ├── main.py
@@ -159,43 +176,67 @@ project/
 
 ---
 
-## Planned Features
+# 🛣️ Planned Features
 
-* Plugin system
-* More TSC command presets
-* Better script analysis
-* Linux/macOS testing
-* Integrated event navigator
-* Export improvements
-
----
-
-## License
-
-This project is currently unlicensed.
-Add a license file if you plan to distribute or accept contributions.
+* 🔌 Plugin system
+* 📖 More TSC command presets
+* 🧠 Better script analysis
+* 🐧 Linux/macOS support
+* 🗺️ Integrated event navigator
+* 📤 Improved export system
 
 ---
 
-## Credits
+# 📜 License
 
-* Inspired by the modding community around Cave Story
-* Developed with Python + Tkinter
+This project is licensed under the **MIT License**.
+
+```text id="52q60q"
+MIT License
+
+Copyright (c) 2026 EdwarlyGamer999+
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ---
 
-## Contributing
+# 🤝 Contributing
 
-Pull requests, bug reports, and suggestions are welcome.
+Pull requests, ideas, and bug reports are welcome! 🎉
 
-If you find issues:
+If you find an issue:
 
-1. Open an issue
-2. Describe the problem clearly
-3. Include screenshots or sample `.tsc` files if possible
+1. 🍴 Fork the repository
+2. 🛠️ Make your changes
+3. 📩 Submit a pull request
 
 ---
 
-## Author
+# ❤️ Credits
 
-Created by **Edwarly Castillo Silverio**.
+* Inspired by the amazing modding community around Cave Story
+* Developed with 🐍 Python + Tkinter
+* Carrot Lord's Encryptor and Decryptor (Booster's Lab) (Cave Editor) was used
+
+---
+
+# 👨‍💻 Author
+
+Created by **EdwarlyGamer999+** ✨
