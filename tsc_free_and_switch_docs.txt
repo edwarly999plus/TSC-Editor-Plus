@@ -1,4 +1,4 @@
-# -- Freeware Commands --
+# -- Freeware/Steam Commands --
 
 Command--Args--IDs---Description
 "AE+" :  ["0", "----", "Refill all weapon ammo."],
