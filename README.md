@@ -1,4 +1,10 @@
+<div align="center">
+
 # 🚀 TSC Editor+
+
+<img width="154" height="154" alt="a779d220-24ba-4e2f-810a-0c4fcc022194" src="https://github.com/user-attachments/assets/13de0e36-b6f7-47fe-9043-5aa3e78dfaa7" />
+
+
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
 ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-green)
