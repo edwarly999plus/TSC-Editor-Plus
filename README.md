@@ -20,6 +20,8 @@ Built with **Python + Tkinter**, **TSC Editor+** is focused on improving the wor
 
 ---
 
+<div align="left">
+
 # ✨ Features
 
 ## 🌍 Multi-language Interface
