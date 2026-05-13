@@ -170,7 +170,7 @@ class TSCEditor:
                 'color_reset': 'Reset to default',
             },
             'es': {
-                'window_title': 'TSC Editor+ - Edición Profesional',
+                'window_title': 'TSC Editor+',
                 'file_menu': 'Archivo',
                 'open_tsc': 'Abrir .tsc...',
                 'open_project': 'Abrir proyecto .cstsc...',
@@ -318,7 +318,7 @@ class TSCEditor:
                 'color_reset': 'Restablecer a por defecto',
             },
             'jp': {
-                'window_title': 'TSC Editor+ - プロフェッショナル版',
+                'window_title': 'TSC Editor+',
                 'file_menu': 'ファイル',
                 'open_tsc': '.tscを開く...',
                 'open_project': '.cstscプロジェクトを開く...',
@@ -952,7 +952,7 @@ class TSCEditor:
         tk.Button(btn_frame, text=self.tr['color_reset'], command=lambda: set_color("reset")).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
 
-    # ---------------------- SINTAXIS Y RESALTADO ------------------
+    # ---------------------- SYNTAX AND HIGHLIGHTING ------------------
     def check_syntax(self, text):
         errors = []
         i = 0
@@ -970,16 +970,15 @@ class TSCEditor:
                     })
                     i += 1
             elif ch == '<':
-                # Buscar comando conocido usando la regex
                 match = self.command_pattern.match(text, i)
                 if match:
                     cmd_name = match.group(1)
-                    # Ahora buscar directamente cmd_name en commands_data (ya incluye + y -)
+                    # Now directly search for cmd_name in commands_data (already includes + and -)
                     if cmd_name in self.commands_data:
                         num_args = int(self.commands_data[cmd_name][0])
                         pos = match.end()
                         arg_idx = 0
-                        # Extraer argumentos (4 dígitos separados opcionalmente por ':')
+                        # Extract arguments (4 digits optionally separated by ':')
                         while arg_idx < num_args and pos < n:
                             if text[pos] == ':':
                                 pos += 1
@@ -995,7 +994,7 @@ class TSCEditor:
                                 break
                         i = pos
                     else:
-                        # Comando desconocido
+                        # Unknown command
                         errors.append({
                             'offset': i,
                             'length': match.end() - i,
@@ -1003,7 +1002,7 @@ class TSCEditor:
                         })
                         i = match.end()
                 else:
-                    # No es un comando conocido, avanzar
+                    # It's not a known command, move forward
                     i += 1
             else:
                 i += 1
@@ -1018,13 +1017,13 @@ class TSCEditor:
         if not texto:
             return
 
-        # Eventos #XXXX
+        # Events #XXXX
         for match in re.finditer(r'#[0-9A-Fa-f]{4}\b', texto):
             start = f"1.0 + {match.start()} chars"
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("evento", start, end)
 
-        # Resaltado de comandos completos y sus argumentos
+        # Highlighting of complete commands and their arguments
         for match in self.command_pattern.finditer(texto):
             cmd_name = match.group(1)
             start_cmd = match.start()
@@ -1032,7 +1031,7 @@ class TSCEditor:
             start_cmd_pos = f"1.0 + {start_cmd} chars"
             end_cmd_pos = f"1.0 + {end_cmd} chars"
 
-            # Aplicar color personalizado o azul por defecto
+            # Apply custom color or default blue
             custom_color = self.get_command_color(cmd_name)
             if custom_color == "pink":
                 self.text_area.tag_add("comando_personal_rosa", start_cmd_pos, end_cmd_pos)
@@ -1041,7 +1040,7 @@ class TSCEditor:
             else:
                 self.text_area.tag_add("comando_letras", start_cmd_pos, end_cmd_pos)
 
-            # Resaltar argumentos: grupos de 4 dígitos que sigan al comando (separados opcionalmente por ':')
+            # Highlight arguments: groups of 4 digits following the command (optionally separated by ':')
             pos = end_cmd
             n = len(texto)
             while pos < n and texto[pos] in '0123456789:':
@@ -1057,7 +1056,7 @@ class TSCEditor:
                 else:
                     break
 
-        # IDs sueltos (####) que no pertenezcan a comandos ni eventos
+        # Loose IDs (####) that do not belong to commands or events
         patron_id = r'\b([0-9]{4})\b'
         for match in re.finditer(patron_id, texto):
             start_match = match.start()
@@ -1068,14 +1067,14 @@ class TSCEditor:
                 end_pos = f"1.0 + {match.end()} chars"
                 self.text_area.tag_add("comando_id", start_pos, end_pos)
 
-        # Caracteres especiales (rojo)
+        # Special characters (red)
         patron_especial = r'[áéíóúüñÁÉÍÓÚÜÑ¡¿çÄËÏÖÜäëïöü]'
         for match in re.finditer(patron_especial, texto):
             start = f"1.0 + {match.start()} chars"
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("special_warning", start, end)
 
-        # Errores de sintaxis (evitar solapamiento)
+        # Syntax errors (avoid overlap)
         errors = self.check_syntax(texto)
         for err in errors:
             start = f"1.0 + {err['offset']} chars"
@@ -1084,13 +1083,13 @@ class TSCEditor:
             if not any(t in tags for t in ("comando_letras", "comando_digitos", "comando_personal_rosa", "comando_personal_rojo")):
                 self.text_area.tag_add("error", start, end)
 
-        # Prioridad
+        # Priority
         self.text_area.tag_raise("comando_letras")
         self.text_area.tag_raise("comando_personal_rosa")
         self.text_area.tag_raise("comando_personal_rojo")
         self.text_area.tag_raise("comando_digitos")
 
-    # ---------------------- BÚSQUEDA Y REEMPLAZO ------------------
+    # ---------------------- SEARCH AND REPLACEMENT ------------------
     def create_search_widgets(self):
         main_frame = tk.Frame(self.search_tab)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -1286,14 +1285,14 @@ class TSCEditor:
         self.right_notebook.select(self.search_tab)
         self.search_entry.focus_set()
 
-    # ---------------------- AUTO-DETECCIÓN DE CIFRADO ------------------
+    # ---------------------- AUTO-DETECTION OF ENCRYPTION ------------------
     def auto_detect_and_load(self, raw_data: bytes, file_path: str):
         candidates = [
-            (True, "shift_jis", "Cifrado + Shift-JIS"),
-            (True, "cp932", "Cifrado + CP932"),
-            (False, "latin-1", "Sin cifrado + Latin-1"),
-            (False, "cp850", "Sin cifrado + CP850"),
-            (True, "utf-8", "Sin cifrado + UTF-8")
+            (True, "shift_jis", "Encryption + Shift-JIS"), #Freeware
+            (True, "cp932", "Cypher + CP932"), #Steam + Freeware
+            (False, "latin-1", "No Cypher + Latin-1"), #Steam
+            (False, "cp850", "No Cypher + CP850"), #Steam
+            (True, "utf-8", "No Cypher + UTF-8") #Switch
         ]
         best_text = None
         best_score = -1
@@ -1333,10 +1332,10 @@ class TSCEditor:
 
         if best_text is not None:
             self.load_text_to_editor(best_text, file_path, best_cipher, best_encoding)
-            self.status_label.config(text=f"Cargado: {os.path.basename(file_path)} | {best_desc}")
+            self.status_label.config(text=f"Loaded: {os.path.basename(file_path)} | {best_desc}")
             self.add_history_entry(f"Opened TSC: {os.path.basename(file_path)} (cipher={best_cipher}, enc={best_encoding})")
         else:
-            messagebox.showerror("Error", "No se pudo decodificar el archivo con ninguna combinación.")
+            messagebox.showerror("Error", "The file could not be decoded with any combination.")
 
     def load_text_to_editor(self, text, file_path, cipher, encoding):
         self.text_area.delete("1.0", tk.END)
@@ -1348,11 +1347,11 @@ class TSCEditor:
         self.delayed_highlight()
         self.update_stats()
 
-    # ---------------------- CARGA Y GUARDADO DE ARCHIVOS ------------------
+    # ---------------------- LOADING AND SAVING FILES ------------------
     def load_file(self):
         file_path = filedialog.askopenfilename(
             title=self.tr['open_tsc'],
-            filetypes=[("Archivos TSC", "*.tsc"), ("Todos los archivos", "*.*")]
+            filetypes=[("TSC Files", "*.tsc"), ("Plain text", "*.txt"),("All the files", "*.*")]
         )
         if not file_path:
             return
@@ -1380,7 +1379,7 @@ class TSCEditor:
             save_path = filedialog.asksaveasfilename(
                 title=self.tr['export_tsc_dialog_title'],
                 defaultextension=".tsc",
-                filetypes=[("Archivos TSC", "*.tsc"), ("Todos los archivos", "*.*")]
+                filetypes=[("TSC Files", "*.tsc"), ("Plain text", "*.txt"),("All the files", "*.*")]
             )
             if not save_path:
                 return
@@ -1416,7 +1415,7 @@ class TSCEditor:
             save_path = filedialog.asksaveasfilename(
                 title=self.tr['save_project_dialog_title'],
                 defaultextension=".cstsc",
-                filetypes=[("Proyectos TSC Editor+", "*.cstsc"), ("Texto", "*.txt"), ("Todos", "*.*")]
+                filetypes=[("TSC Editor+ Proyect File", "*.cstsc"), ("Text", "*.txt"), ("All", "*.*")]
             )
             if not save_path:
                 return
@@ -1433,7 +1432,7 @@ class TSCEditor:
     def load_project(self):
         file_path = filedialog.askopenfilename(
             title=self.tr['open_project_dialog_title'],
-            filetypes=[("Proyectos TSC Editor+", "*.cstsc"), ("Texto", "*.txt"), ("Todos", "*.*")]
+            filetypes=[("TSC Editor+ Proyect File", "*.cstsc"), ("Text", "*.txt"), ("All", "*.*")]
         )
         if not file_path:
             return
@@ -1460,7 +1459,7 @@ class TSCEditor:
             return messagebox.askyesno(self.tr['syntax_errors'], self.tr['syntax_errors_found'])
         return True
 
-    # ---------------------- BARRA LATERAL Y BUSCADOR DE ARCHIVOS ------------------
+    # ---------------------- SIDEBAR AND FILE SEARCH ------------------
     def load_folder(self):
         folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
         if not folder:
@@ -1509,7 +1508,7 @@ class TSCEditor:
 
     def delete_current_from_list(self):
         if not self.current_file:
-            messagebox.showinfo("Info", "No hay un archivo cargado.")
+            messagebox.showinfo("Info", "There is no file loaded.")
             return
         rel_path = None
         for rp, fp in self.all_files:
@@ -1522,22 +1521,22 @@ class TSCEditor:
             self.text_area.delete("1.0", tk.END)
             self.current_file = None
             self.current_cipher = None
-            self.status_label.config(text="Archivo eliminado de la lista.")
+            self.status_label.config(text="File removed from list.")
             self.add_history_entry("Removed current file from list")
         else:
-            messagebox.showinfo("Info", "El archivo actual no está en la lista lateral.")
+            messagebox.showinfo("Info", "The current file is not in the sidebar list.")
 
     def delete_all_from_list(self):
         if not self.all_files:
-            messagebox.showinfo("Info", "No hay archivos en la lista.")
+            messagebox.showinfo("Info", "There are no files in the list.")
             return
-        if messagebox.askyesno("Confirmar", "¿Eliminar TODOS los archivos de la lista lateral?\n(NO se borrarán del disco)"):
+        if messagebox.askyesno("Confirm", "Delete ALL files from the sidebar list?\n(They will NOT be deleted from the disk)"):
             self.all_files = []
             self.filter_files()
             self.text_area.delete("1.0", tk.END)
             self.current_file = None
             self.current_cipher = None
-            self.status_label.config(text="Lista limpiada.")
+            self.status_label.config(text="List Cleared.")
             self.add_history_entry("Cleared all files from list")
 
     # ---------------------- QUICK DOCS ------------------
@@ -1668,7 +1667,7 @@ class TSCEditor:
         tk.Button(btn_frame, text="Remove", command=remove_cmd).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
 
-    # ---------------------- VENTANA DE SINTAXIS DE COMANDO PERSONALIZADO ------------------
+    # ---------------------- CUSTOM COMMAND SYNTAX WINDOW ------------------
     def open_custom_command_syntax_window(self):
         win = tk.Toplevel(self.root)
         win.title(self.tr['cmd_syntax_window_title'])
@@ -1700,7 +1699,7 @@ class TSCEditor:
         result_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, height=15, font=("Courier New", 10))
         result_text.pack(fill=tk.BOTH, expand=True, pady=5)
 
-        # Configurar tags de color para esta ventana
+        # Configure color tags for this window
         if not self.settings.get("dark_theme", False):
             result_text.tag_configure("command", foreground="#0000FF")
             result_text.tag_configure("id", foreground="#C7158C")
@@ -1727,7 +1726,7 @@ class TSCEditor:
             result_widget.insert(tk.END, line, "error")
             return
 
-        # Usar la misma regex de comandos
+        # Use the same regex commands
         match = self.command_pattern.match(line)
         if not match:
             if re.fullmatch(r'\d{4}', line):
@@ -1742,7 +1741,7 @@ class TSCEditor:
                 return
 
         cmd_name = match.group(1)
-        # cmd_name ya incluye + o - si corresponde
+        # cmd_name already includes + or - if applicable
         if cmd_name not in self.commands_data:
             result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
             result_widget.insert(tk.END, self.tr['unknown_command'] + f" '{cmd_name}'\n", "error")
@@ -1753,11 +1752,11 @@ class TSCEditor:
         num_args = int(num_args)
 
         after_cmd = line[match.end():]
-        # Extraer argumentos: grupos de 4 dígitos opcionalmente precedidos por ':'
+        # Extract arguments: groups of 4 digits optionally preceded by ':'
         arg_matches = re.findall(r':?(\d{4})', after_cmd)
         args = arg_matches[:num_args]
 
-        # Mostrar comando con color personalizado si existe
+        # Show command with custom color if it exists
         custom_color = self.get_command_color(cmd_name)
         result_widget.insert(tk.END, "🔵 " + self.tr['command_type'] + ": ", "command")
         if custom_color == "pink":
@@ -1798,7 +1797,7 @@ class TSCEditor:
         else:
             result_widget.insert(tk.END, "\n✅ " + self.tr['syntax_no_errors'] + "\n")
 
-    # ---------------------- CONFIGURACIÓN Y TEMA OSCURO ------------------
+    # ---------------------- SETTINGS AND DARK THEME------------------
     def load_settings(self):
         if os.path.exists(self.settings_file):
             try:
@@ -1820,8 +1819,8 @@ class TSCEditor:
             text_bg = "#1e1e1e"
             paned_bg = "#2b2b2b"
             button_bg = "#3c3c3c"
-            cmd_color = "#88AAFF"      # azul claro
-            digit_color = "#FF88BB"    # rosa
+            cmd_color = "#88AAFF"      # light blue
+            digit_color = "#FF88BB"    # pink
             id_color = "#FF88BB"
             error_color = "#FF6666"
             special_color = "#FF6666"
@@ -1835,8 +1834,8 @@ class TSCEditor:
             text_bg = "#ffffff"
             paned_bg = "#f0f0f0"
             button_bg = "#f0f0f0"
-            cmd_color = "#0000FF"      # azul
-            digit_color = "#C7158C"    # rosa
+            cmd_color = "#0000FF"      # blue
+            digit_color = "#C7158C"    # pink
             id_color = "#C7158C"
             error_color = "#FF0000"
             special_color = "#FF0000"
@@ -1919,7 +1918,7 @@ class TSCEditor:
         tk.Button(win, text=self.tr['apply_btn'], command=apply_settings).pack(pady=20)
         tk.Button(win, text=self.tr['close_btn'], command=win.destroy).pack(pady=5)
 
-    # ---------------------- AUTO-GUARDADO ------------------
+    # ---------------------- AUTOSAVE ------------------
     def start_auto_save(self):
         if self.auto_save_timer:
             self.root.after_cancel(self.auto_save_timer)
@@ -1937,7 +1936,7 @@ class TSCEditor:
             self.root.after_cancel(self.auto_save_timer)
             self.auto_save_timer = None
 
-    # ---------------------- MENÚS ------------------
+    # ---------------------- MENUS ------------------
     def create_menus(self):
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
@@ -2001,7 +2000,7 @@ class TSCEditor:
             messagebox.showwarning(self.tr['syntax_error_window_title'], msg)
         else:
             messagebox.showinfo(self.tr['syntax_error_window_title'], self.tr['syntax_no_errors'])
-        # No llamar a highlight_syntax_errors (no existe), el resaltado ya se actualiza automáticamente
+        # Do not call highlight_syntax_errors (it does not exist), highlighting is already updated automatically
 
     def show_quick_docs(self):
         self.right_notebook.select(self.docs_tab)
@@ -2009,7 +2008,7 @@ class TSCEditor:
     def focus_history_tab(self):
         self.right_notebook.select(self.history_tab)
 
-    # ---------------------- MÉTODOS DE EDICIÓN Y HISTORIAL ------------------
+    # ---------------------- EDITING METHODS AND HISTORY ------------------
     def add_history_entry(self, action):
         timestamp = datetime.now().strftime("%H:%M:%S")
         entry = f"[{timestamp}] {action}"
@@ -2167,7 +2166,7 @@ class TSCEditor:
         tk.Button(btn_frame, text=self.tr['apply_btn'], command=apply_changes, width=10).pack(side=tk.LEFT, padx=10)
         tk.Button(btn_frame, text=self.tr['close_btn'], command=dialog.destroy, width=10).pack(side=tk.LEFT, padx=10)
 
-    # ---------------------- FILTRAR CARACTERES ESPECIALES ------------------
+    # ---------------------- FILTER SPECIAL CHARACTERS ------------------
     def filter_special_characters(self):
         try:
             selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
@@ -2216,7 +2215,7 @@ class TSCEditor:
             return
         start_col -= 1
 
-        # Intentar matchear el comando desde esa posición
+        # Try to match the command from that position
         substring = line_text[start_col:]
         match = self.command_pattern.match(substring)
         if not match:
@@ -2228,7 +2227,7 @@ class TSCEditor:
             desc = self.commands_data[cmd_name][2]
             extra = ""
             if cmd_name == "FAC":
-                # Buscar ID de cara después del comando
+                # Search for face ID after the command
                 after = substring[match.end():]
                 id_match = re.search(r'(\d{4})', after)
                 if id_match:
@@ -2245,7 +2244,7 @@ class TSCEditor:
         else:
             messagebox.showinfo(self.tr['cmd_info_title'], f"{self.tr['cmd_unknown']} '<{cmd_name}>'")
 
-    # ---------------------- MANEJO DE FUENTES ------------------
+    # ---------------------- FONT MANAGEMENT ------------------
     def update_font(self):
         font_name = self.current_font_name.get()
         self.text_area.config(font=(font_name, self.base_font_size))
@@ -2285,7 +2284,7 @@ class TSCEditor:
         self.base_font_size = new_size
         self.update_font()
 
-    # ---------------------- EJECUCIÓN DEL JUEGO ------------------
+    # ---------------------- GAME ------------------
     def lookup_doukutsu(self):
         if self.current_file:
             base_dir = os.path.dirname(self.current_file)
@@ -2321,7 +2320,7 @@ class TSCEditor:
         except Exception as e:
             messagebox.showerror(self.tr['exe_not_found'], str(e))
 
-    # ---------------------- CONTADORES DE CARACTERES ------------------
+    # ---------------------- COUNT CHARACTERS ------------------
     def count_characters_normal(self):
         self.count_characters(with_face=False)
 
@@ -2385,7 +2384,7 @@ class TSCEditor:
     def show_context_menu(self, event):
         self.context_menu.tk_popup(event.x_root, event.y_root)
 
-    # ---------------------- MÉTODOS DE CIFRADO ------------------
+    # ---------------------- ENCRYPTION METHODS (Carrot Lord) ------------------
     @staticmethod
     def get_cipher_from_tsc(data: bytes) -> int:
         newline_dict = {}
