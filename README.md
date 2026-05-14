@@ -74,7 +74,7 @@ Supports:
 
 ## 🎨 UI Customization
 
-* 🌙 Dark theme
+* 🌙 Dark theme (Beta)
 * 🔤 Custom fonts
 * 🔍 Adjustable font sizes
 * 🎨 Custom command colors
