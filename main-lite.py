@@ -16,7 +16,7 @@ from datetime import datetime
 class TSCEditor:
     def __init__(self, root):
         self.root = root
-        self.root.title("TSC Editor+")
+        self.root.title("TSC Editor+ Lite")
         self.root.geometry("1300x700")
 
         # ---------- LANGS ----------
