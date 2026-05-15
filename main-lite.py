@@ -22,7 +22,7 @@ class TSCEditor:
         # ---------- LANGS ----------
         self.langs = {
             'en': {
-                'window_title': 'TSC Editor+',
+                'window_title': 'TSC Editor+ Lite',
                 'file_menu': 'File',
                 'open_tsc': 'Open .tsc...',
                 'open_project': 'Open .cstsc project...',
@@ -62,7 +62,6 @@ class TSCEditor:
                 'hex_window_title': 'Hex dump (first 512 bytes)',
                 'settings_window_title': 'Settings',
                 'auto_save_label': 'Auto-save project (.cstsc) every 6 minutes',
-                'dark_theme_label': 'Dark theme',
                 'language_label': 'Language:',
                 'default_font_label': 'Default font:',
                 'apply_btn': 'Apply',
@@ -136,7 +135,6 @@ class TSCEditor:
                 'custom_cmd_args': 'Number of arguments (0-4):',
                 'search_docs': 'Search command...',
                 'tsc_commands': 'Show command info',
-                # Custom Command Syntax window
                 'custom_cmd_syntax': 'Custom Command Syntax...',
                 'cmd_syntax_window_title': 'Command Syntax Analyzer',
                 'cmd_input_label': 'Command line (e.g. <CMU0000 or <FAC0001):',
@@ -157,7 +155,6 @@ class TSCEditor:
                 'command_header': 'Command name',
                 'id_header': 'ID/Parameter',
                 'error_header': 'Error description',
-                # Command color customization
                 'customize_command_colors': 'Customize Command Colors...',
                 'cmd_colors_title': 'Command Color Customization',
                 'cmd_color_instruction': 'Select a command and assign a color:',
@@ -170,7 +167,7 @@ class TSCEditor:
                 'color_reset': 'Reset to default',
             },
             'es': {
-                'window_title': 'TSC Editor+',
+                'window_title': 'TSC Editor+ Lite',
                 'file_menu': 'Archivo',
                 'open_tsc': 'Abrir .tsc...',
                 'open_project': 'Abrir proyecto .cstsc...',
@@ -210,7 +207,6 @@ class TSCEditor:
                 'hex_window_title': 'Vista hexadecimal (primeros 512 bytes)',
                 'settings_window_title': 'Configuración',
                 'auto_save_label': 'Auto-guardar proyecto (.cstsc) cada 6 minutos',
-                'dark_theme_label': 'Tema oscuro',
                 'language_label': 'Idioma:',
                 'default_font_label': 'Fuente predeterminada:',
                 'apply_btn': 'Aplicar',
@@ -284,7 +280,6 @@ class TSCEditor:
                 'custom_cmd_args': 'Número de argumentos (0-4):',
                 'search_docs': 'Buscar comando...',
                 'tsc_commands': 'Mostrar información del comando',
-                # Custom Command Syntax window
                 'custom_cmd_syntax': 'Sintaxis de comando personalizado...',
                 'cmd_syntax_window_title': 'Analizador de sintaxis de comandos',
                 'cmd_input_label': 'Línea de comando (ej. <CMU0000 o <FAC0001):',
@@ -305,7 +300,6 @@ class TSCEditor:
                 'command_header': 'Nombre del comando',
                 'id_header': 'ID/Parámetro',
                 'error_header': 'Descripción del error',
-                # Command color customization
                 'customize_command_colors': 'Personalizar colores de comandos...',
                 'cmd_colors_title': 'Personalización de colores de comandos',
                 'cmd_color_instruction': 'Selecciona un comando y asígnale un color:',
@@ -318,7 +312,7 @@ class TSCEditor:
                 'color_reset': 'Restablecer a por defecto',
             },
             'jp': {
-                'window_title': 'TSC Editor+',
+                'window_title': 'TSC Editor+ Lite',
                 'file_menu': 'ファイル',
                 'open_tsc': '.tscを開く...',
                 'open_project': '.cstscプロジェクトを開く...',
@@ -358,7 +352,6 @@ class TSCEditor:
                 'hex_window_title': '16進ダンプ（最初の512バイト）',
                 'settings_window_title': '設定',
                 'auto_save_label': 'プロジェクトを自動保存（.cstsc）6分ごと',
-                'dark_theme_label': 'ダークテーマ',
                 'language_label': '言語:',
                 'default_font_label': 'デフォルトフォント:',
                 'apply_btn': '適用',
@@ -432,7 +425,6 @@ class TSCEditor:
                 'custom_cmd_args': '引数の数（0-4）:',
                 'search_docs': 'コマンドを検索...',
                 'tsc_commands': 'コマンド情報を表示',
-                # Custom Command Syntax window
                 'custom_cmd_syntax': 'カスタムコマンド構文...',
                 'cmd_syntax_window_title': 'コマンド構文アナライザ',
                 'cmd_input_label': 'コマンドライン (例: <CMU0000 または <FAC0001):',
@@ -453,7 +445,6 @@ class TSCEditor:
                 'command_header': 'コマンド名',
                 'id_header': 'ID/パラメータ',
                 'error_header': 'エラー説明',
-                # Command color customization
                 'customize_command_colors': 'コマンドの色をカスタマイズ...',
                 'cmd_colors_title': 'コマンドの色設定',
                 'cmd_color_instruction': 'コマンドを選択して色を割り当て:',
@@ -475,8 +466,6 @@ class TSCEditor:
         self.custom_commands_file = os.path.join(os.path.dirname(sys.argv[0]), "custom_commands.json")
         self.load_custom_commands()
         self.update_commands_data()
-
-        # Build Commands Regex
         self.build_command_regex()
 
         self.face_names = {
@@ -502,8 +491,7 @@ class TSCEditor:
             "language": self.current_lang,
             "show_history": True,
             "show_quick_docs": False,
-            "default_font": "Courier New",
-            "dark_theme": False
+            "default_font": "Courier New"
         }
         self.load_settings()
         if self.settings.get("language") != self.current_lang:
@@ -544,10 +532,10 @@ class TSCEditor:
         self.clear_btn.pack(side=tk.LEFT, padx=5)
 
         self.file_listbox = tk.Listbox(self.files_tab, bg="#f0f0f0", selectbackground="#0078D7")
-        scrollbar_files = tk.Scrollbar(self.files_tab, orient=tk.VERTICAL, command=self.file_listbox.yview)
-        self.file_listbox.config(yscrollcommand=scrollbar_files.set)
+        self.scrollbar_files = tk.Scrollbar(self.files_tab, orient=tk.VERTICAL, command=self.file_listbox.yview)
+        self.file_listbox.config(yscrollcommand=self.scrollbar_files.set)
         self.file_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar_files.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scrollbar_files.pack(side=tk.RIGHT, fill=tk.Y)
         self.file_listbox.bind("<Double-Button-1>", self.on_file_select)
 
         self.current_folder = None
@@ -594,10 +582,10 @@ class TSCEditor:
         top_frame = tk.Frame(docs_paned)
         docs_paned.add(top_frame, minsize=150)
         self.docs_listbox = tk.Listbox(top_frame, bg="#f0f0f0", selectbackground="#0078D7")
-        scrollbar_docs = tk.Scrollbar(top_frame, orient=tk.VERTICAL, command=self.docs_listbox.yview)
-        self.docs_listbox.config(yscrollcommand=scrollbar_docs.set)
+        self.scrollbar_docs = tk.Scrollbar(top_frame, orient=tk.VERTICAL, command=self.docs_listbox.yview)
+        self.docs_listbox.config(yscrollcommand=self.scrollbar_docs.set)
         self.docs_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar_docs.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scrollbar_docs.pack(side=tk.RIGHT, fill=tk.Y)
         self.docs_listbox.bind("<<ListboxSelect>>", self.on_doc_select)
         bottom_frame = tk.Frame(docs_paned)
         docs_paned.add(bottom_frame, minsize=150)
@@ -667,7 +655,7 @@ class TSCEditor:
         self.update_stats()
 
         self.create_menus()
-        self.apply_theme()
+        self.setup_light_theme()
 
         # KeyBinds
         self.root.bind("<Control-o>",            lambda e: self.load_file())
@@ -697,7 +685,7 @@ class TSCEditor:
     # ---------------------- DETECT LANG ------------------
     def detect_language(self):
         try:
-            lang_code = locale.getdefaultlocale()[0]
+            lang_code = locale.getlocale()[0]
             if lang_code:
                 if lang_code.startswith('es'):
                     return 'es'
@@ -830,7 +818,6 @@ class TSCEditor:
             "RND" : ["3", "###-", "Random number into variable."],
             "IMG" : ["1", "#---", "Set TimgFILE.bmp over screen."],
             "PHY" : ["2", "##--", "Change physics variables."],
-            # -- CS+ Switch Commands --
             "I+N" : ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy. Syntax: <I+Nxxxx:yyyy"],
             "2MV" : ["1", "#---", "Moves the other player to the player that triggered this event. Also generates 4 smoke entities at that location. If xxxx < 11, moved to one block away; else moved to int(xxxx/10) pixels away. If xxxx ends in 1, moved to right side; else left side."],
             "2PJ" : ["1", "#---", "Jump to event xxxx if P2 is active."],
@@ -865,7 +852,6 @@ class TSCEditor:
         self.build_command_regex() 
 
     def build_command_regex(self):
-        """Construye una expresión regular que reconoce todos los nombres de comandos (con <)."""
         if not self.commands_data:
             self.command_pattern = re.compile(r'<[A-Z0-9+\-]+')
             return
@@ -899,10 +885,14 @@ class TSCEditor:
         win.transient(self.root)
         win.grab_set()
 
+        # Light theme only
+        win.configure(bg="#ffffff")
+
         frame = tk.Frame(win)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        frame.configure(bg="#ffffff")
 
-        tk.Label(frame, text=self.tr['cmd_color_instruction']).pack(anchor=tk.W)
+        tk.Label(frame, text=self.tr['cmd_color_instruction'], bg=frame.cget('bg'), fg='black').pack(anchor=tk.W)
 
         columns = ("command", "color")
         tree = ttk.Treeview(frame, columns=columns, show="headings")
@@ -910,7 +900,6 @@ class TSCEditor:
         tree.heading("color", text=self.tr['current_color'])
         tree.pack(fill=tk.BOTH, expand=True)
 
-        # LOAD BASE COMMANDS + CUSTOM
         all_cmds = sorted(self.commands_data.keys())
         for cmd in all_cmds:
             color = self.command_colors.get(cmd, "blue")
@@ -923,6 +912,7 @@ class TSCEditor:
 
         btn_frame = tk.Frame(frame)
         btn_frame.pack(fill=tk.X, pady=10)
+        btn_frame.configure(bg="#ffffff")
 
         def set_color(color):
             selected = tree.selection()
@@ -936,21 +926,20 @@ class TSCEditor:
             else:
                 self.command_colors[cmd] = color
             self.save_command_colors()
-            # Update View
             new_display = {
                 "blue": self.tr['color_blue'],
                 "pink": self.tr['color_pink'],
                 "red": self.tr['color_red']
             }.get(color, self.tr['color_blue']) if color != "reset" else self.tr['color_blue']
             tree.item(item, values=(cmd, new_display))
-            # Update Editor
             self.delayed_highlight()
 
-        tk.Button(btn_frame, text=self.tr['color_blue'], command=lambda: set_color("blue")).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text=self.tr['color_pink'], command=lambda: set_color("pink")).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text=self.tr['color_red'], command=lambda: set_color("red")).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text=self.tr['color_reset'], command=lambda: set_color("reset")).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
+        btn_style = {"bg": "#f0f0f0", "fg": "black"}
+        tk.Button(btn_frame, text=self.tr['color_blue'], command=lambda: set_color("blue"), **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['color_pink'], command=lambda: set_color("pink"), **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['color_red'], command=lambda: set_color("red"), **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['color_reset'], command=lambda: set_color("reset"), **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(side=tk.RIGHT, padx=5)
 
     # ---------------------- SYNTAX AND HIGHLIGHTING ------------------
     def check_syntax(self, text):
@@ -973,12 +962,10 @@ class TSCEditor:
                 match = self.command_pattern.match(text, i)
                 if match:
                     cmd_name = match.group(1)
-                    # Now directly search for cmd_name in commands_data (already includes + and -)
                     if cmd_name in self.commands_data:
                         num_args = int(self.commands_data[cmd_name][0])
                         pos = match.end()
                         arg_idx = 0
-                        # Extract arguments (4 digits optionally separated by ':')
                         while arg_idx < num_args and pos < n:
                             if text[pos] == ':':
                                 pos += 1
@@ -994,7 +981,6 @@ class TSCEditor:
                                 break
                         i = pos
                     else:
-                        # Unknown command
                         errors.append({
                             'offset': i,
                             'length': match.end() - i,
@@ -1002,7 +988,6 @@ class TSCEditor:
                         })
                         i = match.end()
                 else:
-                    # It's not a known command, move forward
                     i += 1
             else:
                 i += 1
@@ -1017,13 +1002,11 @@ class TSCEditor:
         if not texto:
             return
 
-        # Events #XXXX
         for match in re.finditer(r'#[0-9A-Fa-f]{4}\b', texto):
             start = f"1.0 + {match.start()} chars"
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("evento", start, end)
 
-        # Highlighting of complete commands and their arguments
         for match in self.command_pattern.finditer(texto):
             cmd_name = match.group(1)
             start_cmd = match.start()
@@ -1031,7 +1014,6 @@ class TSCEditor:
             start_cmd_pos = f"1.0 + {start_cmd} chars"
             end_cmd_pos = f"1.0 + {end_cmd} chars"
 
-            # Apply custom color or default blue
             custom_color = self.get_command_color(cmd_name)
             if custom_color == "pink":
                 self.text_area.tag_add("comando_personal_rosa", start_cmd_pos, end_cmd_pos)
@@ -1040,7 +1022,6 @@ class TSCEditor:
             else:
                 self.text_area.tag_add("comando_letras", start_cmd_pos, end_cmd_pos)
 
-            # Highlight arguments: groups of 4 digits following the command (optionally separated by ':')
             pos = end_cmd
             n = len(texto)
             while pos < n and texto[pos] in '0123456789:':
@@ -1056,7 +1037,6 @@ class TSCEditor:
                 else:
                     break
 
-        # Loose IDs (####) that do not belong to commands or events
         patron_id = r'\b([0-9]{4})\b'
         for match in re.finditer(patron_id, texto):
             start_match = match.start()
@@ -1067,14 +1047,12 @@ class TSCEditor:
                 end_pos = f"1.0 + {match.end()} chars"
                 self.text_area.tag_add("comando_id", start_pos, end_pos)
 
-        # Special characters (red)
         patron_especial = r'[áéíóúüñÁÉÍÓÚÜÑ¡¿çÄËÏÖÜäëïöü]'
         for match in re.finditer(patron_especial, texto):
             start = f"1.0 + {match.start()} chars"
             end = f"1.0 + {match.end()} chars"
             self.text_area.tag_add("special_warning", start, end)
 
-        # Syntax errors (avoid overlap)
         errors = self.check_syntax(texto)
         for err in errors:
             start = f"1.0 + {err['offset']} chars"
@@ -1083,7 +1061,6 @@ class TSCEditor:
             if not any(t in tags for t in ("comando_letras", "comando_digitos", "comando_personal_rosa", "comando_personal_rojo")):
                 self.text_area.tag_add("error", start, end)
 
-        # Priority
         self.text_area.tag_raise("comando_letras")
         self.text_area.tag_raise("comando_personal_rosa")
         self.text_area.tag_raise("comando_personal_rojo")
@@ -1284,15 +1261,15 @@ class TSCEditor:
     def focus_search_tab(self, event=None):
         self.right_notebook.select(self.search_tab)
         self.search_entry.focus_set()
-
+        
     # ---------------------- AUTO-DETECTION OF ENCRYPTION ------------------
     def auto_detect_and_load(self, raw_data: bytes, file_path: str):
         candidates = [
-            (True, "shift_jis", "Encryption + Shift-JIS"), #Freeware
-            (True, "cp932", "Cypher + CP932"), #Steam + Freeware
-            (False, "latin-1", "No Cypher + Latin-1"), #Steam
-            (False, "cp850", "No Cypher + CP850"), #Steam
-            (False, "utf-8", "No Cypher + UTF-8") #Switch
+            (True, "shift_jis", "Encryption + Shift-JIS"),
+            (True, "cp932", "Cypher + CP932"),
+            (False, "latin-1", "No Cypher + Latin-1"),
+            (False, "cp850", "No Cypher + CP850"),
+            (False, "utf-8", "No Cypher + UTF-8")
         ]
         best_text = None
         best_score = -1
@@ -1586,8 +1563,12 @@ class TSCEditor:
         win.transient(self.root)
         win.grab_set()
 
+        # Light theme only
+        win.configure(bg="#ffffff")
+
         frame = tk.Frame(win)
         frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        frame.configure(bg="#ffffff")
 
         columns = ("name", "args", "desc")
         tree = ttk.Treeview(frame, columns=columns, show="headings")
@@ -1605,6 +1586,9 @@ class TSCEditor:
 
         btn_frame = tk.Frame(win)
         btn_frame.pack(fill=tk.X, padx=5, pady=5)
+        btn_frame.configure(bg="#ffffff")
+
+        btn_style = {"bg": "#f0f0f0", "fg": "black"}
 
         def add_cmd():
             name = simpledialog.askstring("Add Command", self.tr['custom_cmd_name'], parent=win)
@@ -1662,10 +1646,10 @@ class TSCEditor:
                 tree.delete(selected[0])
                 self.refresh_current_file()
 
-        tk.Button(btn_frame, text="Add", command=add_cmd).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Edit", command=edit_cmd).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Remove", command=remove_cmd).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy).pack(side=tk.RIGHT, padx=5)
+        tk.Button(btn_frame, text="Add", command=add_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Edit", command=edit_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Remove", command=remove_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(side=tk.RIGHT, padx=5)
 
     # ---------------------- CUSTOM COMMAND SYNTAX WINDOW ------------------
     def open_custom_command_syntax_window(self):
@@ -1675,41 +1659,44 @@ class TSCEditor:
         win.transient(self.root)
         win.grab_set()
 
+        # Light theme only
+        win.configure(bg="#ffffff")
         force_error = tk.BooleanVar(value=False)
 
         main_frame = tk.Frame(win)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame.configure(bg="#ffffff")
 
-        tk.Label(main_frame, text=self.tr['cmd_input_label'], anchor=tk.W).pack(fill=tk.X)
-        input_entry = tk.Entry(main_frame, font=("Courier New", 10))
+        fg_color = "black"
+        bg_color = "#ffffff"
+
+        tk.Label(main_frame, text=self.tr['cmd_input_label'], anchor=tk.W, bg=bg_color, fg=fg_color).pack(fill=tk.X)
+        input_entry = tk.Entry(main_frame, font=("Courier New", 10), bg=bg_color, fg=fg_color, insertbackground=fg_color)
         input_entry.pack(fill=tk.X, pady=(5, 10))
         input_entry.insert(0, "<CMU0000")
 
-        error_cb = tk.Checkbutton(main_frame, text=self.tr['syntax_error_purpose'], variable=force_error)
+        error_cb = tk.Checkbutton(main_frame, text=self.tr['syntax_error_purpose'], variable=force_error, bg=bg_color, fg=fg_color, selectcolor=bg_color)
         error_cb.pack(anchor=tk.W, pady=5)
 
         btn_frame = tk.Frame(main_frame)
         btn_frame.pack(fill=tk.X, pady=10)
-        parse_btn = tk.Button(btn_frame, text=self.tr['parse_button'], command=lambda: self.analyze_command_syntax(input_entry.get(), result_text, force_error.get()))
+        btn_frame.configure(bg="#ffffff")
+
+        btn_style = {"bg": "#f0f0f0", "fg": "black"}
+        parse_btn = tk.Button(btn_frame, text=self.tr['parse_button'], command=lambda: self.analyze_command_syntax(input_entry.get(), result_text, force_error.get()), **btn_style)
         parse_btn.pack(side=tk.LEFT, padx=5)
-        clear_btn = tk.Button(btn_frame, text=self.tr['clear_button'], command=lambda: result_text.delete(1.0, tk.END))
+        clear_btn = tk.Button(btn_frame, text=self.tr['clear_button'], command=lambda: result_text.delete(1.0, tk.END), **btn_style)
         clear_btn.pack(side=tk.LEFT, padx=5)
 
-        tk.Label(main_frame, text=self.tr['syntax_result_title'], anchor=tk.W).pack(fill=tk.X, pady=(10,0))
-        result_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, height=15, font=("Courier New", 10))
+        tk.Label(main_frame, text=self.tr['syntax_result_title'], anchor=tk.W, bg=bg_color, fg=fg_color).pack(fill=tk.X, pady=(10,0))
+        result_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, height=15, font=("Courier New", 10), bg=bg_color, fg=fg_color, insertbackground=fg_color)
         result_text.pack(fill=tk.BOTH, expand=True, pady=5)
 
-        # Configure color tags for this window
-        if not self.settings.get("dark_theme", False):
-            result_text.tag_configure("command", foreground="#0000FF")
-            result_text.tag_configure("id", foreground="#C7158C")
-            result_text.tag_configure("error", foreground="#FF0000")
-            result_text.tag_configure("bold", font=("Courier New", 10, "bold"))
-        else:
-            result_text.tag_configure("command", foreground="#88AAFF")
-            result_text.tag_configure("id", foreground="#FF88BB")
-            result_text.tag_configure("error", foreground="#FF6666")
-            result_text.tag_configure("bold", font=("Courier New", 10, "bold"))
+        # Light theme highlighting
+        result_text.tag_configure("command", foreground="#0000FF")
+        result_text.tag_configure("id", foreground="#C7158C")
+        result_text.tag_configure("error", foreground="#FF0000")
+        result_text.tag_configure("bold", font=("Courier New", 10, "bold"))
 
         parse_btn.invoke()
 
@@ -1726,7 +1713,6 @@ class TSCEditor:
             result_widget.insert(tk.END, line, "error")
             return
 
-        # Use the same regex commands
         match = self.command_pattern.match(line)
         if not match:
             if re.fullmatch(r'\d{4}', line):
@@ -1741,7 +1727,6 @@ class TSCEditor:
                 return
 
         cmd_name = match.group(1)
-        # cmd_name already includes + or - if applicable
         if cmd_name not in self.commands_data:
             result_widget.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
             result_widget.insert(tk.END, self.tr['unknown_command'] + f" '{cmd_name}'\n", "error")
@@ -1752,11 +1737,9 @@ class TSCEditor:
         num_args = int(num_args)
 
         after_cmd = line[match.end():]
-        # Extract arguments: groups of 4 digits optionally preceded by ':'
         arg_matches = re.findall(r':?(\d{4})', after_cmd)
         args = arg_matches[:num_args]
 
-        # Show command with custom color if it exists
         custom_color = self.get_command_color(cmd_name)
         result_widget.insert(tk.END, "🔵 " + self.tr['command_type'] + ": ", "command")
         if custom_color == "pink":
@@ -1797,7 +1780,7 @@ class TSCEditor:
         else:
             result_widget.insert(tk.END, "\n✅ " + self.tr['syntax_no_errors'] + "\n")
 
-    # ---------------------- SETTINGS AND DARK THEME------------------
+    # ---------------------- SETTINGS ------------------
     def load_settings(self):
         if os.path.exists(self.settings_file):
             try:
@@ -1811,55 +1794,80 @@ class TSCEditor:
         with open(self.settings_file, "w", encoding="utf-8") as f:
             json.dump(self.settings, f, indent=2)
 
-    def apply_theme(self):
-        if self.settings.get("dark_theme", False):
-            bg_color = "#2b2b2b"
-            fg_color = "#ffffff"
-            select_bg = "#3c3c3c"
-            text_bg = "#1e1e1e"
-            paned_bg = "#2b2b2b"
-            button_bg = "#3c3c3c"
-            cmd_color = "#88AAFF"      # light blue
-            digit_color = "#FF88BB"    # pink
-            id_color = "#FF88BB"
-            error_color = "#FF6666"
-            special_color = "#FF6666"
-            search_bg = "#444400"
-            cmd_pink = "#FF88BB"
-            cmd_red = "#FF6666"
-        else:
-            bg_color = "#f0f0f0"
-            fg_color = "#000000"
-            select_bg = "#0078D7"
-            text_bg = "#ffffff"
-            paned_bg = "#f0f0f0"
-            button_bg = "#f0f0f0"
-            cmd_color = "#0000FF"      # blue
-            digit_color = "#C7158C"    # pink
-            id_color = "#C7158C"
-            error_color = "#FF0000"
-            special_color = "#FF0000"
-            search_bg = "yellow"
-            cmd_pink = "#C7158C"
-            cmd_red = "#FF0000"
+    def setup_light_theme(self):
+        # Light theme colors
+        bg_color = "#f0f0f0"
+        fg_color = "#000000"
+        select_bg = "#0078D7"
+        text_bg = "#ffffff"
+        entry_bg = "#ffffff"
+        entry_fg = "#000000"
+        button_bg = "#e0e0e0"
+        button_fg = "#000000"
+        scrollbar_bg = "#f0f0f0"
+        scrollbar_trough = "#e0e0e0"
+        menu_bg = "#f0f0f0"
+        menu_fg = "#000000"
+        cmd_color = "#0000FF"
+        digit_color = "#C7158C"
+        id_color = "#C7158C"
+        error_color = "#FF0000"
+        special_color = "#FF0000"
+        search_bg = "yellow"
+        cmd_pink = "#C7158C"
+        cmd_red = "#FF0000"
 
         self.root.configure(bg=bg_color)
-        self.main_paned.configure(bg=paned_bg, sashrelief=tk.RAISED)
+        self.main_paned.configure(bg=bg_color, sashrelief=tk.RAISED)
         self.sidebar_frame.configure(bg=bg_color)
         self.files_tab.configure(bg=bg_color)
         self.history_tab.configure(bg=bg_color)
         self.docs_tab.configure(bg=bg_color)
         self.search_tab.configure(bg=bg_color)
+        self.status_frame.configure(bg=bg_color)
+
         self.history_label.configure(bg=bg_color, fg=fg_color)
-        self.history_listbox.configure(bg=text_bg, fg=fg_color, selectbackground=select_bg)
+        self.search_label.configure(bg=bg_color, fg=fg_color)
+        self.status_label.configure(bg=bg_color, fg=fg_color)
+        self.stats_label.configure(bg=bg_color, fg=fg_color)
+
+        self.clear_btn.configure(bg=button_bg, fg=button_fg, activebackground=select_bg, activeforeground=fg_color)
+
+        # Update entries and buttons in tabs
+        for child in self.search_tab.winfo_children():
+            if isinstance(child, tk.Entry):
+                child.configure(bg=entry_bg, fg=entry_fg, insertbackground=fg_color)
+            elif isinstance(child, tk.Frame):
+                for grandchild in child.winfo_children():
+                    if isinstance(grandchild, tk.Entry):
+                        grandchild.configure(bg=entry_bg, fg=entry_fg, insertbackground=fg_color)
+                    elif isinstance(grandchild, tk.Button):
+                        grandchild.configure(bg=button_bg, fg=button_fg, activebackground=select_bg, activeforeground=fg_color)
+
+        for child in self.files_tab.winfo_children():
+            if isinstance(child, tk.Frame):
+                for grandchild in child.winfo_children():
+                    if isinstance(grandchild, tk.Entry):
+                        grandchild.configure(bg=entry_bg, fg=entry_fg, insertbackground=fg_color)
+                    elif isinstance(grandchild, tk.Button) and grandchild != self.clear_btn:
+                        grandchild.configure(bg=button_bg, fg=button_fg, activebackground=select_bg, activeforeground=fg_color)
+
+        for child in self.docs_tab.winfo_children():
+            if isinstance(child, tk.Frame):
+                for grandchild in child.winfo_children():
+                    if isinstance(grandchild, tk.Entry):
+                        grandchild.configure(bg=entry_bg, fg=entry_fg, insertbackground=fg_color)
+
         self.file_listbox.configure(bg=text_bg, fg=fg_color, selectbackground=select_bg)
+        self.history_listbox.configure(bg=text_bg, fg=fg_color, selectbackground=select_bg)
         self.docs_listbox.configure(bg=text_bg, fg=fg_color, selectbackground=select_bg)
         self.docs_detail.configure(bg=text_bg, fg=fg_color)
         self.text_area.configure(bg=text_bg, fg=fg_color, insertbackground=fg_color)
-        self.status_label.configure(bg=bg_color, fg=fg_color)
-        self.stats_label.configure(bg=bg_color, fg=fg_color)
-        self.clear_btn.configure(bg=button_bg, fg=fg_color)
-        self.search_label.configure(bg=bg_color, fg=fg_color)
+
+        for sb in (self.scrollbar_files, self.history_scrollbar, self.scrollbar_docs):
+            sb.configure(bg=scrollbar_bg, troughcolor=scrollbar_trough, activebackground=select_bg)
+        if hasattr(self.text_area, 'vbar'):
+            self.text_area.vbar.configure(bg=scrollbar_bg, troughcolor=scrollbar_trough, activebackground=select_bg)
 
         self.text_area.tag_configure("comando_letras", foreground=cmd_color)
         self.text_area.tag_configure("comando_digitos", foreground=digit_color)
@@ -1870,12 +1878,28 @@ class TSCEditor:
         self.text_area.tag_configure("comando_personal_rosa", foreground=cmd_pink)
         self.text_area.tag_configure("comando_personal_rojo", foreground=cmd_red)
 
+        self.create_menus()
+        self.context_menu.configure(bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=fg_color)
+
+        style = ttk.Style()
+        style.configure("TNotebook", background=bg_color)
+        style.configure("TNotebook.Tab", background=button_bg, foreground=fg_color)
+        style.configure("TScale", background=bg_color, troughcolor=scrollbar_trough)
+        style.configure("TEntry", fieldbackground=entry_bg, foreground=entry_fg)
+        style.configure("TCombobox", fieldbackground=entry_bg, foreground=entry_fg)
+
     def open_settings(self):
-        win = Toplevel(self.root)
+        win = tk.Toplevel(self.root)
         win.title(self.tr['settings_window_title'])
-        win.geometry("450x400")
+        win.geometry("400x300")
         win.transient(self.root)
         win.grab_set()
+
+        # Light theme only
+        win.configure(bg="#ffffff")
+        fg_color = "black"
+        bg_color = "#ffffff"
+        entry_bg = "#ffffff"
 
         auto_var = BooleanVar(value=self.settings["auto_save"])
         def toggle_auto():
@@ -1885,24 +1909,19 @@ class TSCEditor:
             else:
                 self.stop_auto_save()
             self.save_settings()
-        tk.Checkbutton(win, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto).pack(anchor=tk.W, padx=20, pady=5)
+        tk.Checkbutton(win, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto, bg=bg_color, fg=fg_color, selectcolor=bg_color).pack(anchor=tk.W, padx=20, pady=5)
 
-        dark_var = BooleanVar(value=self.settings["dark_theme"])
-        def toggle_dark():
-            self.settings["dark_theme"] = dark_var.get()
-            self.apply_theme()
-            self.save_settings()
-        tk.Checkbutton(win, text=self.tr['dark_theme_label'], variable=dark_var, command=toggle_dark).pack(anchor=tk.W, padx=20, pady=5)
-
-        tk.Label(win, text=self.tr['language_label']).pack(anchor=tk.W, padx=20, pady=(10,0))
+        tk.Label(win, text=self.tr['language_label'], bg=bg_color, fg=fg_color).pack(anchor=tk.W, padx=20, pady=(10,0))
         lang_var = tk.StringVar(value=self.current_lang)
         lang_menu = ttk.Combobox(win, textvariable=lang_var, values=['en', 'es', 'jp'], state="readonly")
         lang_menu.pack(anchor=tk.W, padx=20, pady=5)
 
-        tk.Label(win, text=self.tr['default_font_label']).pack(anchor=tk.W, padx=20, pady=(10,0))
+        tk.Label(win, text=self.tr['default_font_label'], bg=bg_color, fg=fg_color).pack(anchor=tk.W, padx=20, pady=(10,0))
         font_var = tk.StringVar(value=self.current_font_name.get())
         font_menu = ttk.Combobox(win, textvariable=font_var, values=self.available_fonts, state="readonly")
         font_menu.pack(anchor=tk.W, padx=20, pady=5)
+
+        btn_style = {"bg": "#e0e0e0", "fg": "black"}
 
         def apply_settings():
             if lang_var.get() != self.current_lang:
@@ -1915,8 +1934,8 @@ class TSCEditor:
             self.save_settings()
             win.destroy()
 
-        tk.Button(win, text=self.tr['apply_btn'], command=apply_settings).pack(pady=20)
-        tk.Button(win, text=self.tr['close_btn'], command=win.destroy).pack(pady=5)
+        tk.Button(win, text=self.tr['apply_btn'], command=apply_settings, **btn_style).pack(pady=20)
+        tk.Button(win, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(pady=5)
 
     # ---------------------- AUTOSAVE ------------------
     def start_auto_save(self):
@@ -1938,10 +1957,16 @@ class TSCEditor:
 
     # ---------------------- MENUS ------------------
     def create_menus(self):
-        menubar = tk.Menu(self.root)
+        menubar = tk.Menu(self.root, tearoff=0)
         self.root.config(menu=menubar)
 
-        file_menu = tk.Menu(menubar, tearoff=0)
+        menu_bg = "#f0f0f0"
+        menu_fg = "#000000"
+        select_bg = "#0078D7"
+
+        menubar.configure(bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
+
+        file_menu = tk.Menu(menubar, tearoff=0, bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
         menubar.add_cascade(label=self.tr['file_menu'], menu=file_menu)
         file_menu.add_command(label=self.tr['open_tsc'], command=self.load_file, accelerator="Ctrl+O")
         file_menu.add_command(label=self.tr['open_project'], command=self.load_project, accelerator="Ctrl+Shift+O")
@@ -1956,7 +1981,7 @@ class TSCEditor:
         file_menu.add_separator()
         file_menu.add_command(label=self.tr['exit'], command=self.root.quit, accelerator="Alt+F4")
 
-        edit_menu = tk.Menu(menubar, tearoff=0)
+        edit_menu = tk.Menu(menubar, tearoff=0, bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
         menubar.add_cascade(label=self.tr['edit_menu'], menu=edit_menu)
         edit_menu.add_command(label=self.tr['undo'], command=self.undo_action, accelerator="Ctrl+Z")
         edit_menu.add_command(label=self.tr['redo'], command=self.redo_action, accelerator="Ctrl+Y")
@@ -1965,7 +1990,7 @@ class TSCEditor:
         edit_menu.add_separator()
         edit_menu.add_command(label=self.tr['smart_replace'], command=self.smart_replace_special_chars, accelerator="Ctrl+R")
 
-        view_menu = tk.Menu(menubar, tearoff=0)
+        view_menu = tk.Menu(menubar, tearoff=0, bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
         menubar.add_cascade(label=self.tr['view_menu'], menu=view_menu)
         view_menu.add_command(label=self.tr['font_size'], command=self.open_view_options)
         view_menu.add_command(label=self.tr['hex_dump'], command=self.show_hex_dump)
@@ -1976,17 +2001,17 @@ class TSCEditor:
         view_menu.add_command(label=self.tr['custom_cmd_syntax'], command=self.open_custom_command_syntax_window, accelerator="Ctrl+Shift+C")
         view_menu.add_command(label=self.tr['customize_command_colors'], command=self.customize_command_colors)
 
-        font_submenu = tk.Menu(view_menu, tearoff=0)
+        font_submenu = tk.Menu(view_menu, tearoff=0, bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
         view_menu.add_cascade(label=self.tr['font_submenu'], menu=font_submenu)
         for f in self.available_fonts:
             font_submenu.add_radiobutton(label=f, variable=self.current_font_name, value=f, command=self.update_font)
 
-        run_menu = tk.Menu(menubar, tearoff=0)
+        run_menu = tk.Menu(menubar, tearoff=0, bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
         menubar.add_cascade(label=self.tr['run_menu'], menu=run_menu)
         run_menu.add_command(label=self.tr['find_doukutsu'], command=self.lookup_doukutsu)
         run_menu.add_command(label=self.tr['test_game'], command=self.test_game, accelerator="F5")
 
-        help_menu = tk.Menu(menubar, tearoff=0)
+        help_menu = tk.Menu(menubar, tearoff=0, bg=menu_bg, fg=menu_fg, activebackground=select_bg, activeforeground=menu_fg)
         menubar.add_cascade(label=self.tr['help_menu'], menu=help_menu)
         help_menu.add_command(label=self.tr['about'], command=self.show_about)
 
@@ -2000,7 +2025,6 @@ class TSCEditor:
             messagebox.showwarning(self.tr['syntax_error_window_title'], msg)
         else:
             messagebox.showinfo(self.tr['syntax_error_window_title'], self.tr['syntax_no_errors'])
-        # Do not call highlight_syntax_errors (it does not exist), highlighting is already updated automatically
 
     def show_quick_docs(self):
         self.right_notebook.select(self.docs_tab)
@@ -2113,6 +2137,11 @@ class TSCEditor:
         dialog.grab_set()
         dialog.resizable(False, False)
 
+        # Light theme only
+        dialog.configure(bg="#ffffff")
+        fg_color = "black"
+        bg_color = "#ffffff"
+
         var_nn = tk.BooleanVar(value=True)
         var_accents = tk.BooleanVar(value=True)
         var_symbols = tk.BooleanVar(value=True)
@@ -2124,14 +2153,17 @@ class TSCEditor:
                 var_accents.set(True)
                 var_symbols.set(True)
 
-        tk.Label(dialog, text="Select which characters to replace/remove:", font=("Segoe UI", 10, "bold")).pack(pady=10)
-        tk.Checkbutton(dialog, text=self.tr['option_nn'], variable=var_nn, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
-        tk.Checkbutton(dialog, text=self.tr['option_accents'], variable=var_accents, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
-        tk.Checkbutton(dialog, text=self.tr['option_symbols'], variable=var_symbols, command=lambda: var_all.set(False)).pack(anchor=tk.W, padx=20, pady=2)
-        tk.Checkbutton(dialog, text=self.tr['option_all'], variable=var_all, command=update_all).pack(anchor=tk.W, padx=20, pady=10)
+        tk.Label(dialog, text="Select which characters to replace/remove:", font=("Segoe UI", 10, "bold"), bg=bg_color, fg=fg_color).pack(pady=10)
+        tk.Checkbutton(dialog, text=self.tr['option_nn'], variable=var_nn, command=lambda: var_all.set(False), bg=bg_color, fg=fg_color, selectcolor=bg_color).pack(anchor=tk.W, padx=20, pady=2)
+        tk.Checkbutton(dialog, text=self.tr['option_accents'], variable=var_accents, command=lambda: var_all.set(False), bg=bg_color, fg=fg_color, selectcolor=bg_color).pack(anchor=tk.W, padx=20, pady=2)
+        tk.Checkbutton(dialog, text=self.tr['option_symbols'], variable=var_symbols, command=lambda: var_all.set(False), bg=bg_color, fg=fg_color, selectcolor=bg_color).pack(anchor=tk.W, padx=20, pady=2)
+        tk.Checkbutton(dialog, text=self.tr['option_all'], variable=var_all, command=update_all, bg=bg_color, fg=fg_color, selectcolor=bg_color).pack(anchor=tk.W, padx=20, pady=10)
 
         btn_frame = tk.Frame(dialog)
         btn_frame.pack(pady=20)
+        btn_frame.configure(bg="#ffffff")
+
+        btn_style = {"bg": "#e0e0e0", "fg": "black"}
 
         def apply_changes():
             new_text = selected
@@ -2163,40 +2195,8 @@ class TSCEditor:
                 messagebox.showinfo(self.tr['no_changes'], "No characters to replace.", parent=dialog)
             dialog.destroy()
 
-        tk.Button(btn_frame, text=self.tr['apply_btn'], command=apply_changes, width=10).pack(side=tk.LEFT, padx=10)
-        tk.Button(btn_frame, text=self.tr['close_btn'], command=dialog.destroy, width=10).pack(side=tk.LEFT, padx=10)
-
-    # ---------------------- FILTER SPECIAL CHARACTERS ------------------
-    def filter_special_characters(self):
-        try:
-            selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
-        except tk.TclError:
-            selected = self.text_area.get("1.0", tk.END)
-        if not selected.strip():
-            messagebox.showinfo("Filter Special Characters", "No text to analyze.")
-            return
-
-        groups = {
-            'ñ': 'ñ', 'Ñ': 'Ñ',
-            'á': 'á', 'é': 'é', 'í': 'í', 'ó': 'ó', 'ú': 'ú',
-            'Á': 'Á', 'É': 'É', 'Í': 'Í', 'Ó': 'Ó', 'Ú': 'Ú',
-            'ü': 'ü', 'Ü': 'Ü', '¡': '¡', '¿': '¿',
-            'ç': 'ç', 'Ä': 'Ä', 'Ë': 'Ë', 'Ï': 'Ï', 'Ö': 'Ö', 'Ü': 'Ü', 'ä': 'ä', 'ë': 'ë', 'ï': 'ï', 'ö': 'ö', 'ü': 'ü'
-        }
-        counts = {}
-        total = 0
-        for ch in selected:
-            if ch in groups:
-                counts[ch] = counts.get(ch, 0) + 1
-                total += 1
-        if total == 0:
-            messagebox.showinfo("Filter Special Characters", "No special characters found.")
-            return
-        msg = f"Total special characters: {total}\n\n"
-        for ch, cnt in sorted(counts.items()):
-            msg += f"{ch}: {cnt}\n"
-        msg += "\n(These characters may not display correctly in Cave Story.)"
-        messagebox.showinfo("Filter Special Characters", msg)
+        tk.Button(btn_frame, text=self.tr['apply_btn'], command=apply_changes, width=10, **btn_style).pack(side=tk.LEFT, padx=10)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=dialog.destroy, width=10, **btn_style).pack(side=tk.LEFT, padx=10)
 
     # ---------------------- SHOW COMMAND INFO ------------------
     def show_command_info(self):
@@ -2206,7 +2206,6 @@ class TSCEditor:
         line_text = self.text_area.get(line_start, line_end)
         cursor_col = int(cursor_pos.split('.')[1])
 
-        # Buscar '<' hacia atrás
         start_col = cursor_col
         while start_col > 0 and line_text[start_col-1] != '<':
             start_col -= 1
@@ -2215,7 +2214,6 @@ class TSCEditor:
             return
         start_col -= 1
 
-        # Try to match the command from that position
         substring = line_text[start_col:]
         match = self.command_pattern.match(substring)
         if not match:
@@ -2227,7 +2225,6 @@ class TSCEditor:
             desc = self.commands_data[cmd_name][2]
             extra = ""
             if cmd_name == "FAC":
-                # Search for face ID after the command
                 after = substring[match.end():]
                 id_match = re.search(r'(\d{4})', after)
                 if id_match:
@@ -2273,12 +2270,16 @@ class TSCEditor:
         win = Toplevel(self.root)
         win.title(self.tr['font_size'])
         win.geometry("300x150")
+        win.configure(bg="#ffffff")
+        fg_color = "black"
+        bg_color = "#ffffff"
         current_size = self.base_font_size
-        tk.Label(win, text="Tamaño:").pack(pady=5)
-        scale = Scale(win, from_=8, to=24, orient=tk.HORIZONTAL, command=lambda v: self.change_font(int(float(v))))
+        tk.Label(win, text="Font size:", bg=bg_color, fg=fg_color).pack(pady=5)
+        scale = Scale(win, from_=8, to=24, orient=tk.HORIZONTAL, command=lambda v: self.change_font(int(float(v))), bg=bg_color, fg=fg_color)
         scale.set(current_size)
         scale.pack(pady=5, padx=20, fill=tk.X)
-        Button(win, text=self.tr['close_btn'], command=win.destroy).pack(pady=10)
+        btn_style = {"bg": "#e0e0e0", "fg": "black"}
+        Button(win, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(pady=10)
 
     def change_font(self, new_size):
         self.base_font_size = new_size
@@ -2350,7 +2351,7 @@ class TSCEditor:
     # ---------------------- MISC ------------------
     def show_about(self):
         messagebox.showinfo(self.tr['about'],
-        "TSC Editor+ v1.0\n"
+        "TSC Editor+ Lite v1.0\n"
         "Professional editor for Cave Story .tsc files\n"
         "Encryption compatible with Booster's Lab (Carrot Lord)\n"
         "Features:\n"
@@ -2362,7 +2363,6 @@ class TSCEditor:
         "- Customizable commands (add/edit/delete)\n"
         "- Auto-save every 6 minutes\n"
         "- Quick font size change with Ctrl+Wheel\n"
-        "- Dark mode\n"
         "- Multilingual support (Spanish, English, Japanese)\n"
         "- Command Syntax Analysis window (Ctrl+Shift+C)\n"
         "Shortcuts: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Alt+F4\n"
@@ -2376,7 +2376,8 @@ class TSCEditor:
         win = Toplevel(self.root)
         win.title(self.tr['hex_window_title'])
         win.geometry("800x400")
-        text_w = scrolledtext.ScrolledText(win, wrap=tk.WORD, font=("Courier New", 9))
+        win.configure(bg="#ffffff")
+        text_w = scrolledtext.ScrolledText(win, wrap=tk.WORD, font=("Courier New", 9), bg="white", fg="black")
         text_w.pack(fill=tk.BOTH, expand=True)
         text_w.insert(tk.END, hex_str)
         text_w.config(state=tk.DISABLED)
