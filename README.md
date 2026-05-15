@@ -2,10 +2,10 @@
 
 <img width="154" height="154" alt="a779d220-24ba-4e2f-810a-0c4fcc022194" src="https://github.com/user-attachments/assets/13de0e36-b6f7-47fe-9043-5aa3e78dfaa7" /> 
 
-# 🚀 TSC Editor+
+# 🚀 TSC Editor+ Lite
 
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
 ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
@@ -74,7 +74,7 @@ Supports:
 
 ## 🎨 UI Customization
 
-* 🌙 Dark theme (Beta)
+* 🌙 Dark theme (Lite Version Not Supported)
 * 🔤 Custom fonts
 * 🔍 Adjustable font sizes
 * 🎨 Custom command colors
@@ -89,7 +89,7 @@ Supports:
 
 # 📦 Requirements
 
-* 🐍 Python 3.9+
+* 🐍 Python 3.8+
 * 🪟 Tkinter
 
 ---
