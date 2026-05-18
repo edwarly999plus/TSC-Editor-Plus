@@ -1,9 +1,12 @@
 {
   "auto_save": false,
   "language": "en",
-  "show_history": false,
-  "show_quick_docs": true,
+  "show_history": true,
+  "show_quick_docs": false,
   "default_font": "Lucida Grande",
   "dark_theme": true,
-  "auto_save_path": ""
+  "current_theme": "vapor",
+  "load_mode": "ask",
+  "manual_encoding": "shift_jis",
+  "manual_cipher": 0
 }

@@ -149,6 +149,9 @@ LANGS = {
         'color_pink': 'Pink (like ID)',
         'color_red': 'Red (error)',
         'color_reset': 'Reset to default',
+        # New keys for unsaved changes dialog
+        'unsaved_title': 'Unsaved Changes',
+        'unsaved_message': 'There are unsaved changes in the current file.\n\nDo you want to save them before opening {}?\n\nYes = Save and continue\nNo = Discard changes and continue\nCancel = Do not change file',
     },
     'es': {
         'window_title': 'TSC Editor+',
@@ -295,6 +298,9 @@ LANGS = {
         'color_pink': 'Rosa (como ID)',
         'color_red': 'Rojo (error)',
         'color_reset': 'Restablecer a por defecto',
+        # New keys for unsaved changes dialog
+        'unsaved_title': 'Cambios sin guardar',
+        'unsaved_message': 'Hay cambios sin guardar en el archivo actual.\n\n¿Desea guardarlos antes de abrir {}?\n\nSí = Guardar y continuar\nNo = Descartar cambios y continuar\nCancelar = No cambiar de archivo',
     },
     'jp': {
         'window_title': 'TSC Editor+',
@@ -441,6 +447,9 @@ LANGS = {
         'color_pink': 'ピンク (ID風)',
         'color_red': '赤 (エラー)',
         'color_reset': 'デフォルトに戻す',
+        # New keys for unsaved changes dialog
+        'unsaved_title': '未保存の変更',
+        'unsaved_message': '現在のファイルに未保存の変更があります。\n\n{}を開く前に保存しますか？\n\nはい = 保存して続行\nいいえ = 変更を破棄して続行\nキャンセル = ファイルを変更しない',
     }
 }
 

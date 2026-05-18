@@ -27,6 +27,7 @@ from .utils import detect_language, update_stats, add_history_entry, get_face_na
 from .languages import LANGS
 from .music_loader import get_music_name
 from .sound_names import get_sound_name
+from .highlighted_tsc import highlight_current_file_in_list
 
 # Librerías opcionales
 try:
@@ -97,25 +98,35 @@ class TSCEditor:
             "show_quick_docs": False,
             "default_font": "Courier New",
             "dark_theme": False,
-            "load_mode": "ask",           # 'auto', 'ask', 'manual'
+            "current_theme": "darkly",
+            "load_mode": "ask",
             "manual_encoding": "shift_jis",
             "manual_cipher": 0
         }
         self.settings = load_settings(self.settings_file, default_settings)
+
+        # Migrar tema antiguo (dark_theme booleano) a current_theme string
+        if "current_theme" not in self.settings:
+            if self.settings.get("dark_theme", False):
+                self.settings["current_theme"] = "darkly"
+            else:
+                self.settings["current_theme"] = "cosmo"
+            save_settings(self.settings_file, self.settings)
+
+        # Cargar idioma
         if self.settings.get("language") != self.current_lang:
             self.current_lang = self.settings["language"]
             self.tr = self.langs.get(self.current_lang, self.langs['en'])
 
-        # Tema
-        self.available_themes = ["darkly", "vapor"]
-        self.current_theme = tk.StringVar(value="darkly" if self.settings.get("dark_theme", False) else "vapor")
+        # Tema actual
+        self.available_themes = ["darkly", "vapor", "cosmo"]
+        self.current_theme = tk.StringVar(value=self.settings.get("current_theme", "darkly"))
 
         # Fuentes
         import tkinter.font as tkfont
         system_fonts = set(tkfont.families())
         self.available_fonts = []
-        script_dir = os.path.dirname(sys.argv[0])  # <-- Definir aquí para que esté disponible globalmente
-        
+        script_dir = os.path.dirname(sys.argv[0])
         for f in ["Courier New", "Consolas", "Lucida Grande", "Cave Story"]:
             if f in system_fonts:
                 self.available_fonts.append(f)
@@ -143,9 +154,6 @@ class TSCEditor:
         self.current_font_name = tk.StringVar(value=self.settings.get("default_font", "Courier New"))
         self.base_font_size = 10
 
-        # Construcción de la interfaz
-        self._build_ui()
-
         # Estado del editor
         self.current_file = None
         self.doukutsu_path = None
@@ -153,6 +161,10 @@ class TSCEditor:
         self.current_encoding = "shift_jis"
         self.raw_bytes_for_hex = None
         self.history = []
+        self.saved_content = ""   # Para verificar cambios sin guardar
+
+        # Construcción de la interfaz
+        self._build_ui()
 
         # Búsqueda
         self.search_manager = SearchReplaceManager(self)
@@ -166,6 +178,9 @@ class TSCEditor:
         self.apply_theme()
         self.update_font()
         self.update_ui_language()
+
+        # Cierre seguro
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     # ------------------------------------------------------------------
     # Construcción de la UI
@@ -325,7 +340,7 @@ class TSCEditor:
         self.root.bind("<Control-r>", lambda e: self.smart_replace_special_chars())
         self.root.bind("<Control-k>", lambda e: self.open_settings())
         self.root.bind("<F5>", lambda e: self.test_game())
-        self.root.bind("<Alt-F4>", lambda e: self.root.quit())
+        self.root.bind("<Alt-F4>", lambda e: self.on_close())
         self.root.bind("<Control-Shift-O>", lambda e: self.load_project())
         self.root.bind("<Control-Shift-Alt-O>", lambda e: self.load_folder())
         self.root.bind("<Control-Delete>", lambda e: self.delete_current_from_list())
@@ -337,6 +352,8 @@ class TSCEditor:
     # Métodos de carga/guardado de archivos
     # ------------------------------------------------------------------
     def load_file(self):
+        if not self.check_unsaved_changes("otro archivo .tsc"):
+            return
         file_path = filedialog.askopenfilename(
             title=self.tr['open_tsc'],
             filetypes=[("TSC Files", "*.tsc"), ("Plain text", "*.txt"), ("All files", "*.*")]
@@ -352,9 +369,7 @@ class TSCEditor:
             self.raw_bytes_for_hex = raw_data
 
             mode = self.settings.get("load_mode", "ask")
-            
             if mode == "auto":
-                # Auto-detect without dialog
                 encoding, cipher = auto_detect_best(raw_data, get_cipher_from_tsc, decrypt_tsc)
                 if encoding is None:
                     encoding = "shift_jis"
@@ -369,8 +384,7 @@ class TSCEditor:
                 )
                 if encoding is None:  # user cancelled
                     return
-            
-            # Decrypt and decode
+
             decrypted = decrypt_tsc(raw_data, cipher) if cipher != 0 else raw_data
             text = decrypted.decode(encoding, errors="replace")
             self.load_text_to_editor(text, file_path, cipher, encoding)
@@ -386,13 +400,15 @@ class TSCEditor:
         self.current_file = file_path
         self.current_cipher = cipher
         self.current_encoding = encoding
+        self.saved_content = text
         self.delayed_highlight()
         self.update_stats()
+        self.root.after(50, lambda: highlight_current_file_in_list(self))
 
     def export_file(self):
         if not self.confirm_save_with_errors():
             return
-        text_to_save = self.text_area.get("1.0", tk.END)
+        text_to_save = self.text_area.get("1.0", "end-1c")
         if not text_to_save.strip():
             if not messagebox.askyesno(self.tr['empty_warning'], self.tr['empty_warning']):
                 return
@@ -411,6 +427,7 @@ class TSCEditor:
                                 encrypt_tsc, lambda l: l // 2)
         if success:
             self.current_file = save_path
+            self.saved_content = text_to_save
             self.status_label.config(text=f"Exported: {os.path.basename(save_path)} | Cipher: {cipher}")
             self.add_history_entry(f"Saved TSC: {os.path.basename(save_path)}")
             messagebox.showinfo(self.tr['export_success'], f"{self.tr['export_success']}\nCipher: {cipher}")
@@ -420,7 +437,7 @@ class TSCEditor:
     def save_project(self):
         if not self.confirm_save_with_errors():
             return
-        text_to_save = self.text_area.get("1.0", tk.END)
+        text_to_save = self.text_area.get("1.0", "end-1c")
         if not text_to_save.strip():
             if not messagebox.askyesno(self.tr['empty_warning'], self.tr['empty_warning']):
                 return
@@ -437,6 +454,7 @@ class TSCEditor:
         success = save_project_file(save_path, text_to_save)
         if success:
             self.current_file = save_path
+            self.saved_content = text_to_save
             self.status_label.config(text=f"Project saved: {os.path.basename(save_path)}")
             self.add_history_entry(f"Saved project: {os.path.basename(save_path)}")
             messagebox.showinfo(self.tr['project_saved'], self.tr['project_saved'])
@@ -444,6 +462,8 @@ class TSCEditor:
             messagebox.showerror(self.tr['save_error'], self.tr['save_error'])
 
     def load_project(self):
+        if not self.check_unsaved_changes("otro proyecto .cstsc"):
+            return
         file_path = filedialog.askopenfilename(
             title=self.tr['open_project_dialog_title'],
             filetypes=[("TSC Editor+ Project", "*.cstsc"), ("Text", "*.txt"), ("All", "*.*")]
@@ -466,16 +486,41 @@ class TSCEditor:
                 self.load_specific_tsc(self.current_file)
 
     def confirm_save_with_errors(self):
-        texto = self.text_area.get("1.0", tk.END)
+        texto = self.text_area.get("1.0", "end-1c")
         errors = check_syntax(texto, self.commands_data, self.command_pattern)
         if errors:
             return messagebox.askyesno(self.tr['syntax_errors'], self.tr['syntax_errors_found'])
         return True
 
+    def check_unsaved_changes(self, new_file_desc="archivo") -> bool:
+        current_text = self.text_area.get("1.0", "end-1c")
+        if current_text == self.saved_content:
+            return True
+        answer = messagebox.askyesnocancel(
+            self.tr['unsaved_title'],
+            self.tr['unsaved_message'].format(new_file_desc)
+        )
+        if answer is None:
+            return False
+        elif answer:
+            if self.current_file and self.current_file.endswith(".cstsc"):
+                self.save_project()
+            else:
+                self.export_file()
+            return True
+        else:
+            # Descartar cambios
+            self.text_area.delete("1.0", tk.END)
+            self.text_area.insert("1.0", self.saved_content)
+            self.text_area.edit_reset()
+            return True
+
     # ------------------------------------------------------------------
     # Lista lateral de archivos
     # ------------------------------------------------------------------
     def load_folder(self):
+        if not self.check_unsaved_changes("una carpeta de proyectos"):
+            return
         folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
         if not folder:
             return
@@ -507,6 +552,7 @@ class TSCEditor:
             if search_text == "" or search_text in name_no_ext:
                 self.file_listbox.insert(tk.END, rel_path)
                 self.file_listbox._paths[rel_path] = full_path
+        self.root.after(50, lambda: highlight_current_file_in_list(self))
 
     def clear_search(self):
         self.search_var.set("")
@@ -519,23 +565,33 @@ class TSCEditor:
         rel_path = self.file_listbox.get(selection[0])
         full_path = getattr(self.file_listbox, '_paths', {}).get(rel_path)
         if full_path and os.path.isfile(full_path):
-            self.load_specific_tsc(full_path)
+            if self.check_unsaved_changes(f"'{os.path.basename(full_path)}'"):
+                self.load_specific_tsc(full_path)
+            else:
+                # Si cancela, restaurar el resaltado del archivo actual
+                self.root.after(50, lambda: highlight_current_file_in_list(self))
 
     def delete_current_from_list(self):
         if not self.current_file:
             messagebox.showinfo("Info", "There is no file loaded.")
+            return
+        if not self.check_unsaved_changes("eliminar este archivo de la lista"):
             return
         self.all_files = [(r, f) for r, f in self.all_files if f != self.current_file]
         self.filter_files()
         self.text_area.delete("1.0", tk.END)
         self.current_file = None
         self.current_cipher = None
+        self.saved_content = ""
         self.status_label.config(text="File removed from list.")
         self.add_history_entry("Removed current file from list")
+        highlight_current_file_in_list(self)
 
     def delete_all_from_list(self):
         if not self.all_files:
             messagebox.showinfo("Info", "There are no files in the list.")
+            return
+        if not self.check_unsaved_changes("eliminar todos los archivos de la lista"):
             return
         if messagebox.askyesno("Confirm", "Delete ALL files from the sidebar list?\n(They will NOT be deleted from the disk)"):
             self.all_files = []
@@ -543,8 +599,10 @@ class TSCEditor:
             self.text_area.delete("1.0", tk.END)
             self.current_file = None
             self.current_cipher = None
+            self.saved_content = ""
             self.status_label.config(text="List Cleared.")
             self.add_history_entry("Cleared all files from list")
+            highlight_current_file_in_list(self)
 
     # ------------------------------------------------------------------
     # Documentación rápida
@@ -803,7 +861,6 @@ class TSCEditor:
         tk.Button(btn_frame, text=self.tr['parse_button'], command=analyze, **btn_style).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text=self.tr['clear_button'], command=clear, **btn_style).pack(side=tk.LEFT, padx=5)
 
-        # Configurar colores de etiquetas
         if dark:
             result_text.tag_configure("command", foreground="#88AAFF")
             result_text.tag_configure("id", foreground="#FF88BB")
@@ -843,16 +900,11 @@ class TSCEditor:
             save_settings(self.settings_file, self.settings)
         tk.Checkbutton(win, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto, bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=20, pady=5)
 
-        # Dark theme
-        dark_var = BooleanVar(value=self.settings["dark_theme"])
-        def toggle_dark():
-            self.settings["dark_theme"] = dark_var.get()
-            self.current_theme.set("darkly" if dark_var.get() else "vapor")
-            self.apply_theme()
-            save_settings(self.settings_file, self.settings)
-            win.destroy()
-            self.open_settings()
-        tk.Checkbutton(win, text=self.tr['dark_theme_label'], variable=dark_var, command=toggle_dark, bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=20, pady=5)
+        # Theme selection
+        tk.Label(win, text="Theme:", bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
+        theme_var = tk.StringVar(value=self.current_theme.get())
+        theme_menu = ttk.Combobox(win, textvariable=theme_var, values=self.available_themes, state="readonly")
+        theme_menu.pack(anchor=tk.W, padx=20, pady=5)
 
         # Language
         tk.Label(win, text=self.tr['language_label'], bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
@@ -903,13 +955,22 @@ class TSCEditor:
         btn_style = {"bg": "#3c3c3c", "fg": "white"} if dark else {"bg": "#e0e0e0", "fg": "black"}
 
         def apply_settings():
+            # Cambiar tema
+            new_theme = theme_var.get()
+            if new_theme != self.current_theme.get():
+                self.current_theme.set(new_theme)
+                self.settings["current_theme"] = new_theme
+                self.apply_theme()
+            # Cambiar idioma
             if lang_var.get() != self.current_lang:
                 self.current_lang = lang_var.get()
                 self.settings["language"] = self.current_lang
                 self.update_ui_language()
+            # Cambiar fuente
             self.settings["default_font"] = font_var.get()
             self.current_font_name.set(font_var.get())
             self.update_font()
+            # Modo de carga
             self.settings["load_mode"] = load_mode_var.get()
             self.settings["manual_encoding"] = manual_encoding_var.get()
             try:
@@ -929,7 +990,12 @@ class TSCEditor:
             except:
                 pass
         elif TTKTHEMES_AVAILABLE:
-            if self.settings.get("dark_theme", False):
+            if self.current_theme.get() == "darkly":
+                try:
+                    self.root.set_theme("equilux")
+                except:
+                    pass
+            elif self.current_theme.get() == "vapor":
                 try:
                     self.root.set_theme("equilux")
                 except:
@@ -939,11 +1005,12 @@ class TSCEditor:
                     self.root.set_theme("clam")
                 except:
                     pass
-        apply_theme_to_widgets(self, self.settings.get("dark_theme", False))
+        apply_theme_to_widgets(self, None)
+        self.root.after(50, lambda: highlight_current_file_in_list(self))
         self.update_theme_button_text()
         if PYWINSTYLES_AVAILABLE and sys.platform == "win32":
             try:
-                if self.settings.get("dark_theme", False):
+                if self.current_theme.get() in ("darkly", "vapor"):
                     pywinstyles.change_header_color(self.root, "#1e1e1e")
                 else:
                     pywinstyles.change_header_color(self.root, "#ffffff")
@@ -952,9 +1019,14 @@ class TSCEditor:
 
     def toggle_theme(self):
         current = self.current_theme.get()
-        new_theme = "vapor" if current == "darkly" else "darkly"
+        if current == "darkly":
+            new_theme = "cosmo"
+        elif current == "cosmo":
+            new_theme = "darkly"
+        else:
+            new_theme = "darkly"
         self.current_theme.set(new_theme)
-        self.settings["dark_theme"] = (new_theme == "darkly")
+        self.settings["current_theme"] = new_theme
         save_settings(self.settings_file, self.settings)
         self.apply_theme()
         self.add_history_entry(f"Changed theme to {new_theme}")
@@ -963,8 +1035,10 @@ class TSCEditor:
         if hasattr(self, 'theme_btn'):
             if self.current_theme.get() == "darkly":
                 self.theme_btn.config(text="🌙 Darkly")
+            elif self.current_theme.get() == "vapor":
+                self.theme_btn.config(text="🌙 Vapor")
             else:
-                self.theme_btn.config(text="☀️ Vapor")
+                self.theme_btn.config(text="☀️ Cosmo")
 
     def start_auto_save(self):
         if self.auto_save_timer:
@@ -987,7 +1061,7 @@ class TSCEditor:
     # Sintaxis y resaltado
     # ------------------------------------------------------------------
     def check_syntax_cmd(self):
-        texto = self.text_area.get("1.0", tk.END)
+        texto = self.text_area.get("1.0", "end-1c")
         errors = check_syntax(texto, self.commands_data, self.command_pattern)
         if errors:
             msg = f"{self.tr['syntax_errors']}:\n\n"
@@ -1004,7 +1078,7 @@ class TSCEditor:
         self.root.after(50, self.highlight_syntax)
 
     # ------------------------------------------------------------------
-    # Búsqueda y reemplazo (delegado)
+    # Búsqueda y reemplazo
     # ------------------------------------------------------------------
     def on_search_text_change(self, event=None):
         self.search_manager.search_text = self.search_entry.get()
@@ -1276,11 +1350,9 @@ class TSCEditor:
                 else:
                     extra = ""
 
-            # Mostrar información
             msg = f"{desc}{extra}"
             messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", msg)
 
-            # Si es FAC y tenemos el ID, mostrar la imagen
             if cmd_name == "FAC" and face_id is not None:
                 face_name = self.face_names.get(face_id, "Unknown")
                 self._show_face_image(face_id, face_name)
@@ -1465,3 +1537,7 @@ class TSCEditor:
 
     def show_context_menu(self, event):
         self.context_menu.tk_popup(event.x_root, event.y_root)
+
+    def on_close(self):
+        if self.check_unsaved_changes("salir del programa"):
+            self.root.destroy()

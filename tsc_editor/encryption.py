@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Encryption/decryption utilities for Cave Story .tsc files (Carrot Lord cipher).
-Now uses modulo 256 (wrap-around) instead of clamping to fix Japanese text.
+Now uses modulo 256 (wrap-around) and non-negative cipher.
 """
 
 def get_cipher_from_tsc(data: bytes) -> int:
@@ -14,7 +14,8 @@ def get_cipher_from_tsc(data: bytes) -> int:
     if not newline_dict:
         return 0
     top_key = max(newline_dict, key=newline_dict.get)
-    return top_key - 0x0D
+    # Asegurar que el cipher sea no negativo (0-255)
+    return (top_key - 0x0D) % 0x100
 
 def decrypt_tsc(data: bytes, cipher: int) -> bytes:
     if cipher == 0:
@@ -24,7 +25,6 @@ def decrypt_tsc(data: bytes, cipher: int) -> bytes:
         if b == cipher:
             result.append(cipher)
         else:
-            # Wrap-around instead of clamping to 0
             val = (b - cipher) % 256
             result.append(val)
     return bytes(result)
@@ -37,7 +37,6 @@ def encrypt_tsc(plain: bytes, cipher: int, middle_pos: int) -> bytes:
         if i == middle_pos:
             result.append(cipher)
         else:
-            # Wrap-around using modulo
             val = (b + cipher) % 256
             result.append(val)
     return bytes(result)

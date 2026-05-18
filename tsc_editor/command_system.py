@@ -110,7 +110,6 @@ def load_base_commands() -> dict:
         "VAO":  ["2", "##--", "Perform operation on variable."],
         "VAJ":  ["4", "###e", "Compare variables and jump."],
         "RND":  ["3", "###-", "Random number into variable."],
-        "IMG":  ["1", "#---", "Set TimgFILE.bmp over screen."],
         "PHY":  ["2", "##--", "Change physics variables."],
         "I+N":  ["2", "##--", "Adds 1 of item xxxx, with a max quantity of yyyy."],
         "2MV":  ["1", "#---", "Moves the other player."],
