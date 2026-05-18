@@ -5,14 +5,14 @@
 # 🚀 TSC Editor+
 
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
 ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Cave Story](https://img.shields.io/badge/Game-Cave%20Story-orange)
 ![Encoding](https://img.shields.io/badge/Encoding-Shift--JIS%20%7C%20UTF--8-informational)
-![Version](https://img.shields.io/badge/Version-1.0-blueviolet)
+![Version](https://img.shields.io/badge/Version-1.1-blueviolet)
 
 A powerful multi-language editor for `.tsc` script files used in the Cave Story engine and its variants.
 Built with **Python + Tkinter**, **TSC Editor+** is focused on improving the workflow of modders, translators, and script editors with advanced tools, syntax highlighting, documentation systems, and project management features.
@@ -35,12 +35,13 @@ Supports:
 
 ## 🛠️ Advanced `.tsc` Support
 
-* 🔍 Automatic encoding detection
-* 🔐 Cipher/encryption detection
+* 🔍 **Manual encoding/cipher selection** – Dialog with live preview (Shift-JIS, CP932, Latin-1, UTF-8, CP850)
+* ⚙️ **Persistent loading modes** – Auto‑detect, ask per file, or fixed encoding/cipher (saved in settings)
+* 🔐 Cipher/encryption detection (fixed for non‑negative values)
 * 🎨 Syntax highlighting
 * ⚠️ Syntax validation
 * 🧠 Smart replacement of unsupported special characters
-* 🧾 Quick command documentation
+* 🧾 Quick command documentation (now with song names, face sprites, sound effect names)
 * 🧩 Custom command support
 
 ---
@@ -62,6 +63,7 @@ Supports:
 * 🧮 Syntax analyzer
 * 🧬 Hex dump viewer
 * ↩️ Undo / Redo support
+* ⚠️ Unsaved changes detection
 
 ---
 
@@ -74,23 +76,29 @@ Supports:
 
 ## 🎨 UI Customization
 
-* 🌙 Dark theme (Beta)
+* 🌙 **Three themes**: Darkly (blue/dark), Vapor (purple/dark), Cosmo (light)
 * 🔤 Custom fonts
 * 🔍 Adjustable font sizes
 * 🎨 Custom command colors
+* 📋 **Sidebar file highlight** – current file in blue/purple
 
 ---
 
 # 📸 Screenshots
 
-<img width="1366" height="720" alt="image" src="https://github.com/user-attachments/assets/18e40019-d640-4935-b837-e62af0daccb1" />
+<img width="1366" height="700" alt="image" src="https://github.com/user-attachments/assets/7dc320a7-5ecd-4aea-954b-1f6b2b2dbaac" />
+<img width="1366" height="718" alt="image" src="https://github.com/user-attachments/assets/5fd3f5b1-4316-480c-b5f1-85aff28d86aa" />
+<img width="1366" height="718" alt="image" src="https://github.com/user-attachments/assets/f33a6b13-811e-4db1-94da-cb3a922d00cb" />
+
 
 ---
 
 # 📦 Requirements
 
-* 🐍 Python 3.9+
+* 🐍 Python 3.8+
 * 🪟 Tkinter
+
+*Note: Python 3.14 is fully supported.*
 
 ---
 
@@ -98,15 +106,24 @@ Supports:
 
 Clone the repository:
 
-```bash id="gup3g1"
+```bash
 git clone https://github.com/edwarly999plus/tsc-editor-plus.git
 cd tsc-editor-plus
 ```
 
 Run the editor:
 
-```bash id="jlwmc5"
+```bash
 python main.py
+```
+
+The first run will automatically install required libraries (`ttkbootstrap`, `Pillow`, `pywinstyles`) into a local `libs/` folder.  
+If automatic installation fails, you can manually install them with:
+
+```bash
+python -m pip install ttkbootstrap==1.10.1
+python -m pip install pillow==10.0.0
+python -m pip install pywinstyles==1.8
 ```
 
 ---
@@ -148,49 +165,36 @@ TSC commands, IDs, events, and errors are highlighted automatically.
 
 ## 📚 Quick Documentation
 
-Browse built-in command documentation directly inside the editor.
+Browse built-in command documentation directly inside the editor.  
+Now with extra info: song names for `<CMU>`, face sprites for `<FAC>`, sound effect names for `<SOU>`.
 
 ## 🧹 Smart Replace
 
 Automatically converts problematic characters commonly unsupported by classic TSC encodings.
 
-## 🔍 Auto Encoding Detection
+## 🔍 Manual Encoding Selection
 
-The editor can automatically detect:
-
-* Shift-JIS
-* CP932
-* UTF-8
-* Latin-1
-* CP850
-
-It also supports encrypted/freeware TSC formats.
+You can now choose the exact encoding and cipher when opening a `.tsc` file, with a live preview.  
+This completely solves the “?” character problem for Japanese TSC files.
 
 ---
 
 # 🗂️ Project Structure
 
-```text id="c5ncmr"
+```text
 project/
 │
 ├── main.py
 ├── settings.json
-├── custom_commands.json
-├── command_colors.json
-├── Cave-Story.ttf
-└── Lucida Grande Regular.ttf
+├── /libs
+├── /tsc_editor
+├── /faces
+└── /Test TSC
 ```
 
----
-
-# 🛣️ Planned Features
-
-* 🔌 Plugin system
-* 📖 More TSC command presets
-* 🧠 Better script analysis
-* 🐧 Linux/macOS support
-* 🗺️ Integrated event navigator
-* 📤 Improved export system
+*Additional folders (optional):*  
+`faces/free/` – for face sprites (`fac_sprite_free00.png`, …)  
+`libs/` – auto‑downloaded dependencies
 
 ---
 
@@ -198,7 +202,7 @@ project/
 
 This project is licensed under the **MIT License**.
 
-```text id="52q60q"
+```text
 MIT License
 
 Copyright (c) 2026 EdwarlyGamer999+
@@ -240,7 +244,7 @@ If you find an issue:
 
 * Inspired by the amazing modding community around Cave Story
 * Developed with 🐍 Python + Tkinter
-* Carrot Lord's Encryptor and Decryptor (Booster's Lab) (Cave Editor) was used
+* Carrot Lord's Encryptor and Decryptor (Booster's Lab / Cave Editor) was used
 
 ---
 
