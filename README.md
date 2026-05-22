@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="154" height="154" alt="a779d220-24ba-4e2f-810a-0c4fcc022194" src="https://github.com/user-attachments/assets/13de0e36-b6f7-47fe-9043-5aa3e78dfaa7" /> 
+<img width="154" height="154" alt="TSC Editor+ Logo" src="https://github.com/user-attachments/assets/13de0e36-b6f7-47fe-9043-5aa3e78dfaa7" /> 
 
 # 🚀 TSC Editor+
 
@@ -12,7 +12,7 @@
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Cave Story](https://img.shields.io/badge/Game-Cave%20Story-orange)
 ![Encoding](https://img.shields.io/badge/Encoding-Shift--JIS%20%7C%20UTF--8-informational)
-![Version](https://img.shields.io/badge/Version-1.1-blueviolet)
+![Version](https://img.shields.io/badge/Version-1.2-blueviolet)
 
 A powerful multi-language editor for `.tsc` script files used in the Cave Story engine and its variants.
 Built with **Python + Tkinter**, **TSC Editor+** is focused on improving the workflow of modders, translators, and script editors with advanced tools, syntax highlighting, documentation systems, and project management features.
@@ -63,7 +63,8 @@ Supports:
 * 🧮 Syntax analyzer
 * 🧬 Hex dump viewer
 * ↩️ Undo / Redo support
-* ⚠️ Unsaved changes detection
+* ⚠️ **Unsaved changes detection** (fixed – no false positives)
+* 🗂️ **Modern tabs** (Ctrl+T new tab, Ctrl+W close tab)
 
 ---
 
@@ -81,14 +82,15 @@ Supports:
 * 🔍 Adjustable font sizes
 * 🎨 Custom command colors
 * 📋 **Sidebar file highlight** – current file in blue/purple
+* 🖱️ **Tab close button** – "✕" button on each tab
 
 ---
 
 # 📸 Screenshots
 
-<img width="1366" height="700" alt="image" src="https://github.com/user-attachments/assets/7dc320a7-5ecd-4aea-954b-1f6b2b2dbaac" />
-<img width="1366" height="718" alt="image" src="https://github.com/user-attachments/assets/5fd3f5b1-4316-480c-b5f1-85aff28d86aa" />
-<img width="1366" height="718" alt="image" src="https://github.com/user-attachments/assets/f33a6b13-811e-4db1-94da-cb3a922d00cb" />
+<img width="1366" height="700" alt="Screenshot Darkly" src="https://github.com/user-attachments/assets/7dc320a7-5ecd-4aea-954b-1f6b2b2dbaac" />
+<img width="1366" height="718" alt="Screenshot Vapor" src="https://github.com/user-attachments/assets/5fd3f5b1-4316-480c-b5f1-85aff28d86aa" />
+<img width="1366" height="718" alt="Screenshot Cosmo" src="https://github.com/user-attachments/assets/f33a6b13-811e-4db1-94da-cb3a922d00cb" />
 
 
 ---
@@ -140,20 +142,25 @@ python -m pip install pywinstyles==1.8
 
 # ⌨️ Keyboard Shortcuts
 
-| ⌨️ Shortcut              | 🧩 Action               |
-| ------------------------ | ----------------------- |
-| `Ctrl + O`               | Open `.tsc`             |
-| `Ctrl + Shift + O`       | Open project            |
-| `Ctrl + Shift + Alt + O` | Open folder             |
-| `Ctrl + S`               | Save project            |
-| `Ctrl + Shift + S`       | Export `.tsc`           |
-| `Ctrl + F`               | Search                  |
-| `Ctrl + R`               | Smart replace           |
-| `Ctrl + Z`               | Undo                    |
-| `Ctrl + Y`               | Redo                    |
-| `F5`                     | Test game               |
-| `Ctrl + H`               | Show history            |
-| `Ctrl + Shift + C`       | Command syntax analyzer |
+| ⌨️ Shortcut              | 🧩 Action                   |
+| ------------------------ | --------------------------- |
+| `Ctrl + O`               | Open `.tsc`                 |
+| `Ctrl + Shift + O`       | Open project                |
+| `Ctrl + Shift + Alt + O` | Open folder                 |
+| `Ctrl + S`               | Save project                |
+| `Ctrl + Shift + S`       | Export `.tsc`               |
+| `Ctrl + F`               | Search                      |
+| `Ctrl + R`               | Smart replace               |
+| `Ctrl + Z`               | Undo                        |
+| `Ctrl + Y`               | Redo                        |
+| `F5`                     | Test game                   |
+| `Ctrl + H`               | Show history                |
+| `Ctrl + Shift + C`       | Command syntax analyzer     |
+| `Ctrl + N` / `Ctrl + T`  | New empty tab               |
+| `Ctrl + W`               | Close current tab           |
+| `Ctrl + Shift + W`       | Close all tabs              |
+| `Ctrl + Alt + W`         | Close other tabs            |
+| `Alt + F4`               | Exit                        |
 
 ---
 
@@ -175,7 +182,7 @@ Automatically converts problematic characters commonly unsupported by classic TS
 ## 🔍 Manual Encoding Selection
 
 You can now choose the exact encoding and cipher when opening a `.tsc` file, with a live preview.  
-This completely solves the “?” character problem for Japanese TSC files.
+This completely solves the "?" character problem for Japanese TSC files.
 
 ---
 
@@ -186,15 +193,34 @@ project/
 │
 ├── main.py
 ├── settings.json
-├── /libs
-├── /tsc_editor
-├── /faces
-└── /Test TSC
+├── custom_commands.json
+├── command_colors.json
+├── tsc_editor/          # Main package
+├── libs/                # Auto-downloaded dependencies
+├── faces/               # Face sprites (freeware/steam)
+│   ├── free/
+│   └── steam/
+└── Cave-Story.ttf       # Optional font
 ```
 
 *Additional folders (optional):*  
-`faces/free/` – for face sprites (`fac_sprite_free00.png`, …)  
+`faces/free/` – for freeware face sprites (`fac_sprite_free00.png`, …)  
+`faces/steam/` – for Steam face sprites (`fac_sprite_steam00.png`, …)  
 `libs/` – auto‑downloaded dependencies
+
+---
+
+# 🆕 What's New in v1.2
+
+- **Modern tabs** – Open multiple files in tabs (Ctrl+T, Ctrl+W)
+- **Tab close button** – "✕" button on each tab
+- **Close other tabs** – Ctrl+Alt+W closes all but the current tab
+- **Steam face sprites support** – Choose Freeware or Steam version for `<FAC>` preview
+- **Export to .txt** – Save as plain text (UTF-8, no encryption)
+- **Persistent recent folder** – Keep your TSC folder on startup
+- **Improved search highlighting** – Current match stands out
+- **Better theme support** – Settings window follows the selected theme
+- **Compatibility with Python 3.14** – No pygame required
 
 ---
 
