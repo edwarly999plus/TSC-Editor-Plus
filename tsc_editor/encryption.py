@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 """
 Encryption/decryption utilities for Cave Story .tsc files (Carrot Lord cipher).
-Now uses modulo 256 (wrap-around) and non-negative cipher.
+Now uses the middle byte of the file as the cipher key (more reliable).
 """
 
 def get_cipher_from_tsc(data: bytes) -> int:
-    newline_dict = {}
-    for i in range(len(data) - 1):
-        b1 = data[i]
-        b2 = data[i+1]
-        if (b1 - b2) == 3:
-            newline_dict[b1] = newline_dict.get(b1, 0) + 1
-    if not newline_dict:
+    """
+    Detect the cipher key used in a .tsc file.
+    Returns the byte at the middle of the file.
+    """
+    if not data:
         return 0
-    top_key = max(newline_dict, key=newline_dict.get)
-    # Asegurar que el cipher sea no negativo (0-255)
-    return (top_key - 0x0D) % 0x100
+    return data[len(data) // 2]
 
 def decrypt_tsc(data: bytes, cipher: int) -> bytes:
     if cipher == 0:

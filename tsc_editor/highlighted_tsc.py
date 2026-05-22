@@ -7,7 +7,6 @@ def highlight_current_file_in_list(app):
     """Resalta el archivo actual en la lista lateral con color azul."""
     if not app.current_file:
         return
-    # Asegurar que la lista tenga los colores de fondo correctos según el tema
     theme = app.current_theme.get()
     if theme == "darkly":
         default_bg = "#2b2b2b"
@@ -19,7 +18,7 @@ def highlight_current_file_in_list(app):
         default_bg = "#2d1b4e"
         default_fg = "#e0e0ff"
         select_bg = "#4a2a6a"
-        highlight_bg = "#4a2a6a"   # morado más brillante
+        highlight_bg = "#4a2a6a"   
         highlight_fg = "#e0e0ff"
     else:  # cosmo
         default_bg = "white"
@@ -28,7 +27,6 @@ def highlight_current_file_in_list(app):
         highlight_bg = "#0078D7"
         highlight_fg = "white"
 
-    # Configurar el color de selección de la lista (para cuando se hace clic)
     app.file_listbox.configure(selectbackground=select_bg)
 
     for i in range(app.file_listbox.size()):
@@ -36,7 +34,6 @@ def highlight_current_file_in_list(app):
         full_path = getattr(app.file_listbox, '_paths', {}).get(rel_path)
         if full_path == app.current_file:
             app.file_listbox.itemconfig(i, bg=highlight_bg, fg=highlight_fg)
-            # Seleccionar el ítem y hacerlo visible
             app.file_listbox.selection_clear(0, "end")
             app.file_listbox.selection_set(i)
             app.file_listbox.see(i)
@@ -44,5 +41,4 @@ def highlight_current_file_in_list(app):
         else:
             app.file_listbox.itemconfig(i, bg=default_bg, fg=default_fg)
 
-    # Forzar actualización visual
     app.file_listbox.update()

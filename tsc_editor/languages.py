@@ -149,9 +149,17 @@ LANGS = {
         'color_pink': 'Pink (like ID)',
         'color_red': 'Red (error)',
         'color_reset': 'Reset to default',
-        # New keys for unsaved changes dialog
         'unsaved_title': 'Unsaved Changes',
         'unsaved_message': 'There are unsaved changes in the current file.\n\nDo you want to save them before opening {}?\n\nYes = Save and continue\nNo = Discard changes and continue\nCancel = Do not change file',
+        'unsaved_tab_title': 'Unsaved Changes',
+        'unsaved_tab_message': 'There are unsaved changes in "{}".\nDo you want to save them before closing?',
+        'face_version_title': 'Select version',
+        'face_version_question': 'Show face ID {} from which version?',
+        'face_version_freeware': 'Freeware',
+        'face_version_steam': 'Steam',
+        'face_version_cancel': 'Cancel',
+        'face_view_title': 'Show face',
+        'face_view_question': 'Show face image for ID {}?\n(You can choose version later)',
     },
     'es': {
         'window_title': 'TSC Editor+',
@@ -298,9 +306,17 @@ LANGS = {
         'color_pink': 'Rosa (como ID)',
         'color_red': 'Rojo (error)',
         'color_reset': 'Restablecer a por defecto',
-        # New keys for unsaved changes dialog
         'unsaved_title': 'Cambios sin guardar',
         'unsaved_message': 'Hay cambios sin guardar en el archivo actual.\n\n¿Desea guardarlos antes de abrir {}?\n\nSí = Guardar y continuar\nNo = Descartar cambios y continuar\nCancelar = No cambiar de archivo',
+        'unsaved_tab_title': 'Cambios sin guardar',
+        'unsaved_tab_message': 'Hay cambios sin guardar en "{}".\n¿Desea guardarlos antes de cerrar?',
+        'face_version_title': 'Seleccionar versión',
+        'face_version_question': '¿Mostrar cara ID {} de qué versión?',
+        'face_version_freeware': 'Freeware',
+        'face_version_steam': 'Steam',
+        'face_version_cancel': 'Cancelar',
+        'face_view_title': 'Ver cara',
+        'face_view_question': '¿Mostrar imagen de la cara {}?\n(Puedes elegir versión después)',
     },
     'jp': {
         'window_title': 'TSC Editor+',
@@ -447,9 +463,17 @@ LANGS = {
         'color_pink': 'ピンク (ID風)',
         'color_red': '赤 (エラー)',
         'color_reset': 'デフォルトに戻す',
-        # New keys for unsaved changes dialog
         'unsaved_title': '未保存の変更',
         'unsaved_message': '現在のファイルに未保存の変更があります。\n\n{}を開く前に保存しますか？\n\nはい = 保存して続行\nいいえ = 変更を破棄して続行\nキャンセル = ファイルを変更しない',
+        'unsaved_tab_title': '未保存の変更',
+        'unsaved_tab_message': '「{}」に未保存の変更があります。\n閉じる前に保存しますか？',
+        'face_version_title': 'バージョンを選択',
+        'face_version_question': '顔ID {} をどのバージョンで表示しますか？',
+        'face_version_freeware': 'フリーウェア',
+        'face_version_steam': 'Steam',
+        'face_version_cancel': 'キャンセル',
+        'face_view_title': '顔を表示',
+        'face_view_question': '顔ID {} の画像を表示しますか？\n(後でバージョンを選べます)',
     }
 }
 
