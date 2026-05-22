@@ -6,7 +6,7 @@ import sys
 import subprocess
 
 # ======================================================================
-# AUTO-INSTALL DEPENDENCIES (sin pygame)
+# AUTO-INSTALL DEPENDENCIES
 # ======================================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -67,7 +67,7 @@ def check_and_install():
 check_and_install()
 
 # ======================================================================
-# CONTINUAR CON LA APLICACIÓN PRINCIPAL
+# EXECUTE MAIN APP
 # ======================================================================
 
 import tkinter as tk
