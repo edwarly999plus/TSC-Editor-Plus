@@ -20,6 +20,8 @@ from .command_system import (
     update_commands_data, build_command_regex, load_command_colors, save_command_colors,
     get_command_color as get_cmd_color
 )
+from . import animate_switch_faces
+from .animate_switch_faces import show_switch_anim_dialog
 from .settings_manager import load_settings, save_settings
 from .syntax_highlight import check_syntax, highlight_syntax
 from .dialogs import ask_encoding_and_cipher, smart_replace_dialog, auto_detect_best
@@ -33,6 +35,7 @@ from .sound_names import get_sound_name
 from .highlighted_tsc import highlight_current_file_in_list
 from .tab_manager import TabManager
 from .load_recents import save_recent_folder, get_recent_folder, should_restore_recent
+from .show_hints import HintsManager
 
 # Libs
 try:
@@ -42,9 +45,12 @@ except ImportError:
     TTKBOOTSTRAP_AVAILABLE = False
 
 try:
-    from ttkthemes import ThemedTk
-    TTKTHEMES_AVAILABLE = True
-except ImportError:
+    import importlib
+    _ttkthemes = importlib.import_module('ttkthemes')
+    ThemedTk = getattr(_ttkthemes, 'ThemedTk', None)
+    TTKTHEMES_AVAILABLE = ThemedTk is not None
+except Exception:
+    ThemedTk = None
     TTKTHEMES_AVAILABLE = False
 
 try:
@@ -91,7 +97,7 @@ class TSCEditor:
         }
         self.face_names_steam = self.face_names.copy()
         self.face_names_steam["0027"] = "Quote"   # Changed On Steam
-
+        self.face_names_switch = self.face_names_steam.copy()        
         # Command Colors
         self.command_colors_file = os.path.join(os.path.dirname(sys.argv[0]), "command_colors.json")
         self.command_colors = load_command_colors(self.command_colors_file)
@@ -110,7 +116,10 @@ class TSCEditor:
             "manual_encoding": "shift_jis",
             "manual_cipher": 0,
             "keep_recent_tsc": False,
-            "last_folder": ""
+            "last_folder": "",
+            "enable_ai": True,
+            "gemini_api_key": "AIzaSyBQoyxo4pXzyoeoTACxS5UcU8XoF8gAf9s",
+
         }
         self.settings = load_settings(self.settings_file, default_settings)
 
@@ -237,10 +246,23 @@ class TSCEditor:
         # Tab title
         self.text_area = None
 
-        # Tab size
-        
+        # Tab size  
         self.right_notebook = ttk.Notebook(self.main_paned)
         self.main_paned.add(self.right_notebook, minsize=250, width=250)
+
+        # AI Assistant tab (solo si está habilitado y Python >= 3.9)
+        if self.settings.get("enable_ai", True) and sys.version_info >= (3, 9):
+            try:
+                from .gemini_tsc_ai import GeminiTSCAI
+                ai_tab_text = self.tr.get('ai_assistant', 'AI Assistant')
+                self.ai_tab = tk.Frame(self.right_notebook)
+                self.right_notebook.add(self.ai_tab, text=ai_tab_text)  # <--- ¡Usa ai_tab_text!
+                self.ai_assistant = GeminiTSCAI(self.ai_tab, self, self.settings)
+                print("AI Assistant tab created successfully.")
+            except ImportError as e:
+                print(f"Failed to import GeminiTSCAI: {e}")
+            except Exception as e:
+                print(f"Unexpected error creating AI tab: {e}")
 
         # History
         self.history_tab = tk.Frame(self.right_notebook)
@@ -281,6 +303,7 @@ class TSCEditor:
         self.docs_detail = scrolledtext.ScrolledText(bottom_frame, wrap=tk.WORD, font=("Segoe UI", 9), state=tk.NORMAL)
         self.docs_detail.pack(fill=tk.BOTH, expand=True)
         self.populate_quick_docs()
+        self.hints_manager = HintsManager(self.docs_tab, self)
 
         # Search
         self.search_tab = tk.Frame(self.right_notebook)
@@ -375,6 +398,35 @@ class TSCEditor:
             return
         self.load_specific_tsc(file_path)
 
+    def _decode_with_fallback(self, raw_bytes: bytes, primary_encoding: str) -> tuple:
+        """
+        Decodifica raw_bytes usando primary_encoding y fallbacks si aparece '�'.
+        Retorna (texto_decodificado, encoding_usado).
+        """
+        encodings = [primary_encoding, 'cp850', 'cp932', 'latin-1']
+        # Eliminar duplicados
+        seen = set()
+        unique = []
+        for enc in encodings:
+            if enc not in seen:
+                seen.add(enc)
+                unique.append(enc)
+        best_text = None
+        best_enc = primary_encoding
+        for enc in unique:
+            try:
+                text = raw_bytes.decode(enc, errors='replace')
+                if '�' not in text:
+                    return text, enc
+                if best_text is None:
+                    best_text = text
+                    best_enc = enc
+            except Exception:
+                continue
+        if best_text is not None:
+            return best_text, best_enc
+        return raw_bytes.decode(primary_encoding, errors='replace'), primary_encoding        
+
     def load_specific_tsc(self, file_path):
         try:
             with open(file_path, "rb") as f:
@@ -387,6 +439,8 @@ class TSCEditor:
                 if encoding is None:
                     encoding = "shift_jis"
                     cipher = 0
+                if cipher == 0:
+                    encoding = "utf-8"
             elif mode == "manual":
                 encoding = self.settings.get("manual_encoding", "shift_jis")
                 cipher = self.settings.get("manual_cipher", 0)
@@ -399,12 +453,51 @@ class TSCEditor:
                     return
 
             decrypted = decrypt_tsc(raw_data, cipher) if cipher != 0 else raw_data
-            text = decrypted.decode(encoding, errors="replace")
+
+            # Fallback para shift_jis
+            if encoding.lower() == 'shift_jis':
+                text, used_encoding = self._decode_with_fallback(decrypted, encoding)
+                encoding = used_encoding
+            else:
+                text = decrypted.decode(encoding, errors='replace')
+
+            # Si la codificación resultante es cp850, convertir a español legible
+            if encoding == 'cp850':
+                text = self._convert_cp850_to_spanish(text)
+
             self.tab_manager.add_tab(file_path, text, encoding, cipher)
             self.status_label.config(text=f"Loaded: {os.path.basename(file_path)} | Cipher={cipher}, Enc={encoding}")
             self.add_history_entry(f"Opened TSC: {os.path.basename(file_path)} (cipher={cipher}, enc={encoding})")
         except Exception as e:
             messagebox.showerror(self.tr['load_error'], f"Could not load {os.path.basename(file_path)}:\n{str(e)}")
+
+    def _convert_cp850_to_spanish(self, text: str) -> str:
+        """
+        Convierte caracteres específicos de cp850 a sus equivalentes legibles en español.
+        """
+        mapping = {
+            '┐': '¿',
+            'í': '¡',
+            '±': 'ñ',
+            'Ð': 'Ñ',
+            'ß': 'á',
+            'Ú': 'é',
+            'Ý': 'í',
+            '¾': 'ó',
+            '·': 'ú',
+            '─': 'Ä',
+            '╦': 'Ë',
+            '¤': 'Ï',
+            'Í': 'Ö',
+            '▄': 'Ü',
+            '┴': 'Á',
+            '╔': 'É',
+            '═': 'Í',
+            'Ë': 'Ó',
+            '┌': 'Ú',
+        }
+        trans_table = str.maketrans(mapping)
+        return text.translate(trans_table)
 
     def create_new_text_widget(self, parent):
         text_widget = scrolledtext.ScrolledText(parent, wrap=tk.WORD, undo=True, autoseparators=True, maxundo=50)
@@ -1114,6 +1207,8 @@ class TSCEditor:
         apply_theme_to_widgets(self, None)
         self.root.after(50, lambda: highlight_current_file_in_list(self))
         self.update_theme_button_text()
+        if hasattr(self, 'hints_manager'):
+            self.hints_manager.update_theme()
         if PYWINSTYLES_AVAILABLE and sys.platform == "win32":
             try:
                 if self.current_theme.get() in ("darkly", "vapor"):
@@ -1393,10 +1488,20 @@ class TSCEditor:
     # Face preview (FAC) with version selection
     # ------------------------------------------------------------------
     def _ask_face_version_and_show(self, face_id: str):
-        """Pregunta al usuario qué versión de la cara quiere ver."""
+        """Muestra diálogo para elegir versión (Freeware/Steam/Switch) normalizando el ID."""
+        # Normalizar el ID a sus dos últimos dígitos (ej. 1019 -> 19 -> "0019")
+        try:
+            person_id = int(face_id[-2:])
+            base_id = f"{person_id:04d}"
+        except Exception:
+            base_id = "0000"
+        
+        # Para Freeware y Steam usaremos el base_id (4 dígitos)
+        # Para Switch usaremos el face_id original (para detectar 10XX/11XX)
+        
         dialog = tk.Toplevel(self.root)
         dialog.title(self.tr['face_version_title'])
-        dialog.geometry("300x150")
+        dialog.geometry("350x160")
         dialog.transient(self.root)
         dialog.grab_set()
         dialog.resizable(False, False)
@@ -1413,19 +1518,26 @@ class TSCEditor:
         tk.Label(dialog, text=self.tr['face_version_question'].format(face_id), bg=bg, fg=fg).pack(pady=10)
         
         def show_freeware():
-            self._show_face_image(face_id, "free")
+            # Usar base_id para mostrar la imagen estática Freeware
+            self._show_face_image(base_id, "free")
             dialog.destroy()
         
         def show_steam():
-            self._show_face_image(face_id, "steam")
+            self._show_face_image(base_id, "steam")
+            dialog.destroy()
+        
+        def show_switch():
+            from .animate_switch_faces import auto_switch_animation
+            auto_switch_animation(self.root, face_id, self.settings)
             dialog.destroy()
         
         btn_frame = tk.Frame(dialog, bg=bg)
         btn_frame.pack(pady=10)
         btn_style = {"bg": btn_bg, "fg": btn_fg, "activebackground": "#4a2a6a" if current_theme == "vapor" else "#3c3c3c"}
-        tk.Button(btn_frame, text=self.tr['face_version_freeware'], command=show_freeware, **btn_style).pack(side=tk.LEFT, padx=10)
-        tk.Button(btn_frame, text=self.tr['face_version_steam'], command=show_steam, **btn_style).pack(side=tk.LEFT, padx=10)
-        tk.Button(btn_frame, text=self.tr['face_version_cancel'], command=dialog.destroy, **btn_style).pack(side=tk.LEFT, padx=10)
+        tk.Button(btn_frame, text="Freeware", command=show_freeware, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Steam", command=show_steam, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Switch (Animado)", command=show_switch, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Cancelar", command=dialog.destroy, **btn_style).pack(side=tk.LEFT, padx=5)
 
     def _show_face_image(self, face_id: str, version: str = "free"):
         """Muestra la imagen de la cara según la versión (free/steam)."""
@@ -1463,6 +1575,32 @@ class TSCEditor:
         except Exception as e:
             messagebox.showerror("Error", f"Could not load image:\n{str(e)}")
 
+    def _show_switch_static(self, face_id: str):
+        """Muestra la imagen estática de Switch (sin animación) para códigos 01XX o 00XX."""
+        try:
+            person_id = int(face_id[-2:])
+            base_id = f"{person_id:04d}"
+        except:
+            base_id = "0000"
+        from .animate_switch_faces import load_frames_from_folder
+        frames = load_frames_from_folder("anim1", face_id, 96)
+        if not frames:
+            messagebox.showinfo("Switch", f"No se encontró imagen estática para la cara {face_id}")
+            return
+        img = frames[0]
+        win = tk.Toplevel(self.root)
+        win.title(f"Switch - {face_id} (Estático)")
+        win.transient(self.root)
+        win.resizable(False, False)
+        dark = self.settings.get("dark_theme", False)
+        bg = "#1e1e1e" if dark else "#ffffff"
+        win.configure(bg=bg)
+        label = tk.Label(win, image=img, bg=bg)
+        label.image = img
+        label.pack(padx=10, pady=10)
+        btn_style = {"bg": "#3c3c3c" if dark else "#e0e0e0", "fg": "white" if dark else "black"}
+        tk.Button(win, text="Cerrar", command=win.destroy, **btn_style).pack(pady=5)            
+
     def show_command_info(self):
         if not self.text_area:
             return
@@ -1485,6 +1623,241 @@ class TSCEditor:
             messagebox.showinfo(self.tr['cmd_info_title'], self.tr['cmd_unrecognized'])
             return
         cmd_name = match.group(1)
+
+        # Comandos especiales de dirección (FAI, FAO)
+        if cmd_name in ("FAI", "FAO"):
+            after = substring[match.end():]
+            id_match = re.search(r'(\d{4})', after)
+            dir_map = {
+                "0000": "Left",
+                "0001": "Up",
+                "0002": "Right",
+                "0003": "Down",
+                "0004": "Center",
+                "0005": "INVALID (ignored/unchanged)"
+            }
+            if id_match:
+                dir_id = id_match.group(1)
+                dir_text = dir_map.get(dir_id, "Unknown direction")
+                desc = f"Sets the {cmd_name.lower()} direction.\nDirection: {dir_text}"
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", desc)
+            else:
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", "Missing direction parameter (4 digits).")
+            return
+
+                    # Comando TRA (teletransporte a mapa)
+        if cmd_name == "TRA":
+            after = substring[match.end():]
+            id_match = re.search(r'(\d{4})', after)
+            map_names = {
+                "0000": "Null",
+                "0001": "Arthur's House - normal",
+                "0002": "Egg Corridor",
+                "0003": "Egg No. 00 - normal",
+                "0004": "Egg No. 06",
+                "0005": "Egg Observation Room",
+                "0006": "Grasstown",
+                "0007": "Santa's House",
+                "0008": "Chaco's House",
+                "0009": "Labyrinth I (vertical starting room)",
+                "0010": "Sand Zone - normal",
+                "0011": "Mimiga Village",
+                "0012": "First Cave",
+                "0013": "Start Point",
+                "0014": "Shack (Mimiga Village)",
+                "0015": "Reservoir",
+                "0016": "Graveyard",
+                "0017": "Yamashita Farm",
+                "0018": "Shelter (Grasstown)",
+                "0019": "Assembly Hall (Mimiga Village)",
+                "0020": "Save Point (Mimiga Village)",
+                "0021": "Side Room (Egg Corridor)",
+                "0022": "Cthulhu's Abode (Egg Corridor)",
+                "0023": "Egg No. 01",
+                "0024": "Arthur's House - Sue on computer",
+                "0025": "Power Room (Grasstown)",
+                "0026": "Save Point (Grasstown)",
+                "0027": "Execution Chamber (Grasstown)",
+                "0028": "Gum (Grasstown)",
+                "0029": "Sand Zone Residence",
+                "0030": "Grasstown Hut",
+                "0031": "Main Artery (Waterway)",
+                "0032": "Small Room (Sand Zone)",
+                "0033": "Jenka's House - normal",
+                "0034": "Deserted House (Sand Zone)",
+                "0035": "Sand Zone Storehouse",
+                "0036": "Jenka's House - after Balrog attacks",
+                "0037": "Sand Zone - after boss fight",
+                "0038": "Labyrinth H (sliding block room)",
+                "0039": "Labyrinth W (main area w/shop, camp)",
+                "0040": "Camp (Labyrinth)",
+                "0041": "Clinic Ruins (Labyrinth)",
+                "0042": "Labyrinth Shop",
+                "0043": "Labyrinth B (booster)",
+                "0044": "Boulder Chamber (Labyrinth)",
+                "0045": "Labyrinth M (gaudi eggs)",
+                "0046": "Dark Place (Labyrinth)",
+                "0047": "Core (Labyrinth)",
+                "0048": "Waterway",
+                "0049": "Egg Corridor?",
+                "0050": "Cthulhu's Abode? (Egg Corridor?)",
+                "0051": "Egg Observation Room?",
+                "0052": "Egg No. 00 - hatched",
+                "0053": "Outer Wall",
+                "0054": "Side Room (Egg Corridor?)",
+                "0055": "Storehouse (Outer Wall)",
+                "0056": "Plantation",
+                "0057": "Jail No. 1 (Plantation)",
+                "0058": "Hideout (Plantation)",
+                "0059": "Rest Area (Plantation)",
+                "0060": "Teleporter (Plantation)",
+                "0061": "Jail No. 2 (Plantation)",
+                "0062": "Balcony - normal",
+                "0063": "Last Cave",
+                "0064": "Throne Room (Balcony)",
+                "0065": "The King's Table (Balcony)",
+                "0066": "Prefab House (Balcony) - normal",
+                "0067": "Last Cave Hidden",
+                "0068": "Black Space (Balcony)",
+                "0069": "Little House (Outer Wall)",
+                "0070": "Balcony - after boss fights",
+                "0071": "Ending",
+                "0072": "Intro",
+                "0073": "Waterway Cabin",
+                "0074": "Credits - Labyrinth",
+                "0075": "Credits - Jenka's House",
+                "0076": "Credits - Power Room",
+                "0077": "Credits - Graveyard",
+                "0078": "Credits - Sky",
+                "0079": "Prefab House (Balcony) - entrance to hell",
+                "0080": "Sacred Ground B1",
+                "0081": "Sacred Ground B2",
+                "0082": "Sacred Ground B3",
+                "0083": "Storage (Graveyard)",
+                "0084": "Passage? - normal",
+                "0085": "Passage? - from Sacred Ground B3",
+                "0086": "Statue Chamber (Plantation/Sacred Grounds)",
+                "0087": "Seal Chamber (Sacred Grounds) - normal",
+                "0088": "Corridor (Sacred Grounds)",
+                "0089": "Credits - Laboratory",
+                "0090": "Hermit Gunsmith",
+                "0091": "Island",
+                "0092": "Seal Chamber (Sacred Grounds) - after boss fight",
+                "0093": "Credits - Balcony",
+                "0094": "Clock Room (Outer Wall)"
+            }
+            if id_match:
+                map_id = id_match.group(1)
+                map_name = map_names.get(map_id, "Unknown map ID")
+                desc = f"Teleport to map.\nMap ID: {map_id}\nName: {map_name}"
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", desc)
+            else:
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", "Missing map ID parameter (4 digits).")
+            return
+
+        # Comandos relacionados con armas: AM+, AM-, AMJ, GIT, TAM
+        if cmd_name in ("AM+", "AM-", "AMJ", "GIT", "TAM"):
+            after = substring[match.end():]
+            id_match = re.search(r'(\d{4})', after)
+            weapon_names = {
+                "0000": "Nothing",
+                "0001": "Snake",
+                "0002": "Polar Star",
+                "0003": "Fireball",
+                "0004": "Machine Gun",
+                "0005": "Missile Launcher",
+                "0006": "Missiles (GIT only)",
+                "0007": "Bubbler",
+                "0008": "Nothing?",
+                "0009": "Blade",
+                "0010": "Super Missile Launcher",
+                "0011": "Super Missiles (GIT only)",
+                "0012": "Nemesis",
+                "0013": "Spur"
+            }
+            if id_match:
+                weapon_id = id_match.group(1)
+                weapon_name = weapon_names.get(weapon_id, "Unknown weapon ID")
+                desc = f"Weapon operation.\nCommand: {cmd_name}\nWeapon ID: {weapon_id}\nName: {weapon_name}"
+                # Descripción adicional según comando
+                if cmd_name == "AM+":
+                    desc += "\nAdd ammo/weapon."
+                elif cmd_name == "AM-":
+                    desc += "\nRemove ammo/weapon."
+                elif cmd_name == "AMJ":
+                    desc += "\nSet ammo to maximum (Japanese version?)."
+                elif cmd_name == "GIT":
+                    desc += "\nGet item/weapon."
+                elif cmd_name == "TAM":
+                    desc += "\nTest ammo/weapon (condition)."
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", desc)
+            else:
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", "Missing weapon ID parameter (4 digits).")
+            return
+
+        # Comandos relacionados con items: GIT, IT+, IT-, ITJ
+        if cmd_name in ("GIT", "IT+", "IT-", "ITJ"):
+            after = substring[match.end():]
+            id_match = re.search(r'(\d{4})', after)
+            item_names = {
+                "0000": "Blank - Clears box in GIT",
+                "0001": "Arthur's Key",
+                "0002": "Map System",
+                "0003": "Santa's Key",
+                "0004": "Silver Locket",
+                "0005": "Beast Fang",
+                "0006": "Life Capsule (GIT only)",
+                "0007": "ID Card",
+                "0008": "Jellyfish Juice",
+                "0009": "Rusty Key",
+                "0010": "Gum Key",
+                "0011": "Gum Base",
+                "0012": "Charcoal",
+                "0013": "Explosive",
+                "0014": "Puppy",
+                "0015": "Life Pot",
+                "0016": "Cure-All",
+                "0017": "Clinic Key",
+                "0018": "Booster 0.8",
+                "0019": "Arms Barrier",
+                "0020": "Turbocharge",
+                "0021": "Curly's Air Tank",
+                "0022": "Nikumaru Counter",
+                "0023": "Booster v2.0",
+                "0024": "Mimiga Mask",
+                "0025": "Teleporter Room Key",
+                "0026": "Sue's Letter",
+                "0027": "Controller",
+                "0028": "Broken Sprinkler",
+                "0029": "Sprinkler",
+                "0030": "Tow Rope",
+                "0031": "Clay Figure Medal",
+                "0032": "Little Man",
+                "0033": "Mushroom Badge",
+                "0034": "Ma Pignon",
+                "0035": "Curly's Underwear",
+                "0036": "Alien Medal",
+                "0037": "Chaco's Lipstick",
+                "0038": "Whimsical Star",
+                "0039": "Iron Bond"
+            }
+            if id_match:
+                item_id = id_match.group(1)
+                item_name = item_names.get(item_id, "Unknown item ID")
+                desc = f"Item operation.\nCommand: {cmd_name}\nItem ID: {item_id}\nName: {item_name}"
+                if cmd_name == "GIT":
+                    desc += "\nGet item (add to inventory)."
+                elif cmd_name == "IT+":
+                    desc += "\nAdd item."
+                elif cmd_name == "IT-":
+                    desc += "\nRemove item."
+                elif cmd_name == "ITJ":
+                    desc += "\nCheck if item exists (condition)."
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", desc)
+            else:
+                messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", "Missing item ID parameter (4 digits).")
+            return
+
         if cmd_name in self.commands_data:
             desc = self.commands_data[cmd_name][2]
             extra = ""
@@ -1496,13 +1869,31 @@ class TSCEditor:
                 after = substring[match.end():]
                 id_match = re.search(r'(\d{4})', after)
                 if id_match:
-                    face_id = id_match.group(1)
-                    name_free = self.face_names.get(face_id, "Unknown")
-                    name_steam = self.face_names_steam.get(face_id, "Unknown")
-                    extra = f"\nFreeware: {name_free}\nSteam: {name_steam}"
+                    full_id = id_match.group(1)
+                    face_id = full_id
+                    prefix = full_id[:2]
+                    try:
+                        person_id = int(full_id[-2:])
+                        base_id = f"{person_id:04d}"
+                    except:
+                        base_id = "0000"
+                    name_base = self.face_names.get(base_id, "Unknown")
+                    if base_id == "0027":
+                        name_steam = "Quote"
+                        name_switch = "Quote"
+                    else:
+                        name_steam = name_base
+                        name_switch = name_base
+                    
+                    if prefix == "00":
+                        extra = f"\nFreeware: {name_base}\nSteam: {name_base}"
+                    elif prefix in ("01", "10", "11"):
+                        extra = f"\nSwitch: {name_switch}"
+                    else:
+                        extra = f"\nFreeware: {name_base}\nSteam: {name_steam}\nSwitch: {name_switch}"
                 else:
                     face_id = "0000"
-                    extra = f"\nFreeware: {self.face_names.get('0000', 'Nothing')}\nSteam: {self.face_names_steam.get('0000', 'Nothing')}"
+                    extra = "\nFreeware: Nothing\nSteam: Nothing\nSwitch: Nothing"
 
             elif cmd_name == "CMU":
                 after = substring[match.end():]
@@ -1710,6 +2101,8 @@ class TSCEditor:
             self.context_menu.entryconfig(9, label=self.tr['smart_replace'])
         self.menubar = create_menubar(self)
         self.update_stats()
+        if hasattr(self, 'hints_manager'):
+            self.hints_manager.update_language()
 
     def show_context_menu(self, event):
         if self.context_menu:
@@ -1720,4 +2113,6 @@ class TSCEditor:
             for buf in list(self.tab_manager.buffers):
                 if not self.tab_manager.close_tab(buf['key']):
                     return
+        if hasattr(self, 'hints_manager'):
+            self.hints_manager.destroy()
         self.root.destroy()

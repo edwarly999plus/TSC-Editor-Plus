@@ -160,6 +160,24 @@ LANGS = {
         'face_version_cancel': 'Cancel',
         'face_view_title': 'Show face',
         'face_view_question': 'Show face image for ID {}?\n(You can choose version later)',
+        'ai_assistant': "AI Assistant",
+        'hints': [
+            "Did you know that animated faces <FAC01XX>, <FAC10XX>, <FAC11XX> are exclusive to Switch?",
+            "Did you know that TSC files on Switch are plain text?",
+            "Be careful not to write too much or you'll exceed the text box! Select your text, right-click and use the character counter.",
+            "Place an event with #. Remember, stay organized with IDs.",
+            "Pro tip: Use the keyboard.",
+            "Your text not showing in-game? Maybe you used '¿¡'. Right-click and remove those characters with one click.",
+            "Be careful when putting comments in these files; the game is touchy and may get confused.",
+            "Use another editor every now and then.",
+            "Pro tip: Use the mouse or touchpad.",
+            "Backup your TSC files; one wrong step and the game crashes.",
+            "Before editing, you must configure.",
+            "Press F5 to test quickly.",
+            "TSC programming language is so simple it's almost a joke (but don't think it's a piece of cake).",
+            "Don't know what a command does and too lazy to check docs? Right-click and see a summary.",
+            "If your TSC opens as 'hhxxjxnjxb#=hh+¨shswhh', change the cipher and you'll be able to read it."
+        ]
     },
     'es': {
         'window_title': 'TSC Editor+',
@@ -317,6 +335,24 @@ LANGS = {
         'face_version_cancel': 'Cancelar',
         'face_view_title': 'Ver cara',
         'face_view_question': '¿Mostrar imagen de la cara {}?\n(Puedes elegir versión después)',
+        'ai_assistant': "Asistente IA",
+        'hints': [
+            "¿Sabías que las caras animadas <FAC01XX>, <FAC10XX>, <FAC11XX> son exclusivas de Switch?",
+            "¿Sabías que los TSC en Switch son solo texto plano?",
+            "¡Ten cuidado escribiendo de más o te saldrás de la caja de texto! Selecciona tu texto, haz clic derecho y usa el contador de caracteres.",
+            "Coloca un evento con #. Recuerda, sé organizado con los IDs.",
+            "Pro tip: Usa el teclado.",
+            "Tu texto no se muestra en el juego, posiblemente usaste '¿¡'. Haz clic derecho y elimina esos caracteres con un clic.",
+            "Ten cuidado al poner comentarios en estos archivos; el juego es malpensado y se puede confundir.",
+            "Usa otro editor de vez en cuando.",
+            "Pro tip: Usa el mouse o touchpad.",
+            "Haz respaldos de tus TSC; un paso en falso y el juego explota.",
+            "Antes de editar, debes configurar.",
+            "Pulsa F5 para testear rápidamente.",
+            "El lenguaje de programación TSC es tan sencillo que parece chiste (pero no te creas que es pan comido).",
+            "¿No sabes qué hace X comando y te da flojera ir a la documentación? Haz clic derecho y verás un resumen de ello.",
+            "Si tu TSC abre así 'hhxxjxnjxb#=hh+¨shswhh', cambia el cifrado y podrás leerlo."
+        ]
     },
     'jp': {
         'window_title': 'TSC Editor+',
@@ -474,6 +510,24 @@ LANGS = {
         'face_version_cancel': 'キャンセル',
         'face_view_title': '顔を表示',
         'face_view_question': '顔ID {} の画像を表示しますか？\n(後でバージョンを選べます)',
+         'ai_assistant': "AIアシスタント",
+        'hints': [
+            "<FAC01XX>、<FAC10XX>、<FAC11XX> のアニメーション顔は Switch 版限定です。",
+            "Switch 版の TSC ファイルはプレーンテキストです。",
+            "書きすぎてテキストボックスからはみ出さないように！テキストを選択し、右クリックして文字カウンターを使いましょう。",
+            "イベントには # を付けて。ID を整理しましょう。",
+            "プロのヒント: キーボードを使いましょう。",
+            "ゲームにテキストが表示されない場合、「¿¡」を使っていませんか？右クリックで一括削除。",
+            "コメントを入れるときは注意。ゲームは繊細で混乱する可能性があります。",
+            "たまには別のエディターも使いましょう。",
+            "プロのヒント: マウスやタッチパッドを使いましょう。",
+            "TSC のバックアップを取ってください。一歩間違えるとゲームがクラッシュします。",
+            "編集する前に設定が必要です。",
+            "F5 を押すと素早くテストできます。",
+            "TSC プログラミング言語はとてもシンプルで冗談のように思えますが、決して簡単ではありません。",
+            "コマンドが何をするのか分からず、ドキュメントを見るのが面倒ですか？右クリックで概要を表示。",
+            "TSC が「hhxxjxnjxb#=hh+¨shswhh」のように開く場合、暗号を変更すれば読めるようになります。"
+        ]
     }
 }
 
