@@ -4,9 +4,13 @@
   "show_history": true,
   "show_quick_docs": false,
   "default_font": "Lucida Grande",
-  "dark_theme": false,
-  "current_theme": "cosmo",
+  "dark_theme": true,
+  "current_theme": "darkly",
   "load_mode": "auto",
-  "manual_encoding": "shift_jis",
-  "manual_cipher": 0
+  "manual_encoding": "cp850",
+  "manual_cipher": 75,
+  "keep_recent_tsc": true,
+  "last_folder": "C:/Users/PC LAB/Desktop/Programas/Cave Story/Cave Story Espa\u00f1ol/data",
+  "enable_ai": true,
+  "gemini_api_key": "AIzaSyBQoyxo4pXzyoeoTACxS5UcU8XoF8gAf9s"
 }

@@ -15,11 +15,16 @@ LIBS_DIR = os.path.join(BASE_DIR, "libs")
 if LIBS_DIR not in sys.path:
     sys.path.insert(0, LIBS_DIR)
 
+# Dependencias base (siempre necesarias)
 DEPENDENCIES = {
     "ttkbootstrap": "ttkbootstrap==1.10.1",
     "PIL": "pillow==10.0.0",
     "pywinstyles": "pywinstyles==1.8",
 }
+
+# Dependencia condicional para Gemini (solo Python >= 3.9)
+if sys.version_info >= (3, 9):
+    DEPENDENCIES["google.genai"] = "google-genai"
 
 def install_package(package_spec, target_dir):
     try:

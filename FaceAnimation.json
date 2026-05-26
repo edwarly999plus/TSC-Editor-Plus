@@ -1,0 +1,11 @@
+{
+  "fps": 7,
+  "image_size": 96,
+  "blink": {
+    "enabled": true,
+    "min_interval": 1,
+    "max_interval": 7
+  },
+  "default_sequence": ["anim1", "anim4", "anim5"],
+  "face_sequences": {}
+}
