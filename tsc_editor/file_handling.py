@@ -30,8 +30,9 @@ def save_tsc_file(file_path: str, plain_text: str, cipher: int, encoding: str = 
 
 def load_project_file(file_path: str) -> tuple:
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             text = f.read()
+        text = text.replace('\r\n', '\n').replace('\r', '\n')
         return text, True
     except Exception:
         return None, False

@@ -54,7 +54,6 @@ class HintsManager:
         self.start_rotation()
 
     def update_theme(self):
-        """Actualiza colores al cambiar de tema."""
         dark = self.editor.settings.get("dark_theme", False)
         bg = "#1e1e1e" if dark else "#ffffff"
         fg = "white" if dark else "black"

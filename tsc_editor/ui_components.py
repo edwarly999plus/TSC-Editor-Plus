@@ -71,7 +71,7 @@ def create_toolbar(app):
         text="🌙 Darkly" if app.current_theme.get() == "darkly" else "☀️ Cosmo",
         command=app.toggle_theme
     )
-    theme_btn.pack(side=tk.LEFT, padx=2, pady=2)
+    theme_btn.pack(side=tk.RIGHT, padx=5, pady=9)
     return toolbar, theme_btn
 
 def create_context_menu(app):

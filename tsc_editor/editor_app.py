@@ -117,8 +117,6 @@ class TSCEditor:
             "manual_cipher": 0,
             "keep_recent_tsc": False,
             "last_folder": "",
-            "enable_ai": True,
-            "gemini_api_key": "AIzaSyBQoyxo4pXzyoeoTACxS5UcU8XoF8gAf9s",
 
         }
         self.settings = load_settings(self.settings_file, default_settings)
@@ -250,20 +248,6 @@ class TSCEditor:
         self.right_notebook = ttk.Notebook(self.main_paned)
         self.main_paned.add(self.right_notebook, minsize=250, width=250)
 
-        # AI Assistant tab (solo si está habilitado y Python >= 3.9)
-        if self.settings.get("enable_ai", True) and sys.version_info >= (3, 9):
-            try:
-                from .gemini_tsc_ai import GeminiTSCAI
-                ai_tab_text = self.tr.get('ai_assistant', 'AI Assistant')
-                self.ai_tab = tk.Frame(self.right_notebook)
-                self.right_notebook.add(self.ai_tab, text=ai_tab_text)  # <--- ¡Usa ai_tab_text!
-                self.ai_assistant = GeminiTSCAI(self.ai_tab, self, self.settings)
-                print("AI Assistant tab created successfully.")
-            except ImportError as e:
-                print(f"Failed to import GeminiTSCAI: {e}")
-            except Exception as e:
-                print(f"Unexpected error creating AI tab: {e}")
-
         # History
         self.history_tab = tk.Frame(self.right_notebook)
         self.right_notebook.add(self.history_tab, text=self.tr['history'])
@@ -322,7 +306,7 @@ class TSCEditor:
         self.stats_label.pack(side=tk.RIGHT)
 
         # Toolbar
-        self.toolbar_frame, self.theme_btn = create_toolbar(self)
+        self.toolbar_frame = create_toolbar(self)
 
         # Main menu
         self.menubar = create_menubar(self)
@@ -537,8 +521,10 @@ class TSCEditor:
         is_txt = save_path.lower().endswith('.txt')
 
         if is_txt:
+            text_to_save = self.text_area.get("1.0", "end-1c")
+            text_to_save = text_to_save.replace('\r\n', '\n').replace('\r', '\n')
             try:
-                with open(save_path, "w", encoding="utf-8") as f:
+                with open(save_path, "w", encoding="utf-8", newline='\n') as f:
                     f.write(text_to_save)
                 success = True
             except Exception as e:
@@ -1207,8 +1193,23 @@ class TSCEditor:
         apply_theme_to_widgets(self, None)
         self.root.after(50, lambda: highlight_current_file_in_list(self))
         self.update_theme_button_text()
-        if hasattr(self, 'hints_manager'):
-            self.hints_manager.update_theme()
+        
+        # Actualizar colores del botón de tema manualmente para visibilidad
+        if hasattr(self, 'theme_btn'):
+            dark = self.settings.get("dark_theme", False)
+            if dark:
+                self.theme_btn.config(bg="#3c3c3c", fg="white", activebackground="#555555")
+            else:
+                self.theme_btn.config(bg="#e0e0e0", fg="black", activebackground="#cccccc")
+        
+        # Actualizar colores del panel de hints (si existe)
+        if hasattr(self, 'hint_frame'):
+            dark = self.settings.get("dark_theme", False)
+            bg = "#1e1e1e" if dark else "#ffffff"
+            fg = "white" if dark else "black"
+            self.hint_frame.config(bg=bg)
+            self.hint_label.config(bg=bg, fg=fg)
+        
         if PYWINSTYLES_AVAILABLE and sys.platform == "win32":
             try:
                 if self.current_theme.get() in ("darkly", "vapor"):
@@ -1755,8 +1756,8 @@ class TSCEditor:
                 messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", "Missing map ID parameter (4 digits).")
             return
 
-        # Comandos relacionados con armas: AM+, AM-, AMJ, GIT, TAM
-        if cmd_name in ("AM+", "AM-", "AMJ", "GIT", "TAM"):
+        # Comandos relacionados con armas: AM+, AM-, AMJ, TAM
+        if cmd_name in ("AM+", "AM-", "AMJ", "TAM"):
             after = substring[match.end():]
             id_match = re.search(r'(\d{4})', after)
             weapon_names = {
@@ -1786,8 +1787,6 @@ class TSCEditor:
                     desc += "\nRemove ammo/weapon."
                 elif cmd_name == "AMJ":
                     desc += "\nSet ammo to maximum (Japanese version?)."
-                elif cmd_name == "GIT":
-                    desc += "\nGet item/weapon."
                 elif cmd_name == "TAM":
                     desc += "\nTest ammo/weapon (condition)."
                 messagebox.showinfo(f"{self.tr['cmd_info_title']}: {cmd_name}", desc)
@@ -1842,9 +1841,15 @@ class TSCEditor:
                 "0039": "Iron Bond"
             }
             if id_match:
-                item_id = id_match.group(1)
+                full_id = id_match.group(1)          # ej. "1004"
+                try:
+                    # Tomar los últimos 2 dígitos y convertir a entero
+                    last_two = int(full_id[-2:])     # 4
+                    item_id = f"{last_two:04d}"      # "0004"
+                except:
+                    item_id = "0000"
                 item_name = item_names.get(item_id, "Unknown item ID")
-                desc = f"Item operation.\nCommand: {cmd_name}\nItem ID: {item_id}\nName: {item_name}"
+                desc = f"Item operation.\nCommand: {cmd_name}\nItem ID: {full_id} (normalizado: {item_id})\nName: {item_name}"
                 if cmd_name == "GIT":
                     desc += "\nGet item (add to inventory)."
                 elif cmd_name == "IT+":
@@ -2039,7 +2044,7 @@ class TSCEditor:
     # ------------------------------------------------------------------
     def show_about(self):
         messagebox.showinfo(self.tr['about'],
-        "TSC Editor+ v1.2\n"
+        "TSC Editor+ v2.0\n"
         "Professional editor for Cave Story .tsc files\n"
         "Encryption compatible with Booster's Lab (Carrot Lord)\n"
         "Features:\n"

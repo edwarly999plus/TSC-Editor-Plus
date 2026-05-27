@@ -10,7 +10,7 @@ from .settings_manager import load_settings, save_settings
 from .syntax_highlight import check_syntax, highlight_syntax
 from .dialogs import ask_encoding_and_cipher, smart_replace_dialog
 
-__version__ = "1.1.0"
+__version__ = "2.0.0"
 __all__ = [
     "TSCEditor",
     "get_cipher_from_tsc",
