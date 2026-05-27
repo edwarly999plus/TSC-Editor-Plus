@@ -22,10 +22,6 @@ DEPENDENCIES = {
     "pywinstyles": "pywinstyles==1.8",
 }
 
-# Dependencia condicional para Gemini (solo Python >= 3.9)
-if sys.version_info >= (3, 9):
-    DEPENDENCIES["google.genai"] = "google-genai"
-
 def install_package(package_spec, target_dir):
     try:
         subprocess.check_call(
