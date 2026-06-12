@@ -10,7 +10,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Cave Story](https://img.shields.io/badge/Game-Cave%20Story-orange)
-![Encoding](https://img.shields.io/badge/Encoding-Shift--JIS%20%7C%20UTF--8%20%7C%20CP850-informational)
+![Encoding](https://img.shields.io/badge/Encoding-Shift--JIS%20%7C%20UTF--8%20%7C%20CP1252-informational)
 ![Version](https://img.shields.io/badge/Version-2.1-blueviolet)
 
 **A professional multi‑language editor for `.tsc` script files (Cave Story engine).**  
