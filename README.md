@@ -2,7 +2,7 @@
 
 <img width="154" height="154" alt="TSC Editor+ Logo" src="https://github.com/user-attachments/assets/13de0e36-b6f7-47fe-9043-5aa3e78dfaa7" /> 
 
-# 🚀 TSC Editor+ v2.0
+# 🚀 TSC Editor+ v2.1
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
 ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-green)
@@ -11,7 +11,7 @@
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Cave Story](https://img.shields.io/badge/Game-Cave%20Story-orange)
 ![Encoding](https://img.shields.io/badge/Encoding-Shift--JIS%20%7C%20UTF--8%20%7C%20CP850-informational)
-![Version](https://img.shields.io/badge/Version-2.0-blueviolet)
+![Version](https://img.shields.io/badge/Version-2.1-blueviolet)
 
 **A professional multi‑language editor for `.tsc` script files (Cave Story engine).**  
 Built with **Python + Tkinter**, TSC Editor+ streamlines modding, translation, and script editing with advanced tools, syntax highlighting, inline documentation, and full support for **Nintendo Switch animated faces**.
@@ -22,10 +22,9 @@ Built with **Python + Tkinter**, TSC Editor+ streamlines modding, translation, a
 
 ## ✨ Features
 
-### 🌍 Multi‑language Interface
-- 🇺🇸 English  
-- 🇪🇸 Español  
-- 🇯🇵 日本語  
+### 🌍 Fully Multi‑language Interface (v2.1)
+- 🇺🇸 English – 🇪🇸 Español – 🇯🇵 日本語  
+- All dialogs, menus, messages, and history entries are now translatable (no hardcoded strings).
 
 ### 🛠️ Advanced `.tsc` Support
 - 🔍 **Manual encoding/cipher selection** – live preview (Shift‑JIS, CP932, Latin‑1, UTF‑8, CP850)  
@@ -33,28 +32,31 @@ Built with **Python + Tkinter**, TSC Editor+ streamlines modding, translation, a
 - 🔐 Full cipher detection (fixed for non‑negative values)  
 - 🎨 **Syntax highlighting** (commands, events, numbers, special characters)  
 - ⚠️ **Syntax validation**  
-- 🧠 **Smart replace** – converts unsupported characters  
-- 📚 **Quick command documentation** – now with song names, face sprites, sound effect names, map names, weapon/item names, and direction names  
-- 🧩 **Custom command support** (add/edit/delete your own commands)
+- 🧠 **Smart replace** (single file or **batch all TSC files**) – converts unsupported characters (ñ, accents, ¡¿)  
+- 📚 **Quick command documentation** – song names, face sprites, sound effects, map names, weapon/item names, direction names  
+- 🧩 **Custom command support** (add/edit/delete your own commands)  
+- 🎨 **Custom command colors** (blue, pink, red)
 
-### 🎮 Nintendo Switch Animation Support (v2.0)
+### 🎮 Nintendo Switch Animation Support
 - **Switch animated faces** for commands `<FAC10XX>` (Idle blinking), `<FAC11XX>` (Talk), `<FAC00XX>` (static)  
 - **Auto‑detection** – right‑click and the correct animation starts immediately  
 - **Smart image loading** – placeholders (pure green `#00FF21`) are automatically skipped  
-- **Multiple naming formats** – accepts full 4‑digit codes (`fac_sprite_switch207.png`), padded (`fac_sprite_switch07.png`) or short (`fac_sprite_switch7.png`)  
+- **Multiple naming formats** – accepts full 4‑digit codes, padded or short names  
 - **Fallback to static** when blink frames are missing
 
-### 📁 Project Management
+### 📁 Project Management & Backup
 - 📂 Open/save `.cstsc` projects (UTF‑8, no encryption)  
 - 📦 Load entire folders of `.tsc` files  
 - 💾 Auto‑save every 6 minutes (optional)  
-- 🕘 Edit history tracking
+- 🕘 Edit history tracking  
+- 🔒 **Backup individual TSC (Ctrl+B)** or **all TSC files (Ctrl+Shift+B)**  
+- 🗂️ Configurable backup directory (custom folder or default `backups/` in project root)
 
 ### ✏️ Editing Utilities
 - 🔎 Search & Replace with real‑time highlighting  
 - 📏 **Character counters** (normal and with face limit)  
 - 🧮 **Command syntax analyzer** (Ctrl+Shift+C)  
-- 🧬 Hex dump viewer (first 816 bytes)  
+- 🧬 Hex dump viewer (first 512 bytes)  
 - ↩️ Undo / Redo  
 - ⚠️ **Unsaved changes detection** (no false positives)  
 - 🗂️ **Modern tabs** – Ctrl+T new tab, Ctrl+W close, Ctrl+Shift+W close all, Ctrl+Alt+W close others  
@@ -66,21 +68,21 @@ Built with **Python + Tkinter**, TSC Editor+ streamlines modding, translation, a
 
 ### 🎨 UI Customization
 - 🌙 **Three themes**: Darkly (blue/dark), Vapor (purple/dark), Cosmo (light)  
-- 🔤 Custom fonts (Courier New, Consolas, Lucida Grande, etc.)  
+- 🔤 Custom fonts (Courier New, Consolas, Lucida Grande, Noto Sans JP, etc.)  
 - 🔍 Adjustable font size (Ctrl+MouseWheel)  
 - 🎨 **Custom command colors** (blue, pink, red)  
 - 📋 **Sidebar file highlight** – current file in blue/purple  
 - 💡 **Rotating hints** in the Quick Docs panel (every 5 seconds, translated)
 
-### 🆕 What's New in v2.0
-- **Nintendo Switch animated faces** – full support for `10XX`, `11XX`, `01XX` commands, automatic mode detection, placeholder skipping  
-- **Encoding fallback chain** for Shift‑JIS (`shift_jis` → `cp850` → `cp932` → `latin‑1`) – eliminates `�` characters  
-- **UTF‑8 export fix** – line endings normalized to LF, no extra blank lines  
-- **Command info enhancements** – `FAI`/`FAO` (directions), `TRA` (map names), weapons/items (`AM+`, `GIT`, etc.), sound effect descriptions  
-- **Item ID normalisation for Switch** – `GIT1004` now shows “Silver Locket”  
-- **Quick Docs hints panel** – rotating tips (English/Spanish/Japanese)  
-- **Removed AI assistant** (unreliable, quota‑prone) – focus on stable core features  
-- **Compatibility with Python 3.14** – no pygame required
+### 🆕 What's New in v2.1
+- **Full internationalization** – all UI strings, dialogs, history entries, and error messages are translatable (en/es/jp).  
+- **Backup system** – backup current TSC (Ctrl+B) or all TSC files (Ctrl+Shift+B) to a custom folder or default `backups/`.  
+- **Smart Replace All TSC Files** – batch replace special characters (ñ, accents, ¡¿) in every `.tsc` file of the loaded folder.  
+- **Improved encoding auto-detection** – now properly detects cp1252 (Spanish) vs shift_jis (Japanese/English).  
+- **Command info enhancements** – `FAI`/`FAO` (directions), `TRA` (map names), weapons/items (`AM+`, `GIT`, etc.), sound effect descriptions.  
+- **Item ID normalisation for Switch** – `GIT1004` now shows “Silver Locket”.  
+- **Quick Docs hints panel** – rotating tips (English/Spanish/Japanese).  
+- **Compatibility with Python 3.14** – no pygame required.
 
 ---
 
@@ -91,9 +93,6 @@ Built with **Python + Tkinter**, TSC Editor+ streamlines modding, translation, a
 <img width="1366" height="717" alt="Screenshot Vapor" src="https://github.com/user-attachments/assets/ba4ced39-8c84-4eae-a759-d770d2b20896" />
 
 <img width="1366" height="720" alt="Screenshot Cosmo" src="https://github.com/user-attachments/assets/d969445c-920a-473a-bf36-b611ffbaee82" />
-
-<div align="center">
-<img width="576" height="480" alt="talk" src="https://github.com/user-attachments/assets/f1289b74-6a40-43b8-947a-9464d7d3181c" />
 
 ---
 <div align="left">
@@ -150,6 +149,8 @@ python -m pip install pywinstyles==1.8
 | `Ctrl + Shift + Alt + O`  | Open folder                    |
 | `Ctrl + S`                | Save project                   |
 | `Ctrl + Shift + S`        | Export `.tsc` (or `.txt`)      |
+| `Ctrl + B`                | Backup current TSC             |
+| `Ctrl + Shift + B`        | Backup all TSC files           |
 | `Ctrl + F`                | Focus search tab               |
 | `Ctrl + R`                | Smart replace                  |
 | `Ctrl + Z`                | Undo                           |
@@ -182,13 +183,17 @@ Browse command documentation directly inside the editor. Now includes:
 - Item names for `<GIT>`, `<IT+>`, `<IT->`, `<ITJ>`
 
 ### 🧹 Smart Replace  
-Automatically converts problematic characters (e.g., `¿¡`) that break classic TSC encodings.
+Automatically converts problematic characters (e.g., `ñ`, accents, `¡¿`) that break classic TSC encodings.  
+**Batch mode** applies to all `.tsc` files in the loaded folder (with progress bar).
 
 ### 🔍 Manual Encoding Selection  
 Choose encoding and cipher with a live preview – solves the `?` character problem for Japanese TSC files.
 
 ### 💡 Rotating Hints  
 Useful tips appear in the Quick Docs panel, changing every 5 seconds (translated).
+
+### 💾 Backup System  
+Create instant backups of your current `.tsc` file or all files in the project. Backups are stored in dated subfolders inside a user‑defined directory (or the default `backups/` folder).
 
 ---
 
@@ -202,6 +207,7 @@ tsc-editor-plus/
 ├── command_colors.json
 ├── tsc_editor/          # Main package
 ├── libs/                # Auto‑installed dependencies
+├── backups/             # Default backup folder (created on first backup)
 ├── faces/               # Face sprites
 │   ├── free/            # Freeware sprites (fac_sprite_freeXX.png)
 │   ├── steam/           # Steam sprites (fac_sprite_steamXX.png)
@@ -225,6 +231,8 @@ Settings are stored in `settings.json`:
 - **Theme** (darkly/vapor/cosmo)  
 - **Default font** and size  
 - **Load mode** (auto/ask/manual)  
+- **Export mode** (auto/ask/manual)  
+- **Backup directory** (custom path, empty = default `backups/`)  
 - **Keep recent TSC folder** on startup  
 - **Recent folder path**  
 
