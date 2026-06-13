@@ -177,7 +177,156 @@ LANGS = {
             "TSC programming language is so simple it's almost a joke (but don't think it's a piece of cake).",
             "Don't know what a command does and too lazy to check docs? Right-click and see a summary.",
             "If your TSC opens as 'hhxxjxnjxb#=hh+¨shswhh', change the cipher and you'll be able to read it."
-        ]
+        ],
+        'backup_title': 'Backup',
+        'backup_no_current': 'No .tsc file is currently loaded.',
+        'backup_created': 'Backup created:',
+        'backup_error': 'Error',
+        'backup_failed': 'Could not create backup:',
+        'backup_no_files': 'No .tsc files in the list.\nLoad a folder first (Ctrl+Shift+Alt+O).',
+        'backup_progress_title': 'Backup in progress',
+        'backup_copying': 'Copying files...',
+        'backup_completed': 'Backup completed.',
+        'backup_files_copied': 'Files copied: {}/{}',
+        'backup_errors': 'Errors: {}',
+        'backup_directory_label': 'Backup directory:',
+        'backup_directory_help': 'If set, backups will be saved inside this folder (in dated subfolders).\nIf empty, backups are saved next to each file/project.',
+        'smart_replace_confirm_title': 'Confirm mass replacement',
+        'smart_replace_confirm_msg': 'Smart character replacement will be applied to {} .tsc file(s).\n\nReplacements:\n- "ñÑ" → "nN"\n- Accents (áéíóúü) → unaccented letters\n- Symbols ¡¿ → removed\n\nDo you want to continue? It is recommended to make a backup first.',
+        'smart_replace_processing': 'Processing files...',
+        'smart_replace_replacing': 'Replacing special characters...',
+        'smart_replace_completed': 'Process completed',
+        'smart_replace_result': 'Files processed: {}\nModified: {}\nErrors: {}',
+        'browse_button': 'Browse...',
+        'clear_button': 'Clear',
+        'backup_created_log': 'Backup created: {}',
+        'backup_all_log': 'Backup all TSC: {} files copied to {}',
+        'smart_replace_no_files': 'No .tsc files in the list. Load a folder first.',
+        'smart_replace_log': 'Smart replace applied to {}',
+        'export_txt_success': 'File saved as plain text (UTF-8).',
+        'delete_confirm_title': 'Confirm',
+        'delete_confirm_current': 'Delete current file from list?',
+        'delete_confirm_all': 'Delete ALL files from the sidebar list?\n(They will NOT be deleted from the disk)',
+        'keep_recent_label': 'Keep recent TSC folder on startup',
+        'theme_label': 'Theme:',
+        'load_mode_label': 'TSC file loading mode:',
+        'load_mode_auto': 'Always auto-detect',
+        'load_mode_ask': 'Always ask per file',
+        'load_mode_manual': 'Always use this encoding and cipher',
+        'encoding_label': 'Encoding:',
+        'cipher_label': 'Cipher:',
+        'export_mode_label': 'TSC file export mode:',
+        'export_mode_auto': 'Auto (use encoding & cipher from opened file)',
+        'export_mode_select': 'Ask per export',
+        'export_mode_manual': 'Always use this encoding and cipher',
+        'another_tsc': 'another .tsc file',
+        'another_project': 'another .cstsc project',
+        'another_folder': 'a project folder',
+        'history_saved_tsc': 'Saved TSC: {}',
+        'history_exported_txt': 'Exported as plain text: {}',
+        'history_saved_project': 'Saved project: {}',
+        'history_opened_project': 'Opened project: {}',
+        'history_removed_file': 'Removed current file from list',
+        'history_cleared_list': 'Cleared all files from list',
+        'history_auto_corrected': 'Auto-corrected encoding from {} to {} (suspicious chars)',
+        'backup_copying_file': 'Copying: {}',
+        'no_file_loaded': 'No file is currently loaded.',
+        'load_error_msg': 'Could not load {}:\n{}',
+        'history_editor_started': 'Editor started',
+        'status_loaded': 'Loaded: {} | Cipher={}, Enc={}',
+        'history_opened_tsc': 'Opened TSC: {} (cipher={}, enc={})',
+        'noto_sans_jp_desc': 'Noto Sans JP (Use only for Japanese TSC)',
+        'export_status_tsc': 'Exported: {} | Cipher: {}',
+        'export_status_txt': 'Exported as plain text: {}',
+        'history_saved_tsc': 'Saved TSC: {}',
+        'history_exported_txt': 'Exported as plain text: {}',
+        'export_success_cipher': 'File saved successfully.\nCipher: {}',
+        'status_project_saved': 'Project saved: {}',
+        'status_project_loaded': 'Project loaded: {}',
+        'unsaved_delete_current': 'delete this file from the list',
+        'unsaved_delete_all': 'delete all files from the list',
+        'status_file_removed': 'File removed from list.',
+        'status_list_cleared': 'List cleared.',
+        'history_removed_file': 'Removed current file from list',
+        'history_cleared_list': 'Cleared all files from list',
+        'custom_cmds_title': 'Edit Custom Commands',
+        'custom_cmds_command': 'Command',
+        'custom_cmds_args': 'Args',
+        'custom_cmds_desc': 'Description',
+        'custom_cmds_add': 'Add',
+        'custom_cmds_edit': 'Edit',
+        'custom_cmds_remove': 'Remove',
+        'custom_cmds_error_title': 'Error',
+        'custom_cmds_name_length': 'Command name must be 2-3 letters.',
+        'custom_cmds_already_exists': 'Command already exists.',
+        'custom_cmds_add_title': 'Add Command',
+        'custom_cmds_edit_title': 'Edit Command',
+        'custom_cmds_arguments_title': 'Arguments',
+        'custom_cmds_description_title': 'Description',        
+        'cmd_syntax_error_prefix': 'Error',
+        'cmd_syntax_extra_text': 'Extra text after command (expected {})',
+        'cmd_syntax_none': 'none',
+        'cmd_syntax_missing_param': 'Missing parameter (expected {})',
+        'suggest_title': 'Suggest',
+        'suggest_no_file': 'No file open to analyze.',
+        'suggest_encoding_found': 'Suggested encoding: {}',
+        'suggest_no_encoding': 'Could not determine encoding.',
+        'suggest_button': 'Suggest',
+        'backup_select_folder_title': 'Select backup folder',
+        'history_undo': 'Undo',
+        'history_redo': 'Redo',
+        'history_copied': 'Copied',
+        'history_pasted': 'Pasted',
+        'history_cut': 'Cut',
+        'history_backspace': 'Backspace',
+        'history_enter': 'Enter',
+        'history_space': 'Space',
+        'history_handwrite': 'Handwrite',
+        'count_no_selection': 'No text selected.',
+        'count_empty_selection': 'Selected text is empty.',
+        'count_chars_label': 'Characters: {}',
+        'count_limit_label': 'Limit: {}',
+        'face_version_switch': 'Switch (Animated)',
+
+        # ABOUT
+        'about_text': """TSC Editor+ v2.1
+        Professional editor for Cave Story .tsc files
+        Encryption compatible with Booster's Lab (Carrot Lord)
+
+        Features:
+        - Syntax highlighting (commands, events, numbers, special characters)
+        - Customizable command colors (blue/pink/red)
+        - Action history, line and character counter
+        - Search and replace with real-time highlighting
+        - Quick command documentation with integrated search
+        - Customizable commands (add/edit/delete)
+        - Auto-save every 6 minutes
+        - Quick font size change with Ctrl+Wheel
+        - Dark mode with dark title bar and full interface
+        - Multilingual support (Spanish, English, Japanese)
+        - Command Syntax Analysis window (Ctrl+Shift+C)
+        - Modern tabs (Ctrl+T new tab, Ctrl+W close tab)
+        - Keep recent TSC folder on startup
+        - Face image preview for <FAC> command (Freeware/Steam/Switch)
+        - Export to .txt as plain text (UTF-8)
+        - Backup current TSC (Ctrl+B) and all TSC (Ctrl+Shift+B)
+        - Smart Replace All TSC (batch replace special characters)
+
+        Shortcuts: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Ctrl+T, Ctrl+W, Ctrl+Shift+W, Ctrl+Alt+W, Ctrl+N, Ctrl+B, Ctrl+Shift+B, Alt+F4
+
+        Created for the Cave Story modding community.""",
+
+        'backup_current_tsc': 'Backup Current TSC',
+        'backup_all_tsc': 'Backup All TSC',
+        'smart_replace_all_tsc': 'Smart Replace All TSC Files',
+        'toggle_theme': 'Toggle Theme (Darkly/Cosmo)',
+        'font_size_title': 'Font Size',
+        'font_size_label': 'Font size:',
+        'tab_close': 'Close',
+        'tab_close_others': 'Close Others',
+        'tab_close_all': 'Close All',
+        'new_file_title': 'New File {}',
+        'history_new_empty_tab': 'New empty tab: {}',
     },
     'es': {
         'window_title': 'TSC Editor+',
@@ -352,7 +501,154 @@ LANGS = {
             "El lenguaje de programación TSC es tan sencillo que parece chiste (pero no te creas que es pan comido).",
             "¿No sabes qué hace X comando y te da flojera ir a la documentación? Haz clic derecho y verás un resumen de ello.",
             "Si tu TSC abre así 'hhxxjxnjxb#=hh+¨shswhh', cambia el cifrado y podrás leerlo."
-        ]
+        ],
+        'backup_title': 'Respaldo',
+        'backup_no_current': 'No hay un archivo .tsc cargado actualmente.',
+        'backup_created': 'Respaldo creado:',
+        'backup_error': 'Error',
+        'backup_failed': 'No se pudo crear el respaldo:',
+        'backup_no_files': 'No hay archivos .tsc en la lista.\nCarga una carpeta primero (Ctrl+Shift+Alt+O).',
+        'backup_progress_title': 'Respaldo en progreso',
+        'backup_copying': 'Copiando archivos...',
+        'backup_completed': 'Respaldo completado.',
+        'backup_files_copied': 'Archivos copiados: {}/{}',
+        'backup_errors': 'Errores: {}',
+        'backup_directory_label': 'Directorio de respaldo:',
+        'backup_directory_help': 'Si se establece, los respaldos se guardarán dentro de esta carpeta (en subcarpetas con fecha).\nSi está vacío, los respaldos se guardan junto a cada archivo/proyecto.',
+        'smart_replace_confirm_title': 'Confirmar reemplazo masivo',
+        'smart_replace_confirm_msg': 'Se aplicará reemplazo inteligente de caracteres especiales a {} archivo(s) .tsc.\n\nReemplazos:\n- "ñÑ" → "nN"\n- Acentos (áéíóúü) → letras sin acentuar\n- Símbolos ¡¿ → eliminados\n\n¿Deseas continuar? Se recomienda hacer una copia de seguridad antes.',
+        'smart_replace_processing': 'Procesando archivos...',
+        'smart_replace_replacing': 'Reemplazando caracteres especiales...',
+        'smart_replace_completed': 'Proceso completado',
+        'smart_replace_result': 'Archivos procesados: {}\nModificados: {}\nErrores: {}',
+        'browse_button': 'Examinar...',
+        'clear_button': 'Limpiar',
+        'backup_created_log': 'Backup creado: {}',
+        'backup_all_log': 'Backup all TSC: {} archivos copiados a {}',
+        'smart_replace_no_files': 'No hay archivos .tsc en la lista. Primero carga una carpeta.',
+        'smart_replace_log': 'Smart replace aplicado a {}',
+        'export_txt_success': 'Archivo guardado como texto plano (UTF-8).',
+        'delete_confirm_title': 'Confirmar',
+        'delete_confirm_current': '¿Eliminar el archivo actual de la lista?',
+        'delete_confirm_all': '¿Eliminar TODOS los archivos de la lista lateral?\n(NO se eliminarán del disco)',
+        'keep_recent_label': 'Mantener carpeta TSC reciente al inicio',
+        'theme_label': 'Tema:',
+        'load_mode_label': 'Modo de carga de archivos TSC:',
+        'load_mode_auto': 'Siempre auto-detectar',
+        'load_mode_ask': 'Siempre preguntar por archivo',
+        'load_mode_manual': 'Usar siempre esta codificación y cifrado',
+        'encoding_label': 'Codificación:',
+        'cipher_label': 'Cifrado:',
+        'export_mode_label': 'Modo de exportación TSC:',
+        'export_mode_auto': 'Auto (usar codificación y cifrado del archivo abierto)',
+        'export_mode_select': 'Preguntar por cada exportación',
+        'export_mode_manual': 'Usar siempre esta codificación y cifrado',
+        'another_tsc': 'otro archivo .tsc',
+        'another_project': 'otro proyecto .cstsc',
+        'another_folder': 'una carpeta de proyectos',
+        'history_saved_tsc': 'TSC guardado: {}',
+        'history_exported_txt': 'Exportado como texto plano: {}',
+        'history_saved_project': 'Proyecto guardado: {}',
+        'history_opened_project': 'Proyecto abierto: {}',
+        'history_removed_file': 'Archivo actual eliminado de la lista',
+        'history_cleared_list': 'Lista de archivos vaciada',
+        'history_auto_corrected': 'Codificación autocorregida de {} a {} (caracteres sospechosos)',
+        'backup_copying_file': 'Copiando: {}',
+        'no_file_loaded': 'No hay ningún archivo cargado.',
+        'load_error_msg': 'No se pudo cargar {}:\n{}',
+        'history_editor_started': 'Editor iniciado',
+        'status_loaded': 'Cargado: {} | Cifrado={}, Enc={}',
+        'history_opened_tsc': 'TSC abierto: {} (cifrado={}, codif={})',
+        'noto_sans_jp_desc': 'Noto Sans JP (Solo usar en TSC japoneses)',
+        'export_status_tsc': 'Exportado: {} | Cifrado: {}',
+        'export_status_txt': 'Exportado como texto plano: {}',
+        'history_saved_tsc': 'TSC guardado: {}',
+        'history_exported_txt': 'Exportado como texto plano: {}',
+        'export_success_cipher': 'Archivo guardado correctamente.\nCifrado: {}',
+        'status_project_saved': 'Proyecto guardado: {}',
+        'status_project_loaded': 'Proyecto cargado: {}',
+        'unsaved_delete_current': 'eliminar este archivo de la lista',
+        'unsaved_delete_all': 'eliminar todos los archivos de la lista',
+        'status_file_removed': 'Archivo eliminado de la lista.',
+        'status_list_cleared': 'Lista vaciada.',
+        'history_removed_file': 'Archivo actual eliminado de la lista',
+        'history_cleared_list': 'Lista de archivos vaciada',
+        'custom_cmds_title': 'Editar comandos personalizados',
+        'custom_cmds_command': 'Comando',
+        'custom_cmds_args': 'Args',
+        'custom_cmds_desc': 'Descripción',
+        'custom_cmds_add': 'Agregar',
+        'custom_cmds_edit': 'Editar',
+        'custom_cmds_remove': 'Eliminar',
+        'custom_cmds_error_title': 'Error',
+        'custom_cmds_name_length': 'El nombre del comando debe tener 2-3 letras.',
+        'custom_cmds_already_exists': 'El comando ya existe.',
+        'custom_cmds_add_title': 'Agregar comando',
+        'custom_cmds_edit_title': 'Editar comando',
+        'custom_cmds_arguments_title': 'Argumentos',
+        'custom_cmds_description_title': 'Descripción',
+        'cmd_syntax_error_prefix': 'Error',
+        'cmd_syntax_extra_text': 'Texto extra después del comando (se esperaban {})',
+        'cmd_syntax_none': 'ninguno',
+        'cmd_syntax_missing_param': 'Parámetro faltante (se esperaban {})',
+        'suggest_title': 'Sugerir',
+        'suggest_no_file': 'No hay archivo abierto para analizar.',
+        'suggest_encoding_found': 'Codificación sugerida: {}',
+        'suggest_no_encoding': 'No se pudo determinar codificación.',
+        'suggest_button': 'Sugerir',
+        'backup_select_folder_title': 'Seleccionar carpeta de respaldo',
+        'history_undo': 'Deshacer',
+        'history_redo': 'Rehacer',
+        'history_copied': 'Copiado',
+        'history_pasted': 'Pegado',
+        'history_cut': 'Cortado',
+        'history_backspace': 'Retroceso',
+        'history_enter': 'Enter',
+        'history_space': 'Espacio',
+        'history_handwrite': 'Escritura manual',
+        'count_no_selection': 'No hay texto seleccionado.',
+        'count_empty_selection': 'El texto seleccionado está vacío.',
+        'count_chars_label': 'Caracteres: {}',
+        'count_limit_label': 'Límite: {}',
+        'face_version_switch': 'Switch (Animado)',
+        'about_text': """TSC Editor+ v2.1
+        Editor profesional para archivos .tsc de Cave Story
+        Cifrado compatible con Booster's Lab (Carrot Lord)
+
+        Características:
+        - Resaltado de sintaxis (comandos, eventos, números, caracteres especiales)
+        - Colores de comandos personalizables (azul/rosa/rojo)
+        - Historial de acciones, contador de líneas y caracteres
+        - Búsqueda y reemplazo con resaltado en tiempo real
+        - Documentación rápida de comandos con búsqueda integrada
+        - Comandos personalizables (añadir/editar/eliminar)
+        - Auto-guardado cada 6 minutos
+        - Cambio rápido de tamaño de fuente con Ctrl+Wheel
+        - Modo oscuro con barra de título oscura e interfaz completa
+        - Soporte multilenguaje (español, inglés, japonés)
+        - Ventana de análisis de sintaxis de comandos (Ctrl+Shift+C)
+        - Pestañas modernas (Ctrl+T nueva pestaña, Ctrl+W cerrar pestaña)
+        - Mantener carpeta TSC reciente al inicio
+        - Vista previa de caras para el comando <FAC> (Freeware/Steam/Switch)
+        - Exportar a .txt como texto plano (UTF-8)
+        - Respaldo del TSC actual (Ctrl+B) y de todos los TSC (Ctrl+Shift+B)
+        - Reemplazo inteligente a todos los TSC (reemplazo masivo de caracteres especiales)
+
+        Atajos: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Supr, Ctrl+Mayús+Supr, Ctrl+Mayús+C, Ctrl+T, Ctrl+W, Ctrl+Mayús+W, Ctrl+Alt+W, Ctrl+N, Ctrl+B, Ctrl+Mayús+B, Alt+F4
+
+        Creado para la comunidad de modding de Cave Story.""",
+        
+        'backup_current_tsc': 'Respaldar TSC actual',
+        'backup_all_tsc': 'Respaldar todos los TSC',
+        'smart_replace_all_tsc': 'Reemplazo inteligente a todos los TSC',
+        'toggle_theme': 'Cambiar tema (Darkly/Cosmo)',
+        'font_size_title': 'Tamaño de fuente',
+        'font_size_label': 'Tamaño de fuente:',
+        'tab_close': 'Cerrar',
+        'tab_close_others': 'Cerrar otros',
+        'tab_close_all': 'Cerrar todos',
+        'new_file_title': 'Archivo nuevo {}',
+        'history_new_empty_tab': 'Nueva pestaña vacía: {}',
     },
     'jp': {
         'window_title': 'TSC Editor+',
@@ -510,7 +806,7 @@ LANGS = {
         'face_version_cancel': 'キャンセル',
         'face_view_title': '顔を表示',
         'face_view_question': '顔ID {} の画像を表示しますか？\n(後でバージョンを選べます)',
-         'ai_assistant': "AIアシスタント",
+        'ai_assistant': "AIアシスタント",
         'hints': [
             "<FAC01XX>、<FAC10XX>、<FAC11XX> のアニメーション顔は Switch 版限定です。",
             "Switch 版の TSC ファイルはプレーンテキストです。",
@@ -527,7 +823,149 @@ LANGS = {
             "TSC プログラミング言語はとてもシンプルで冗談のように思えますが、決して簡単ではありません。",
             "コマンドが何をするのか分からず、ドキュメントを見るのが面倒ですか？右クリックで概要を表示。",
             "TSC が「hhxxjxnjxb#=hh+¨shswhh」のように開く場合、暗号を変更すれば読めるようになります。"
-        ]
+        ],
+        'backup_title': 'バックアップ',
+        'backup_no_current': '現在、.tscファイルが読み込まれていません。',
+        'backup_created': 'バックアップを作成しました:',
+        'backup_error': 'エラー',
+        'backup_failed': 'バックアップを作成できませんでした:',
+        'backup_no_files': 'リストに.tscファイルがありません。\n最初にフォルダを読み込んでください（Ctrl+Shift+Alt+O）。',
+        'backup_progress_title': 'バックアップ中',
+        'backup_copying': 'ファイルをコピーしています...',
+        'backup_completed': 'バックアップが完了しました。',
+        'backup_files_copied': 'コピーされたファイル: {}/{}',
+        'backup_errors': 'エラー: {}',
+        'backup_directory_label': 'バックアップディレクトリ:',
+        'backup_directory_help': '設定すると、バックアップはこのフォルダ内（日付付きサブフォルダ）に保存されます。\n空の場合は、各ファイル/プロジェクトの隣にバックアップが保存されます。',
+        'smart_replace_confirm_title': '一括置換の確認',
+        'smart_replace_confirm_msg': '{}個の.tscファイルにスマート文字置換を適用します。\n\n置換内容:\n- "ñÑ" → "nN"\n- アクセント記号（áéíóúü） → アクセントなし\n- 記号 ¡¿ → 削除\n\n続行しますか？事前にバックアップを取ることをお勧めします。',
+        'smart_replace_processing': 'ファイルを処理中...',
+        'smart_replace_replacing': '特殊文字を置換中...',
+        'smart_replace_completed': '処理が完了しました',
+        'smart_replace_result': '処理されたファイル: {}\n変更されたファイル: {}\nエラー: {}',
+        'browse_button': '参照...',
+        'clear_button': 'クリア',
+        'backup_created_log': 'バックアップを作成しました: {}',
+        'backup_all_log': 'すべてのTSCをバックアップ: {} ファイルを {} にコピーしました',
+        'smart_replace_no_files': 'リストに.tscファイルがありません。最初にフォルダを読み込んでください。',
+        'smart_replace_log': 'スマート置換を適用しました: {}',
+        'export_txt_success': 'プレーンテキスト（UTF-8）として保存しました。',
+        'delete_confirm_title': '確認',
+        'delete_confirm_current': '現在のファイルをリストから削除しますか？',
+        'delete_confirm_all': 'サイドバーのリストから全てのファイルを削除しますか？\n（ディスクからは削除されません）',
+        'keep_recent_label': '起動時に最近のTSCフォルダを保持',
+        'theme_label': 'テーマ:',
+        'load_mode_label': 'TSCファイル読み込みモード:',
+        'load_mode_auto': '常に自動検出',
+        'load_mode_ask': 'ファイルごとに確認',
+        'load_mode_manual': '常にこのエンコーディングと暗号を使用',
+        'encoding_label': 'エンコーディング:',
+        'cipher_label': '暗号:',
+        'export_mode_label': 'TSCエクスポートモード:',
+        'export_mode_auto': '自動（開いているファイルのエンコーディングと暗号を使用）',
+        'export_mode_select': 'エクスポートごとに確認',
+        'export_mode_manual': '常にこのエンコーディングと暗号を使用',
+        'another_tsc': '別の.tscファイル',
+        'another_project': '別の.cstscプロジェクト',
+        'another_folder': 'プロジェクトフォルダ',
+        'history_saved_tsc': 'TSCを保存しました: {}',
+        'history_exported_txt': 'プレーンテキストとしてエクスポート: {}',
+        'history_saved_project': 'プロジェクトを保存しました: {}',
+        'history_opened_project': 'プロジェクトを開きました: {}',
+        'history_removed_file': '現在のファイルをリストから削除しました',
+        'history_cleared_list': 'リストから全ファイルを削除しました',
+        'history_auto_corrected': 'エンコーディングを {} から {} に自動修正 (疑わしい文字)',
+        'backup_copying_file': 'コピー中: {}',
+        'no_file_loaded': 'ファイルが読み込まれていません。',
+        'load_error_msg': '{} を読み込めませんでした:\n{}',
+        'history_editor_started': 'エディタを起動しました',
+        'status_loaded': '読み込み完了: {} | 暗号化={}, エンコード={}',
+        'history_opened_tsc': 'TSCを開きました: {} (暗号={}, エンコード={})',
+        'noto_sans_jp_desc': 'Noto Sans JP（日本語TSCのみ使用）',
+        'status_project_saved': 'プロジェクトを保存しました: {}',
+        'status_project_loaded': 'プロジェクトを読み込みました: {}',
+        'unsaved_delete_current': 'このファイルをリストから削除',
+        'unsaved_delete_all': 'すべてのファイルをリストから削除',
+        'status_file_removed': 'ファイルをリストから削除しました。',
+        'status_list_cleared': 'リストをクリアしました。',
+        'history_removed_file': '現在のファイルをリストから削除しました',
+        'history_cleared_list': 'リストから全ファイルを削除しました',
+        'custom_cmds_title': 'カスタムコマンドを編集',
+        'custom_cmds_command': 'コマンド',
+        'custom_cmds_args': '引数',
+        'custom_cmds_desc': '説明',
+        'custom_cmds_add': '追加',
+        'custom_cmds_edit': '編集',
+        'custom_cmds_remove': '削除',
+        'custom_cmds_error_title': 'エラー',
+        'custom_cmds_name_length': 'コマンド名は2～3文字である必要があります。',
+        'custom_cmds_already_exists': 'コマンドは既に存在します。',
+        'custom_cmds_add_title': 'コマンドを追加',
+        'custom_cmds_edit_title': 'コマンドを編集',
+        'custom_cmds_arguments_title': '引数',
+        'custom_cmds_description_title': '説明',
+        'cmd_syntax_error_prefix': 'エラー',
+        'cmd_syntax_extra_text': 'コマンド後の余分なテキスト（期待{}）',
+        'cmd_syntax_none': 'なし',
+        'cmd_syntax_missing_param': 'パラメータ不足（期待{}）',
+        'suggest_title': '提案',
+        'suggest_no_file': '開いているファイルがありません。',
+        'suggest_encoding_found': '提案されたエンコーディング: {}',
+        'suggest_no_encoding': 'エンコーディングを判定できませんでした。',
+        'suggest_button': '提案',
+        'backup_select_folder_title': 'バックアップフォルダを選択',
+        'history_undo': '元に戻す',
+        'history_redo': 'やり直し',
+        'history_copied': 'コピーしました',
+        'history_pasted': 'ペーストしました',
+        'history_cut': 'カットしました',
+        'history_backspace': 'バックスペース',
+        'history_enter': 'Enter',
+        'history_space': 'スペース',
+        'history_handwrite': '手書き入力',
+        'count_no_selection': 'テキストが選択されていません。',
+        'count_empty_selection': '選択されたテキストは空です。',
+        'count_chars_label': '文字数: {}',
+        'count_limit_label': '制限: {}',
+        'face_version_switch': 'Switch（アニメーション）',
+        'about_text': """TSC Editor+ v2.1
+        Cave Story .tscファイルのプロフェッショナルエディタ
+        Booster's Lab (Carrot Lord) と互換性のある暗号化
+
+        機能:
+        - 構文ハイライト（コマンド、イベント、数字、特殊文字）
+        - カスタマイズ可能なコマンドの色（青/ピンク/赤）
+        - アクション履歴、行数・文字数カウンター
+        - リアルタイムハイライト付き検索と置換
+        - 統合検索付きクイックコマンドドキュメント
+        - カスタマイズ可能なコマンド（追加/編集/削除）
+        - 6分ごとの自動保存
+        - Ctrl+ホイールで素早くフォントサイズ変更
+        - ダークモード（ダークタイトルバーと完全なインターフェース）
+        - 多言語サポート（スペイン語、英語、日本語）
+        - コマンド構文解析ウィンドウ（Ctrl+Shift+C）
+        - モダンなタブ（Ctrl+T 新規タブ、Ctrl+W タブを閉じる）
+        - 起動時に最近のTSCフォルダを保持
+        - <FAC>コマンドの顔画像プレビュー（Freeware/Steam/Switch）
+        - プレーンテキスト（UTF-8）として.txtにエクスポート
+        - 現在のTSCのバックアップ（Ctrl+B）および全TSCのバックアップ（Ctrl+Shift+B）
+        - 全TSCをスマート置換（特殊文字の一括置換）
+
+        ショートカット: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Ctrl+T, Ctrl+W, Ctrl+Shift+W, Ctrl+Alt+W, Ctrl+N, Ctrl+B, Ctrl+Shift+B, Alt+F4
+
+        Cave Story 改造コミュニティのために作成されました。""",
+
+        'backup_current_tsc': '現在のTSCをバックアップ',
+        'backup_all_tsc': 'すべてのTSCをバックアップ',
+        'smart_replace_all_tsc': 'すべてのTSCファイルをスマート置換',
+        'toggle_theme': 'テーマ切り替え（Darkly/Cosmo）',
+        'font_size_title': 'フォントサイズ',
+        'font_size_label': 'フォントサイズ:',
+        'tab_close': '閉じる',
+        'tab_close_others': '他を閉じる',
+        'tab_close_all': 'すべて閉じる',
+        'new_file_title': '新規ファイル {}',
+        'history_new_empty_tab': '新しい空のタブ: {}',
     }
 }
 

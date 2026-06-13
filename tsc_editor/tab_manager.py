@@ -28,9 +28,9 @@ class TabManager:
 
         # Contextual menu
         self.tab_menu = tk.Menu(self.notebook, tearoff=0)
-        self.tab_menu.add_command(label="Close", command=self.close_current_tab)
-        self.tab_menu.add_command(label="Close Others", command=self.close_other_tabs)
-        self.tab_menu.add_command(label="Close All", command=self.close_all_tabs)
+        self.tab_menu.add_command(label=self.app.tr['tab_close'], command=self.close_current_tab)
+        self.tab_menu.add_command(label=self.app.tr['tab_close_others'], command=self.close_other_tabs)
+        self.tab_menu.add_command(label=self.app.tr['tab_close_all'], command=self.close_all_tabs)
         self.notebook.bind("<Button-3>", self.show_tab_menu)
         self.notebook.bind("<Button-2>", self.on_middle_click)
 
@@ -76,7 +76,7 @@ class TabManager:
         if custom_name:
             title = custom_name
         else:
-            title = f"New File {self.tab_counter}"
+            title = self.app.tr['new_file_title'].format(self.tab_counter)
             self.tab_counter += 1
         text_widget.file_path = None
         text_widget.encoding = None
@@ -93,7 +93,7 @@ class TabManager:
         self.buffers.append(buffer)
         self.notebook.select(tab_id)
         self.update_active_text_area()
-        self.app.add_history_entry(f"New empty tab: {title}")
+        self.app.add_history_entry(self.app.tr['history_new_empty_tab'].format(title))
         return temp_key
 
     def close_tab(self, key):
@@ -113,8 +113,8 @@ class TabManager:
 
         if current_text != saved_content:
             tab_name = buffer['title']
-            title = self.app.tr.get('unsaved_tab_title', 'Unsaved Changes')
-            msg = self.app.tr.get('unsaved_tab_message', 'There are unsaved changes in "{}".\nDo you want to save them before closing?')
+            title = self.app.tr['unsaved_tab_title']
+            msg = self.app.tr['unsaved_tab_message']
             answer = messagebox.askyesnocancel(title, msg.format(tab_name))
             if answer is None:
                 return False

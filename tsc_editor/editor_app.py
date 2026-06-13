@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Main application class for TSC Editor+.
-Version 1.2
-Now with modern tabs, persistent recent folder, face preview (Freeware/Steam),
-export to .txt as plain text, and improved search highlighting.
+Version 2.1
 """
 
 import os
@@ -11,6 +9,7 @@ import sys
 import re
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext, Toplevel, Scale, Button, BooleanVar, ttk, simpledialog
+import shutil
 from datetime import datetime
 
 # Some Imports
@@ -117,6 +116,7 @@ class TSCEditor:
             "manual_cipher": 0,
             "keep_recent_tsc": False,
             "last_folder": "",
+            "backup_dir": "",
 
         }
         self.settings = load_settings(self.settings_file, default_settings)
@@ -160,7 +160,7 @@ class TSCEditor:
         for noto_file in ["NotoSansJP-Regular.ttf", "NotoSansJP.ttf", "NotoSansJP-Bold.ttf"]:
             path = os.path.join(script_dir, noto_file)
             if os.path.isfile(path):
-                self.available_fonts.append("Noto Sans JP (Solo usar en TSC japoneses)")
+                self.available_fonts.append(self.tr['noto_sans_jp_desc'])
                 break
         if not self.available_fonts:
             self.available_fonts = ["Courier New", "Consolas"]
@@ -196,7 +196,7 @@ class TSCEditor:
             if recent:
                 self.set_current_folder(recent)
 
-        self.add_history_entry("Editor started")
+        self.add_history_entry(self.tr['history_editor_started'])
         self.apply_theme()
         self.update_font()
         self.update_ui_language()
@@ -321,7 +321,7 @@ class TSCEditor:
         tk.Label(main_frame, text=self.tr['search_term']).pack(anchor=tk.W)
         self.search_entry = tk.Entry(main_frame, width=30)
         self.search_entry.pack(fill=tk.X, pady=(0,5))
-        self.search_entry.bind("<KeyRelease>", self.on_search_text_change)
+        self.search_entry.bind("<KeyRelease>", self.on_search_text_change)  
 
         self.case_var = BooleanVar(value=False)
         self.whole_var = BooleanVar(value=False)
@@ -367,12 +367,14 @@ class TSCEditor:
         self.root.bind("<Control-w>", lambda e: self.tab_manager.close_current_tab())
         self.root.bind("<Control-Shift-W>", lambda e: self.tab_manager.close_all_tabs())
         self.root.bind("<Control-Alt-w>", lambda e: self.tab_manager.close_other_tabs())
+        self.root.bind("<Control-b>", lambda e: self.backup_current_tsc())
+        self.root.bind("<Control-Shift-B>", lambda e: self.backup_all_tsc())
 
     # ------------------------------------------------------------------
     # File and tab management methods
     # ------------------------------------------------------------------
     def load_file(self):
-        if not self.check_unsaved_changes("otro archivo .tsc"):
+        if not self.check_unsaved_changes(self.tr['another_tsc']):
             return
         file_path = filedialog.askopenfilename(
             title=self.tr['open_tsc'],
@@ -382,12 +384,19 @@ class TSCEditor:
             return
         self.load_specific_tsc(file_path)
 
+    # Decode            
+
     def _decode_with_fallback(self, raw_bytes: bytes, primary_encoding: str) -> tuple:
         """
         Decodifica raw_bytes usando primary_encoding y fallbacks si aparece '�'.
+        Para shift_jis, evitamos cp850 porque es incorrecto para japonés.
         Retorna (texto_decodificado, encoding_usado).
         """
-        encodings = [primary_encoding, 'cp850', 'cp932', 'latin-1']
+        if primary_encoding.lower() == 'shift_jis':
+            # Para japonés/inglés, priorizar cp932 y latin-1, NO cp850
+            encodings = ['shift_jis', 'cp932', 'cp1252', 'latin-1']
+        else:
+            encodings = [primary_encoding, 'cp1252', 'cp932', 'latin-1', 'cp850']
         # Eliminar duplicados
         seen = set()
         unique = []
@@ -409,7 +418,7 @@ class TSCEditor:
                 continue
         if best_text is not None:
             return best_text, best_enc
-        return raw_bytes.decode(primary_encoding, errors='replace'), primary_encoding        
+        return raw_bytes.decode(primary_encoding, errors='replace'), primary_encoding     
 
     def load_specific_tsc(self, file_path):
         try:
@@ -423,8 +432,7 @@ class TSCEditor:
                 if encoding is None:
                     encoding = "shift_jis"
                     cipher = 0
-                if cipher == 0:
-                    encoding = "utf-8"
+                # ELIMINAR: if cipher == 0: encoding = "utf-8"
             elif mode == "manual":
                 encoding = self.settings.get("manual_encoding", "shift_jis")
                 cipher = self.settings.get("manual_cipher", 0)
@@ -438,22 +446,47 @@ class TSCEditor:
 
             decrypted = decrypt_tsc(raw_data, cipher) if cipher != 0 else raw_data
 
-            # Fallback para shift_jis
+            # Decodificar con la codificación elegida (con fallback)
             if encoding.lower() == 'shift_jis':
                 text, used_encoding = self._decode_with_fallback(decrypted, encoding)
                 encoding = used_encoding
             else:
                 text = decrypted.decode(encoding, errors='replace')
 
-            # Si la codificación resultante es cp850, convertir a español legible
+            suspicious_chars = set('»½«°©¾±÷×')
+            suspicious_count = sum(1 for ch in text if ch in suspicious_chars)
+            if suspicious_count > 5 and encoding.lower() in ('latin-1', 'cp850'):
+                # Intentar con shift_jis y cp1252
+                best_text = text
+                best_enc = encoding
+                for test_enc in ('shift_jis', 'cp1252'):
+                    try:
+                        test_text = decrypted.decode(test_enc, errors='replace')
+                        if test_text.count('�') < best_text.count('�'):
+                            best_text = test_text
+                            best_enc = test_enc
+                    except:
+                        pass
+                if best_enc != encoding:
+                    text = best_text
+                    encoding = best_enc
+                self.add_history_entry(self.tr['history_auto_corrected'].format(old_enc, best_enc))
+
+            # Ya no es necesaria la conversión cp850 a español porque usamos cp1252 directamente
+            # Pero la dejamos por compatibilidad con archivos antiguos que usaban cp850
             if encoding == 'cp850':
                 text = self._convert_cp850_to_spanish(text)
 
             self.tab_manager.add_tab(file_path, text, encoding, cipher)
-            self.status_label.config(text=f"Loaded: {os.path.basename(file_path)} | Cipher={cipher}, Enc={encoding}")
-            self.add_history_entry(f"Opened TSC: {os.path.basename(file_path)} (cipher={cipher}, enc={encoding})")
+            self.status_label.config(text=self.tr['status_loaded'].format(
+                os.path.basename(file_path), cipher, encoding
+            ))
+            self.add_history_entry(self.tr['history_opened_tsc'].format(
+                os.path.basename(file_path), cipher, encoding
+            ))
         except Exception as e:
-            messagebox.showerror(self.tr['load_error'], f"Could not load {os.path.basename(file_path)}:\n{str(e)}")
+            messagebox.showerror(self.tr['load_error'],
+                                 self.tr['load_error_msg'].format(os.path.basename(file_path), str(e)))
 
     def _convert_cp850_to_spanish(self, text: str) -> str:
         """
@@ -506,6 +539,8 @@ class TSCEditor:
         if not text_to_save.strip():
             if not messagebox.askyesno(self.tr['empty_warning'], self.tr['empty_warning']):
                 return
+
+        # Diálogo de guardado
         current_path = self.current_file
         if current_path and messagebox.askyesno(self.tr['overwrite_msg'], f"{self.tr['overwrite_question']} '{os.path.basename(current_path)}'?"):
             save_path = current_path
@@ -519,24 +554,33 @@ class TSCEditor:
                 return
 
         is_txt = save_path.lower().endswith('.txt')
-
         if is_txt:
-            text_to_save = self.text_area.get("1.0", "end-1c")
-            text_to_save = text_to_save.replace('\r\n', '\n').replace('\r', '\n')
+            # Exportar como texto plano UTF-8 (esto es deseable para .txt)
             try:
                 with open(save_path, "w", encoding="utf-8", newline='\n') as f:
-                    f.write(text_to_save)
+                    f.write(text_to_save.replace('\r\n', '\n').replace('\r', '\n'))
                 success = True
             except Exception as e:
                 success = False
                 messagebox.showerror(self.tr['save_error'], str(e))
         else:
+            # Exportar como .tsc usando los valores de la pestaña actual
             cipher = self.current_cipher if self.current_cipher is not None else 0
-            success = save_tsc_file(save_path, text_to_save, cipher, self.current_encoding,
+            encoding = self.current_encoding if self.current_encoding else "shift_jis"
+            # Asegurar que nunca se use UTF-8 para .tsc (a menos que sea realmente necesario)
+            if encoding.lower() in ("utf-8", "utf8"):
+                # Forzar a shift_jis o cp1252
+                try:
+                    text_to_save.encode('shift_jis')
+                    encoding = "shift_jis"
+                except UnicodeEncodeError:
+                    encoding = "cp1252"
+            success = save_tsc_file(save_path, text_to_save, cipher, encoding,
                                     encrypt_tsc, lambda l: l // 2)
 
         if success:
             if not is_txt:
+                # Actualizar la pestaña si se guardó sobre un archivo temporal o se cambió la ruta
                 old_key = self.current_file
                 if not old_key:
                     try:
@@ -547,19 +591,121 @@ class TSCEditor:
                         old_key = None
                 if old_key and str(old_key).startswith('__temp'):
                     self.tab_manager.close_tab(old_key)
-                    self.tab_manager.add_tab(save_path, text_to_save, self.current_encoding, cipher)
+                    self.tab_manager.add_tab(save_path, text_to_save, encoding, cipher)
                 elif old_key:
-                    self.tab_manager.update_tab_file_path(old_key, save_path, text_to_save, self.current_encoding, cipher)
-                self.status_label.config(text=f"Exported: {os.path.basename(save_path)} | Cipher: {cipher}")
-                self.add_history_entry(f"Saved TSC: {os.path.basename(save_path)}")
-                messagebox.showinfo(self.tr['export_success'], f"{self.tr['export_success']}\nCipher: {cipher}")
+                    self.tab_manager.update_tab_file_path(old_key, save_path, text_to_save, encoding, cipher)
+                self.status_label.config(text=self.tr['export_status_tsc'].format(
+                        os.path.basename(save_path), cipher
+                    ))
+                self.add_history_entry(self.tr['history_saved_tsc'].format(
+                        os.path.basename(save_path)
+                    ))
+                messagebox.showinfo(self.tr['export_success'],
+                                    self.tr['export_success_cipher'].format(cipher))
             else:
-                self.status_label.config(text=f"Exported as plain text: {os.path.basename(save_path)}")
-                self.add_history_entry(f"Exported as plain text: {os.path.basename(save_path)}")
-                messagebox.showinfo(self.tr['export_success'], "File saved as plain text (UTF-8).")
+                self.status_label.config(text=self.tr['export_status_txt'].format(
+                        os.path.basename(save_path)
+                    ))
+                self.add_history_entry(self.tr['history_exported_txt'].format(
+                        os.path.basename(save_path)
+                    ))
+                messagebox.showinfo(self.tr['export_success'], self.tr['export_txt_success'])
         else:
             if not is_txt:
                 messagebox.showerror(self.tr['save_error'], self.tr['save_error'])
+
+    # ------------------------------------------------------------------
+    # Backup methods
+    # ------------------------------------------------------------------
+    def get_default_backup_dir(self):
+        """Retorna la ruta por defecto para backups: carpeta 'backups' en la raíz del proyecto."""
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        backup_dir = os.path.join(project_root, "backups")
+        return backup_dir
+
+    def backup_current_tsc(self):
+        """Copia el archivo TSC actual a una subcarpeta backup_..."""
+        if not self.current_file or not self.current_file.lower().endswith('.tsc'):
+            messagebox.showwarning(self.tr['backup_title'], self.tr['backup_no_current'])
+            return
+
+        src_path = self.current_file
+        backup_base = self.settings.get("backup_dir", "").strip()
+        if backup_base and os.path.isdir(backup_base):
+            base_dir = backup_base
+        else:
+            base_dir = self.get_default_backup_dir()
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = os.path.join(base_dir, f"backup_{timestamp}")
+        os.makedirs(backup_dir, exist_ok=True)
+
+        dst_path = os.path.join(backup_dir, os.path.basename(src_path))
+        try:
+            shutil.copy2(src_path, dst_path)
+            messagebox.showinfo(self.tr['backup_title'], f"{self.tr['backup_created']}\n{dst_path}")
+            self.add_history_entry(self.tr['backup_created_log'].format(dst_path))
+        except Exception as e:
+            messagebox.showerror(self.tr['backup_error'], f"{self.tr['backup_failed']}\n{str(e)}")
+
+    def backup_all_tsc(self):
+        """Copia todos los archivos .tsc de la lista actual a una subcarpeta backup_..."""
+        if not self.all_files:
+            messagebox.showwarning(self.tr['backup_title'], self.tr['backup_no_files'])
+            return
+
+        backup_base = self.settings.get("backup_dir", "").strip()
+        if backup_base and os.path.isdir(backup_base):
+            base_dir = backup_base
+        else:
+            base_dir = self.get_default_backup_dir()
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = os.path.join(base_dir, f"backup_{timestamp}")
+        os.makedirs(backup_dir, exist_ok=True)
+
+        # Ventana de progreso
+        progress_win = tk.Toplevel(self.root)
+        progress_win.title(self.tr['backup_progress_title'])
+        progress_win.geometry("400x120")
+        progress_win.transient(self.root)
+        progress_win.grab_set()
+        progress_win.resizable(False, False)
+
+        tk.Label(progress_win, text=self.tr['backup_copying']).pack(pady=10)
+        progress_bar = ttk.Progressbar(progress_win, length=300, mode='determinate')
+        progress_bar.pack(pady=5)
+        status_label = tk.Label(progress_win, text="")
+        status_label.pack(pady=5)
+
+        total = len(self.all_files)
+        progress_bar['maximum'] = total
+
+        def run_backup():
+            copied = 0
+            errors = []
+            for i, (rel_path, full_path) in enumerate(self.all_files):
+                status_label.config(text=self.tr['backup_copying_file'].format(os.path.basename(full_path)))
+                progress_bar['value'] = i
+                progress_win.update_idletasks()
+                try:
+                    dst_path = os.path.join(backup_dir, os.path.basename(full_path))
+                    shutil.copy2(full_path, dst_path)
+                    copied += 1
+                except Exception as e:
+                    errors.append((full_path, str(e)))
+            progress_bar['value'] = total
+            progress_win.destroy()
+            msg = f"{self.tr['backup_completed']}\n{self.tr['backup_files_copied'].format(copied, total)}"
+            if errors:
+                msg += f"\n{self.tr['backup_errors'].format(len(errors))}"
+                for err in errors:
+                    print(f"Error copiando {err[0]}: {err[1]}")
+            messagebox.showinfo(self.tr['backup_title'], msg)
+            self.add_history_entry(self.tr['backup_all_log'].format(copied, backup_dir))
+
+        import threading
+        threading.Thread(target=run_backup, daemon=True).start()
 
     def save_project(self):
         if not self.text_area:
@@ -596,14 +742,14 @@ class TSCEditor:
                 self.tab_manager.add_tab(save_path, text_to_save, "utf-8", None)
             elif old_key:
                 self.tab_manager.update_tab_file_path(old_key, save_path, text_to_save, "utf-8", None)
-            self.status_label.config(text=f"Project saved: {os.path.basename(save_path)}")
-            self.add_history_entry(f"Saved project: {os.path.basename(save_path)}")
+            self.status_label.config(text=self.tr['status_project_saved'].format(os.path.basename(save_path)))
+            self.add_history_entry(self.tr['history_saved_project'].format(os.path.basename(save_path)))
             messagebox.showinfo(self.tr['project_saved'], self.tr['project_saved'])
         else:
             messagebox.showerror(self.tr['save_error'], self.tr['save_error'])
 
     def load_project(self):
-        if not self.check_unsaved_changes("otro proyecto .cstsc"):
+        if not self.check_unsaved_changes(self.tr['another_project']):
             return
         file_path = filedialog.askopenfilename(
             title=self.tr['open_project_dialog_title'],
@@ -614,8 +760,8 @@ class TSCEditor:
         text, success = load_project_file(file_path)
         if success:
             self.tab_manager.add_tab(file_path, text, "utf-8", None)
-            self.status_label.config(text=f"Project loaded: {os.path.basename(file_path)}")
-            self.add_history_entry(f"Opened project: {os.path.basename(file_path)}")
+            self.status_label.config(text=self.tr['status_project_loaded'].format(os.path.basename(file_path)))
+            self.add_history_entry(self.tr['history_opened_project'].format(os.path.basename(file_path)))
         else:
             messagebox.showerror(self.tr['load_error'], f"{self.tr['load_error']}:\n{file_path}")
 
@@ -688,7 +834,7 @@ class TSCEditor:
     # File Side List
     # ------------------------------------------------------------------
     def load_folder(self):
-        if not self.check_unsaved_changes("una carpeta de proyectos"):
+        if not self.check_unsaved_changes(self.tr['another_folder']):
             return
         folder = filedialog.askdirectory(title=self.tr['load_folder_title'])
         if not folder:
@@ -754,27 +900,27 @@ class TSCEditor:
 
     def delete_current_from_list(self):
         if not self.current_file:
-            messagebox.showinfo("Info", "There is no file loaded.")
+            messagebox.showinfo(self.tr['delete_confirm_title'], self.tr['backup_no_files'])
             return
-        if not self.check_unsaved_changes("eliminar este archivo de la lista"):
+        if not self.check_unsaved_changes(self.tr['unsaved_delete_current']):
             return
         self.all_files = [(r, f) for r, f in self.all_files if f != self.current_file]
         self.filter_files()
-        self.status_label.config(text="File removed from list.")
-        self.add_history_entry("Removed current file from list")
+        self.status_label.config(text=self.tr['status_file_removed'])
+        self.add_history_entry(self.tr['history_removed_file'])
         highlight_current_file_in_list(self)
 
     def delete_all_from_list(self):
         if not self.all_files:
-            messagebox.showinfo("Info", "There are no files in the list.")
+            messagebox.showinfo(self.tr['delete_confirm_title'], self.tr['backup_no_current'])
             return
-        if not self.check_unsaved_changes("eliminar todos los archivos de la lista"):
+        if not self.check_unsaved_changes(self.tr['unsaved_delete_all']):
             return
-        if messagebox.askyesno("Confirm", "Delete ALL files from the sidebar list?\n(They will NOT be deleted from the disk)"):
+        if messagebox.askyesno(self.tr['delete_confirm_title'], self.tr['delete_confirm_all']):
             self.all_files = []
             self.filter_files()
-            self.status_label.config(text="List Cleared.")
-            self.add_history_entry("Cleared all files from list")
+            self.status_label.config(text=self.tr['status_list_cleared'])
+            self.add_history_entry(self.tr['history_cleared_list'])
             highlight_current_file_in_list(self)
 
     # ------------------------------------------------------------------
@@ -838,9 +984,9 @@ class TSCEditor:
 
         columns = ("name", "args", "desc")
         tree = ttk.Treeview(frame, columns=columns, show="headings")
-        tree.heading("name", text="Command")
-        tree.heading("args", text="Args")
-        tree.heading("desc", text="Description")
+        tree.heading("name", text=self.tr['custom_cmds_command'])
+        tree.heading("args", text=self.tr['custom_cmds_args'])
+        tree.heading("desc", text=self.tr['custom_cmds_desc'])
         tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=tree.yview)
@@ -857,18 +1003,18 @@ class TSCEditor:
         btn_style = {"bg": "#3c3c3c", "fg": "white"} if dark else {"bg": "#f0f0f0", "fg": "black"}
 
         def add_cmd():
-            name = simpledialog.askstring("Add Command", self.tr['custom_cmd_name'], parent=win)
+            name = simpledialog.askstring(self.tr['custom_cmds_add_title'], self.tr['custom_cmd_name'], parent=win)
             if not name or len(name) < 2 or len(name) > 3:
-                messagebox.showerror("Error", "Command name must be 2-3 letters.", parent=win)
+                messagebox.showerror(self.tr['custom_cmds_error_title'], self.tr['custom_cmds_name_length'], parent=win)
                 return
             name = name.upper()
             if name in self.commands_data:
-                messagebox.showerror("Error", "Command already exists.", parent=win)
+                messagebox.showerror(self.tr['custom_cmds_error_title'], self.tr['custom_cmds_already_exists'], parent=win)
                 return
-            args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], minvalue=0, maxvalue=4, parent=win)
+            args = simpledialog.askinteger(self.tr['custom_cmds_arguments_title'], self.tr['custom_cmd_args'], minvalue=0, maxvalue=4, parent=win)
             if args is None:
                 return
-            desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], parent=win)
+            desc = simpledialog.askstring(self.tr['custom_cmds_description_title'], self.tr['custom_cmd_desc'], parent=win)
             if desc is None:
                 desc = ""
             self.custom_commands[name] = [str(args), "----", desc]
@@ -887,10 +1033,10 @@ class TSCEditor:
             if name not in self.custom_commands:
                 return
             current_args, _, current_desc = self.custom_commands[name]
-            new_args = simpledialog.askinteger("Arguments", self.tr['custom_cmd_args'], initialvalue=int(current_args), minvalue=0, maxvalue=4, parent=win)
+            new_args = simpledialog.askinteger(self.tr['custom_cmds_arguments_title'], self.tr['custom_cmd_args'], initialvalue=int(current_args), minvalue=0, maxvalue=4, parent=win)
             if new_args is None:
                 return
-            new_desc = simpledialog.askstring("Description", self.tr['custom_cmd_desc'], initialvalue=current_desc, parent=win)
+            new_desc = simpledialog.askstring(self.tr['custom_cmds_description_title'], self.tr['custom_cmd_desc'], initialvalue=current_desc, parent=win)
             if new_desc is None:
                 return
             self.custom_commands[name] = [str(new_args), "----", new_desc]
@@ -915,9 +1061,9 @@ class TSCEditor:
                 tree.delete(selected[0])
                 self.refresh_current_file()
 
-        tk.Button(btn_frame, text="Add", command=add_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Edit", command=edit_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Remove", command=remove_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['custom_cmds_add'], command=add_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['custom_cmds_edit'], command=edit_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['custom_cmds_remove'], command=remove_cmd, **btn_style).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(side=tk.RIGHT, padx=5)
 
     def open_custom_command_syntax_window(self):
@@ -998,7 +1144,7 @@ class TSCEditor:
                 result_text.insert(tk.END, f"<{cmd_name} ", "command")
             result_text.insert(tk.END, "\n" + "🩷 " + self.tr['id_type'] + "s: ", "id")
             if num_args == 0:
-                result_text.insert(tk.END, "ninguno\n", "id")
+                result_text.insert(tk.END, self.tr['cmd_syntax_none'] + "\n", "id")
             else:
                 for idx, arg in enumerate(args):
                     if arg and len(arg) == 4 and arg.isdigit():
@@ -1006,18 +1152,18 @@ class TSCEditor:
                     else:
                         result_text.insert(tk.END, f"[{arg if arg else '???'}] ", "error")
                 result_text.insert(tk.END, "\n")
-                if len(args) < num_args:
-                    result_text.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
-                    result_text.insert(tk.END, self.tr['missing_param'] + f" (se esperaban {num_args})\n", "error")
-                elif len(args) > num_args:
-                    result_text.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
-                    result_text.insert(tk.END, self.tr['extra_text'] + f" (se esperaban {num_args})\n", "error")
-            result_text.insert(tk.END, "\n📖 " + self.tr['description'] + ": ", "bold")
-            result_text.insert(tk.END, desc + "\n")
-            result_text.insert(tk.END, "\n" + "─" * 50 + "\n")
-            result_text.insert(tk.END, "📝 " + self.tr['cmd_input_label'] + " ", "bold")
-            result_text.insert(tk.END, line + "\n")
-            errors = check_syntax(line + "\n", self.commands_data, self.command_pattern)
+            if len(args) < num_args:
+                result_text.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+                result_text.insert(tk.END, self.tr['cmd_syntax_missing_param'].format(num_args) + "\n", "error")
+            elif len(args) > num_args:
+                result_text.insert(tk.END, "🔴 " + self.tr['error_type'] + ": ", "error")
+                result_text.insert(tk.END, self.tr['cmd_syntax_extra_text'].format(num_args) + "\n", "error")
+                result_text.insert(tk.END, "\n📖 " + self.tr['description'] + ": ", "bold")
+                result_text.insert(tk.END, desc + "\n")
+                result_text.insert(tk.END, "\n" + "─" * 50 + "\n")
+                result_text.insert(tk.END, "📝 " + self.tr['cmd_input_label'] + " ", "bold")
+                result_text.insert(tk.END, line + "\n")
+                errors = check_syntax(line + "\n", self.commands_data, self.command_pattern)
             if errors:
                 result_text.insert(tk.END, "\n🔴 " + self.tr['syntax_errors'] + ":\n", "error")
                 for err in errors:
@@ -1050,22 +1196,44 @@ class TSCEditor:
     def open_settings(self):
         win = tk.Toplevel(self.root)
         win.title(self.tr['settings_window_title'])
-        win.geometry("500x600")
+        win.geometry("600x650")  # Un poco más ancho y alto
         win.transient(self.root)
         win.grab_set()
-        win.resizable(False, False)
+        win.resizable(True, True)  # Permitir redimensionar
 
-        # Determine colors based on current theme
+        # --- Contenedor principal con scroll ---
+        main_frame = tk.Frame(win)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        canvas = tk.Canvas(main_frame, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Frame interior que contendrá todas las opciones
+        content_frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+        def configure_scroll_region(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        content_frame.bind("<Configure>", configure_scroll_region)
+
+        # --- Colores según tema ---
         current_theme = self.current_theme.get()
         if current_theme in ("darkly", "vapor"):
             bg, fg, select_bg = "#1e1e1e", "#ffffff", "#3c3c3c"
-            btn_bg, btn_fg = "#3c3c3c", "#ffffff"
-        else:  # cosmo
+            button_bg, button_fg = "#3c3c3c", "#ffffff"
+        else:
             bg, fg, select_bg = "#ffffff", "#000000", "#0078D7"
-            btn_bg, btn_fg = "#e0e0e0", "#000000"
+            button_bg, button_fg = "#e0e0e0", "#000000"
 
         win.configure(bg=bg)
+        main_frame.configure(bg=bg)
+        canvas.configure(bg=bg)
+        content_frame.configure(bg=bg)
 
+        # --- Widgets de configuración (todos dentro de content_frame) ---
         # Auto-save
         auto_var = BooleanVar(value=self.settings["auto_save"])
         def toggle_auto():
@@ -1075,60 +1243,60 @@ class TSCEditor:
             else:
                 self.stop_auto_save()
             save_settings(self.settings_file, self.settings)
-        tk.Checkbutton(win, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto,
-                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=20, pady=5)
+        tk.Checkbutton(content_frame, text=self.tr['auto_save_label'], variable=auto_var, command=toggle_auto,
+                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=20, pady=5, fill=tk.X)
 
         # Keep recent TSC
         keep_recent_var = BooleanVar(value=self.settings.get("keep_recent_tsc", False))
         def toggle_keep_recent():
             self.settings["keep_recent_tsc"] = keep_recent_var.get()
             save_settings(self.settings_file, self.settings)
-        tk.Checkbutton(win, text="Keep recent TSC folder on startup", variable=keep_recent_var, command=toggle_keep_recent,
-                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=20, pady=5)
+        tk.Checkbutton(content_frame, text=self.tr['keep_recent_label'], variable=keep_recent_var, command=toggle_keep_recent,
+                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=20, pady=5, fill=tk.X)
 
         # Theme selection
-        tk.Label(win, text="Theme:", bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
+        tk.Label(content_frame, text=self.tr['theme_label'], bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
         theme_var = tk.StringVar(value=self.current_theme.get())
-        theme_menu = ttk.Combobox(win, textvariable=theme_var, values=self.available_themes, state="readonly")
-        theme_menu.pack(anchor=tk.W, padx=20, pady=5)
+        theme_menu = ttk.Combobox(content_frame, textvariable=theme_var, values=self.available_themes, state="readonly")
+        theme_menu.pack(anchor=tk.W, padx=20, pady=5, fill=tk.X)
 
         # Language
-        tk.Label(win, text=self.tr['language_label'], bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
+        tk.Label(content_frame, text=self.tr['language_label'], bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
         lang_var = tk.StringVar(value=self.current_lang)
-        lang_menu = ttk.Combobox(win, textvariable=lang_var, values=['en', 'es', 'jp'], state="readonly")
-        lang_menu.pack(anchor=tk.W, padx=20, pady=5)
+        lang_menu = ttk.Combobox(content_frame, textvariable=lang_var, values=['en', 'es', 'jp'], state="readonly")
+        lang_menu.pack(anchor=tk.W, padx=20, pady=5, fill=tk.X)
 
         # Default font
-        tk.Label(win, text=self.tr['default_font_label'], bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
+        tk.Label(content_frame, text=self.tr['default_font_label'], bg=bg, fg=fg).pack(anchor=tk.W, padx=20, pady=(10,0))
         font_var = tk.StringVar(value=self.current_font_name.get())
-        font_menu = ttk.Combobox(win, textvariable=font_var, values=self.available_fonts, state="readonly")
-        font_menu.pack(anchor=tk.W, padx=20, pady=5)
+        font_menu = ttk.Combobox(content_frame, textvariable=font_var, values=self.available_fonts, state="readonly")
+        font_menu.pack(anchor=tk.W, padx=20, pady=5, fill=tk.X)
 
         # Load mode settings
-        tk.Label(win, text="TSC file loading mode:", bg=bg, fg=fg, font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10,0))
+        tk.Label(content_frame, text=self.tr['load_mode_label'], bg=bg, fg=fg, font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10,0))
         load_mode_var = tk.StringVar(value=self.settings.get("load_mode", "ask"))
 
         def on_load_mode_change(*args):
             mode = load_mode_var.get()
             if mode == "manual":
-                manual_frame.pack(anchor=tk.W, padx=40, pady=5)
+                manual_frame.pack(anchor=tk.W, padx=40, pady=5, fill=tk.X)
             else:
                 manual_frame.pack_forget()
 
-        tk.Radiobutton(win, text="Always auto-detect", variable=load_mode_var, value="auto",
-                       bg=bg, fg=fg, selectcolor=bg, command=on_load_mode_change).pack(anchor=tk.W, padx=40)
-        tk.Radiobutton(win, text="Always ask per file", variable=load_mode_var, value="ask",
-                       bg=bg, fg=fg, selectcolor=bg, command=on_load_mode_change).pack(anchor=tk.W, padx=40)
-        tk.Radiobutton(win, text="Always use this encoding and cipher", variable=load_mode_var, value="manual",
-                       bg=bg, fg=fg, selectcolor=bg, command=on_load_mode_change).pack(anchor=tk.W, padx=40)
+        tk.Radiobutton(content_frame, text=self.tr['load_mode_auto'], variable=load_mode_var, value="auto",
+                       bg=bg, fg=fg, selectcolor=bg, command=on_load_mode_change).pack(anchor=tk.W, padx=40, pady=2)
+        tk.Radiobutton(content_frame, text=self.tr['load_mode_ask'], variable=load_mode_var, value="ask",
+                       bg=bg, fg=fg, selectcolor=bg, command=on_load_mode_change).pack(anchor=tk.W, padx=40, pady=2)
+        tk.Radiobutton(content_frame, text=self.tr['load_mode_manual'], variable=load_mode_var, value="manual",
+                       bg=bg, fg=fg, selectcolor=bg, command=on_load_mode_change).pack(anchor=tk.W, padx=40, pady=2)
 
-        manual_frame = tk.Frame(win, bg=bg)
-        tk.Label(manual_frame, text="Encoding:", bg=bg, fg=fg).pack(side=tk.LEFT, padx=5)
+        manual_frame = tk.Frame(content_frame, bg=bg)
+        tk.Label(manual_frame, text=self.tr['encoding_label'], bg=bg, fg=fg).pack(side=tk.LEFT, padx=5)
         manual_encoding_var = tk.StringVar(value=self.settings.get("manual_encoding", "shift_jis"))
         encodings = ["shift_jis", "cp932", "latin-1", "utf-8", "cp850"]
         manual_encoding_menu = ttk.Combobox(manual_frame, textvariable=manual_encoding_var, values=encodings, state="readonly", width=10)
         manual_encoding_menu.pack(side=tk.LEFT, padx=5)
-        tk.Label(manual_frame, text="Cipher:", bg=bg, fg=fg).pack(side=tk.LEFT, padx=5)
+        tk.Label(manual_frame, text=self.tr['cipher_label'], bg=bg, fg=fg).pack(side=tk.LEFT, padx=5)
         manual_cipher_var = tk.StringVar(value=str(self.settings.get("manual_cipher", 0)))
         manual_cipher_entry = tk.Entry(manual_frame, textvariable=manual_cipher_var, width=6, bg=bg, fg=fg, insertbackground=fg)
         manual_cipher_entry.pack(side=tk.LEFT, padx=5)
@@ -1136,12 +1304,100 @@ class TSCEditor:
         if load_mode_var.get() != "manual":
             manual_frame.pack_forget()
         else:
-            manual_frame.pack(anchor=tk.W, padx=40, pady=5)
+            manual_frame.pack(anchor=tk.W, padx=40, pady=5, fill=tk.X)
 
         load_mode_var.trace_add('write', on_load_mode_change)
 
-        # Buttons
-        btn_style = {"bg": btn_bg, "fg": btn_fg, "activebackground": select_bg}
+        # === Export mode settings ===
+        tk.Label(content_frame, text=self.tr['export_mode_label'], bg=bg, fg=fg, font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10,0))
+        export_mode_var = tk.StringVar(value=self.settings.get("export_mode", "auto"))
+
+        tk.Radiobutton(content_frame, text=self.tr['export_mode_auto'], variable=export_mode_var, value="auto",
+                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=40, pady=2)
+        tk.Radiobutton(content_frame, text=self.tr['export_mode_select'], variable=export_mode_var, value="select",
+                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=40, pady=2)
+        tk.Radiobutton(content_frame, text=self.tr['export_mode_manual'], variable=export_mode_var, value="manual",
+                       bg=bg, fg=fg, selectcolor=bg).pack(anchor=tk.W, padx=40, pady=2)
+
+        # Frame para opciones manuales de exportación
+        manual_export_frame = tk.Frame(content_frame, bg=bg)
+        tk.Label(manual_export_frame, text=self.tr['encoding_label'], bg=bg, fg=fg).pack(side=tk.LEFT, padx=5)
+        export_encoding_var = tk.StringVar(value=self.settings.get("export_encoding", "shift_jis"))
+        export_encoding_menu = ttk.Combobox(manual_export_frame, textvariable=export_encoding_var,
+                                            values=["shift_jis", "cp1252", "cp932", "latin-1", "cp850"],
+                                            state="readonly", width=12)
+        export_encoding_menu.pack(side=tk.LEFT, padx=5)
+        tk.Label(manual_export_frame, text=self.tr['cipher_label'], bg=bg, fg=fg).pack(side=tk.LEFT, padx=5)
+        export_cipher_var = tk.StringVar(value=str(self.settings.get("export_cipher", 0)))
+        export_cipher_entry = tk.Entry(manual_export_frame, textvariable=export_cipher_var, width=6, bg=bg, fg=fg, insertbackground=fg)
+        export_cipher_entry.pack(side=tk.LEFT, padx=5)
+
+        # Botón Suggest para exportación manual (opcional)
+        def suggest_export():
+            if not self.text_area:
+                 messagebox.showinfo(self.tr['suggest_title'], self.tr['suggest_no_file'], parent=win)
+                 return
+            current_text = self.text_area.get("1.0", "end-1c")
+            best_enc = None
+            best_score = -1
+            for enc in ["shift_jis", "cp1252", "cp932", "latin-1"]:
+                try:
+                    encoded = current_text.encode(enc, errors='strict')
+                    score = len(encoded)
+                except UnicodeEncodeError:
+                    encoded = current_text.encode(enc, errors='replace')
+                    score = len(encoded) - encoded.count(b'?') - encoded.count(b'\xef\xbf\xbd')
+                if score > best_score:
+                    best_score = score
+                    best_enc = enc
+            if best_enc:
+                export_encoding_var.set(best_enc)
+                # Sugerir cifrado 0 por defecto (el usuario lo cambiará si sabe)
+                messagebox.showinfo(self.tr['suggest_title'], self.tr['suggest_encoding_found'].format(best_enc), parent=win)
+            else:
+                messagebox.showinfo(self.tr['suggest_title'], self.tr['suggest_no_encoding'], parent=win)
+
+        suggest_btn = tk.Button(manual_export_frame, text=self.tr['suggest_button'], command=suggest_export,
+                                bg=button_bg, fg=button_fg, activebackground=select_bg)
+        suggest_btn.pack(side=tk.LEFT, padx=10)
+
+        # Función para mostrar/ocultar el frame manual según el modo
+        def update_export_manual_visibility(*args):
+            if export_mode_var.get() == "manual":
+                manual_export_frame.pack(anchor=tk.W, padx=60, pady=5, fill=tk.X)
+            else:
+                manual_export_frame.pack_forget()
+        export_mode_var.trace_add('write', update_export_manual_visibility)
+        update_export_manual_visibility()
+
+        # --- Backup directory settings ---
+        tk.Label(content_frame, text=self.tr['backup_directory_label'], bg=bg, fg=fg, font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, padx=20, pady=(10,0))
+        backup_frame = tk.Frame(content_frame, bg=bg)
+        backup_frame.pack(anchor=tk.W, padx=40, pady=5, fill=tk.X)
+
+        backup_dir_var = tk.StringVar(value=self.settings.get("backup_dir", ""))
+        backup_entry = tk.Entry(backup_frame, textvariable=backup_dir_var, width=40, bg=bg, fg=fg, insertbackground=fg)
+        backup_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0,5))
+
+        def choose_backup_dir():
+            from tkinter import filedialog
+            selected = filedialog.askdirectory(title=self.tr['backup_select_folder_title'])
+            if selected:
+                backup_dir_var.set(selected)
+
+        def clear_backup_dir():
+            backup_dir_var.set("")
+
+        btn_style_small = {"bg": button_bg, "fg": button_fg, "activebackground": select_bg}
+        tk.Button(backup_frame, text=self.tr['browse_button'], command=choose_backup_dir, **btn_style_small).pack(side=tk.LEFT, padx=2)
+        tk.Button(backup_frame, text=self.tr['clear_button'], command=clear_backup_dir, **btn_style_small).pack(side=tk.LEFT)
+
+        tk.Label(content_frame, text=self.tr['backup_directory_help'],
+                 bg=bg, fg=fg, font=("Segoe UI", 8), justify=tk.LEFT, wraplength=500).pack(anchor=tk.W, padx=40, pady=(0,10))
+
+        # --- Botones Aplicar y Cerrar ---
+        btn_frame = tk.Frame(content_frame, bg=bg)
+        btn_frame.pack(pady=20)
 
         def apply_settings():
             new_theme = theme_var.get()
@@ -1162,11 +1418,23 @@ class TSCEditor:
                 self.settings["manual_cipher"] = int(manual_cipher_var.get())
             except:
                 self.settings["manual_cipher"] = 0
+            self.settings["backup_dir"] = backup_dir_var.get()
             save_settings(self.settings_file, self.settings)
+            self.settings["export_mode"] = export_mode_var.get()
+            self.settings["export_encoding"] = export_encoding_var.get()
+            try:
+                self.settings["export_cipher"] = int(export_cipher_var.get())
+            except:
+                self.settings["export_cipher"] = 0
             win.destroy()
 
-        tk.Button(win, text=self.tr['apply_btn'], command=apply_settings, **btn_style).pack(pady=20)
-        tk.Button(win, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(pady=5)
+        btn_style = {"bg": button_bg, "fg": button_fg, "activebackground": select_bg}
+        tk.Button(btn_frame, text=self.tr['apply_btn'], command=apply_settings, **btn_style).pack(side=tk.LEFT, padx=10)
+        tk.Button(btn_frame, text=self.tr['close_btn'], command=win.destroy, **btn_style).pack(side=tk.LEFT, padx=10)
+
+        # Asegurar que el scroll se actualice después de empaquetar todo
+        content_frame.update_idletasks()
+        canvas.configure(scrollregion=canvas.bbox("all"))
 
     def apply_theme(self):
         if TTKBOOTSTRAP_AVAILABLE:
@@ -1284,35 +1552,46 @@ class TSCEditor:
         self.root.after(50, self.highlight_syntax)
 
     # ------------------------------------------------------------------
-    # Search and replace (fixed)
+    # Search and replace
     # ------------------------------------------------------------------
     def on_search_text_change(self, event=None):
-        self.search_manager.search_text = self.search_entry.get()
-        self.search_manager.search_case = self.case_var.get()
-        self.search_manager.search_whole = self.whole_var.get()
-        self.search_manager.refresh_highlight()
+        if hasattr(self, 'search_manager'):
+            self.search_manager.search_text = self.search_entry.get()
+            self.search_manager.search_case = self.case_var.get()
+            self.search_manager.search_whole = self.whole_var.get()
+            self.search_manager.refresh_highlight()
 
     def refresh_search_highlight(self):
-        self.search_manager.refresh_highlight()
+        if hasattr(self, 'search_manager'):
+            self.search_manager.refresh_highlight()
 
     def find_next(self):
-        self.search_manager.find_next()
+        if hasattr(self, 'search_manager'):
+            self.search_manager.find_next()
 
     def find_prev(self):
-        self.search_manager.find_prev()
+        if hasattr(self, 'search_manager'):
+            self.search_manager.find_prev()
 
     def replace_current(self):
-        self.search_manager.replace_current(self.replace_entry.get())
+        if hasattr(self, 'search_manager'):
+            self.search_manager.replace_current(self.replace_entry.get())
 
     def replace_all(self):
-        self.search_manager.replace_all(self.replace_entry.get())
+        if hasattr(self, 'search_manager'):
+            self.search_manager.replace_all(self.replace_entry.get())
 
     def focus_search_tab(self, event=None):
-        self.right_notebook.select(self.search_tab)
-        self.search_entry.focus_set()
+        """Cambia a la pestaña de búsqueda en el panel derecho y enfoca el campo de búsqueda."""
+        if hasattr(self, 'right_notebook') and hasattr(self, 'search_tab'):
+            self.right_notebook.select(self.search_tab)
+            if hasattr(self, 'search_entry'):
+                self.search_entry.focus_set()
 
     def focus_history_tab(self):
-        self.right_notebook.select(self.history_tab)
+        """Cambia a la pestaña de historial en el panel derecho."""
+        if hasattr(self, 'right_notebook') and hasattr(self, 'history_tab'):
+            self.right_notebook.select(self.history_tab)
 
     # ------------------------------------------------------------------
     # Basic editor tools
@@ -1321,7 +1600,7 @@ class TSCEditor:
         if self.text_area:
             try:
                 self.text_area.edit_undo()
-                self.add_history_entry("Undo")
+                self.add_history_entry(self.tr['history_undo'])
             except:
                 pass
 
@@ -1329,7 +1608,7 @@ class TSCEditor:
         if self.text_area:
             try:
                 self.text_area.edit_redo()
-                self.add_history_entry("Redo")
+                self.add_history_entry(self.tr['history_redo'])
             except:
                 pass
 
@@ -1337,7 +1616,7 @@ class TSCEditor:
         if self.text_area:
             try:
                 self.text_area.event_generate("<<Copy>>")
-                self.add_history_entry("Copied")
+                self.add_history_entry(self.tr['history_copied'])
             except:
                 pass
 
@@ -1345,7 +1624,7 @@ class TSCEditor:
         if self.text_area:
             try:
                 self.text_area.event_generate("<<Paste>>")
-                self.add_history_entry("Pasted")
+                self.add_history_entry(self.tr['history_pasted'])
             except:
                 pass
 
@@ -1353,31 +1632,31 @@ class TSCEditor:
         if self.text_area:
             try:
                 self.text_area.event_generate("<<Cut>>")
-                self.add_history_entry("Cut")
+                self.add_history_entry(self.tr['history_cut'])
             except:
                 pass
 
     def on_paste(self, event=None):
-        self.root.after(10, lambda: self.add_history_entry("Pasted"))
+        self.root.after(10, lambda: self.add_history_entry(self.tr['history_pasted']))
         self.update_stats()
 
     def on_cut(self, event=None):
-        self.root.after(10, lambda: self.add_history_entry("Cut"))
+        self.root.after(10, lambda: self.add_history_entry(self.tr['history_cut']))
         self.update_stats()
 
     def on_copy(self, event=None):
-        self.add_history_entry("Copied")
+        self.add_history_entry(self.tr['history_copied'])
 
     def on_backspace(self, event=None):
-        self.add_history_entry("Backspace")
+        self.add_history_entry(self.tr['history_backspace'])
         self.update_stats()
 
     def on_enter(self, event=None):
-        self.add_history_entry("Enter")
+        self.add_history_entry(self.tr['history_enter'])
         self.update_stats()
 
     def on_space(self, event=None):
-        self.add_history_entry("Space")
+        self.add_history_entry(self.tr['history_space'])
         self.update_stats()
 
     def on_text_change(self, event=None):
@@ -1387,7 +1666,7 @@ class TSCEditor:
             if self.settings["auto_save"] and self.current_file and self.current_file.endswith(".cstsc"):
                 self.save_project()
             if event and event.char and event.char.isprintable():
-                self.add_history_entry("Handwrite")
+                self.add_history_entry(self.tr['history_handwrite'])
 
     def on_cursor_move(self, event=None):
         self.update_stats()
@@ -1419,10 +1698,10 @@ class TSCEditor:
         try:
             selected = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
         except tk.TclError:
-            messagebox.showinfo(self.tr['count_normal_title'], "No text selected.")
+            messagebox.showinfo(self.tr['count_normal_title'], self.tr['count_no_selection'])
             return
         if not selected.strip():
-            messagebox.showinfo(self.tr['count_normal_title'], "Selected text is empty.")
+            messagebox.showinfo(self.tr['count_normal_title'], self.tr['count_empty_selection'])
             return
         clean_text = re.sub(r'<[^>]+>', '', selected)
         clean_text = re.sub(r'#[0-9]{4}\b', '', clean_text)
@@ -1433,7 +1712,9 @@ class TSCEditor:
         else:
             msg = f"{self.tr['not_fits']} ({self.tr['limit']}: {limit})"
         title = self.tr['count_face_title'] if with_face else self.tr['count_normal_title']
-        messagebox.showinfo(title, f"{msg}\n\nCharacters: {char_count}\nLimit: {limit}")
+        # Construir mensaje final con formato
+        final_msg = f"{msg}\n\n{self.tr['count_chars_label'].format(char_count)}\n{self.tr['count_limit_label'].format(limit)}"
+        messagebox.showinfo(title, final_msg)
 
     # ------------------------------------------------------------------
     # Fonts
@@ -1535,10 +1816,10 @@ class TSCEditor:
         btn_frame = tk.Frame(dialog, bg=bg)
         btn_frame.pack(pady=10)
         btn_style = {"bg": btn_bg, "fg": btn_fg, "activebackground": "#4a2a6a" if current_theme == "vapor" else "#3c3c3c"}
-        tk.Button(btn_frame, text="Freeware", command=show_freeware, **btn_style).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Steam", command=show_steam, **btn_style).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Switch (Animado)", command=show_switch, **btn_style).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Cancelar", command=dialog.destroy, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['face_version_freeware'], command=show_freeware, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['face_version_steam'], command=show_steam, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['face_version_switch'], command=show_switch, **btn_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text=self.tr['face_version_cancel'], command=dialog.destroy, **btn_style).pack(side=tk.LEFT, padx=5)
 
     def _show_face_image(self, face_id: str, version: str = "free"):
         """Muestra la imagen de la cara según la versión (free/steam)."""
@@ -1933,6 +2214,111 @@ class TSCEditor:
     def smart_replace_special_chars(self):
         smart_replace_dialog(self.root, self.text_area, self.tr, self.settings.get("dark_theme", False))
 
+# Smart Replace ALL TSC
+    def smart_replace_all_tsc(self):
+        """Aplica reemplazo de caracteres especiales a todos los archivos .tsc de la lista."""
+        if not self.all_files:
+            messagebox.showinfo(self.tr['smart_replace_title'], self.tr['smart_replace_no_files'])
+            return
+        
+        total = len(self.all_files)
+        if total == 0:
+            return
+        
+        # Confirmar acción
+        msg = self.tr['smart_replace_confirm_msg'].format(total)
+        if not messagebox.askyesno(self.tr['smart_replace_confirm_title'], msg, parent=self.root):
+            return
+        
+        # Crear ventana de progreso
+        progress_win = tk.Toplevel(self.root)
+        progress_win.title(self.tr['smart_replace_processing'])
+        progress_win.geometry("400x150")
+        progress_win.transient(self.root)
+        progress_win.grab_set()
+        progress_win.resizable(False, False)
+        
+        # Colores según tema
+        dark = self.settings.get("dark_theme", False)
+        bg = "#1e1e1e" if dark else "#ffffff"
+        fg = "white" if dark else "black"
+        progress_win.configure(bg=bg)
+        
+        tk.Label(progress_win, text=self.tr['smart_replace_replacing'], bg=bg, fg=fg, font=("Segoe UI", 10, "bold")).pack(pady=10)
+        
+        self.progress_var = tk.IntVar(value=0)
+        self.progress_label = tk.Label(progress_win, text="", bg=bg, fg=fg)
+        self.progress_label.pack(pady=5)
+        
+        progress_bar = ttk.Progressbar(progress_win, variable=self.progress_var, maximum=total, length=300)
+        progress_bar.pack(pady=10)
+        
+        # Procesar en hilo separado para no congelar la UI
+        import threading
+        def process():
+            success_count = 0
+            error_count = 0
+            for idx, (rel_path, full_path) in enumerate(self.all_files):
+                # Actualizar UI en el hilo principal
+                self.root.after(0, lambda i=idx+1, t=total, p=full_path: self.progress_var.set(i) or self.progress_label.config(text=f"({i}/{t}) {os.path.basename(p)}"))
+                try:
+                    # Cargar archivo TSC (respetando su cifrado y codificación originales)
+                    with open(full_path, "rb") as f:
+                        raw_data = f.read()
+                    # Detectar encoding y cipher (usamos la función existente)
+                    # Pero para no complicar, puedo usar la misma lógica que al abrir archivo
+                    # Obtenemos el cipher y encoding de la pestaña si ya está abierta, o lo detectamos
+                    # Vamos a usar el método load_specific_tsc pero sin interfaz? Mejor reutilizamos funciones
+                    from .encryption import get_cipher_from_tsc, decrypt_tsc
+                    cipher = get_cipher_from_tsc(raw_data)
+                    # Detectar encoding (usar auto_detect_best)
+                    from .dialogs import auto_detect_best
+                    encoding, _ = auto_detect_best(raw_data, get_cipher_from_tsc, decrypt_tsc)
+                    if encoding is None:
+                        encoding = "shift_jis"
+                    decrypted = decrypt_tsc(raw_data, cipher) if cipher != 0 else raw_data
+                    text = decrypted.decode(encoding, errors='replace')
+                    
+                    # Aplicar reemplazos
+                    original_text = text
+                    text = text.replace('ñ', 'n').replace('Ñ', 'N')
+                    # Acentos
+                    accent_map = {
+                        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
+                        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U'
+                    }
+                    for acc, repl in accent_map.items():
+                        text = text.replace(acc, repl)
+                    # Símbolos
+                    text = text.replace('¡', '').replace('¿', '')
+                    
+                    if text != original_text:
+                        # Guardar cambios respetando el cifrado y codificación originales
+                        from .file_handling import save_tsc_file
+                        from .encryption import encrypt_tsc
+                        success = save_tsc_file(full_path, text, cipher, encoding, encrypt_tsc, lambda l: l // 2)
+                        if success:
+                            success_count += 1
+                            self.add_history_entry(self.tr['smart_replace_log'].format(os.path.basename(full_path)))
+                        else:
+                            error_count += 1
+                    else:
+                        # No se requirieron cambios
+                        pass
+                except Exception as e:
+                    error_count += 1
+                    print(f"Error processing {full_path}: {e}")
+            
+            # Finalizar
+            self.root.after(0, lambda: progress_win.destroy())
+            self.root.after(0, lambda: messagebox.showinfo(
+                self.tr['smart_replace_completed'],
+                self.tr['smart_replace_result'].format(total, success_count, error_count)
+            ))
+            self.root.after(0, self.refresh_file_list)
+        
+        threading.Thread(target=process, daemon=True).start()
+
     # ------------------------------------------------------------------
     # Command Color Customization
     # ------------------------------------------------------------------
@@ -2035,7 +2421,7 @@ class TSCEditor:
             import subprocess
             subprocess.Popen([self.doukutsu_path], cwd=os.path.dirname(self.doukutsu_path))
             self.status_label.config(text=self.tr['game_launched'])
-            self.add_history_entry("Game launched")
+            self.add_history_entry(self.tr['game_launched'])
         except Exception as e:
             messagebox.showerror(self.tr['exe_not_found'], str(e))
 
@@ -2043,28 +2429,7 @@ class TSCEditor:
     # Misc
     # ------------------------------------------------------------------
     def show_about(self):
-        messagebox.showinfo(self.tr['about'],
-        "TSC Editor+ v2.0\n"
-        "Professional editor for Cave Story .tsc files\n"
-        "Encryption compatible with Booster's Lab (Carrot Lord)\n"
-        "Features:\n"
-        "- Syntax highlighting (commands, events, numbers, special characters)\n"
-        "- Customizable command colors (blue/pink/red)\n"
-        "- Action history, line and character counter\n"
-        "- Search and replace with real-time highlighting\n"
-        "- Quick command documentation with integrated search\n"
-        "- Customizable commands (add/edit/delete)\n"
-        "- Auto-save every 6 minutes\n"
-        "- Quick font size change with Ctrl+Wheel\n"
-        "- Dark mode with dark title bar and full interface\n"
-        "- Multilingual support (Spanish, English, Japanese)\n"
-        "- Command Syntax Analysis window (Ctrl+Shift+C)\n"
-        "- Modern tabs (Ctrl+T new tab, Ctrl+W close tab)\n"
-        "- Keep recent TSC folder on startup\n"
-        "- Face image preview for <FAC> command (Freeware/Steam)\n"
-        "- Export to .txt as plain text (UTF-8)\n"
-        "Shortcuts: Ctrl+O, Ctrl+S, Ctrl+Shift+S, Ctrl+Z, Ctrl+Y, Ctrl+F, Ctrl+H, Ctrl+R, Ctrl+K, F5, Ctrl+Del, Ctrl+Shift+Del, Ctrl+Shift+C, Ctrl+T, Ctrl+W, Ctrl+Shift+W, Ctrl+Alt+W, Ctrl+N, Alt+F4\n"
-        "Created for the Cave Story modding community.")
+        messagebox.showinfo(self.tr['about'], self.tr['about_text'])
 
     def show_hex_dump(self):
         if self.raw_bytes_for_hex is None:

@@ -18,6 +18,9 @@ def create_menubar(app):
     file_menu.add_command(label=app.tr['delete_from_list'], command=app.delete_current_from_list, accelerator="Ctrl+Del")
     file_menu.add_command(label=app.tr['delete_all_from_list'], command=app.delete_all_from_list, accelerator="Ctrl+Shift+Del")
     file_menu.add_separator()
+    file_menu.add_command(label=app.tr['backup_current_tsc'], command=app.backup_current_tsc, accelerator="Ctrl+B")
+    file_menu.add_command(label=app.tr['backup_all_tsc'], command=app.backup_all_tsc, accelerator="Ctrl+Shift+B")
+    file_menu.add_separator()
     file_menu.add_command(label=app.tr['export_tsc'], command=app.export_file, accelerator="Ctrl+Shift+S")
     file_menu.add_command(label=app.tr['save_project'], command=app.save_project, accelerator="Ctrl+S")
     file_menu.add_separator()
@@ -33,6 +36,8 @@ def create_menubar(app):
     edit_menu.add_command(label=app.tr['check_syntax'], command=app.check_syntax_cmd)
     edit_menu.add_separator()
     edit_menu.add_command(label=app.tr['smart_replace'], command=app.smart_replace_special_chars, accelerator="Ctrl+R")
+    file_menu.add_separator()
+    file_menu.add_command(label=app.tr['smart_replace_all_tsc'], command=app.smart_replace_all_tsc)
 
     view_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label=app.tr['view_menu'], menu=view_menu)
@@ -45,7 +50,7 @@ def create_menubar(app):
     view_menu.add_command(label=app.tr['custom_cmd_syntax'], command=app.open_custom_command_syntax_window, accelerator="Ctrl+Shift+C")
     view_menu.add_command(label=app.tr['customize_command_colors'], command=app.customize_command_colors)
     view_menu.add_separator()
-    view_menu.add_command(label="Toggle Theme (Darkly/Cosmo)", command=app.toggle_theme)
+    view_menu.add_command(label=app.tr['toggle_theme'], command=app.toggle_theme)
 
     font_submenu = tk.Menu(view_menu, tearoff=0)
     view_menu.add_cascade(label=app.tr['font_submenu'], menu=font_submenu)
@@ -68,7 +73,7 @@ def create_toolbar(app):
     toolbar.pack(side=tk.TOP, fill=tk.X)
     theme_btn = tk.Button(
         toolbar,
-        text="🌙 Darkly" if app.current_theme.get() == "darkly" else "☀️ Cosmo",
+        text="🌙" if app.current_theme.get() == "darkly" else "☀",
         command=app.toggle_theme
     )
     theme_btn.pack(side=tk.RIGHT, padx=5, pady=9)
