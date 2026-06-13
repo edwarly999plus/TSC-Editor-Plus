@@ -119,3 +119,18 @@
 "PSH" : ["1", "#---", "Event stack push; saves current read position (after this command) to a stack and then jumps to event xxxx. (CS+ Switch supports max 32 events on stack)."],
 "ACH" : ["1", "#---", "Get achievement xxxx."],
 ```
+
+# credit.tsc Commands
+
+```bash
+[T]X  Displays [casts.pbm] image of number Y to the left of X text
++X    Sets the X value of the scrolling text
+!X    Same as <CMU - Play music X
+-X    Separates lines of scrolling text by X number of pixels
+fX:Y  Same as <FLJ - Jump to location Y if flag X is set
+jX    Calls the part of the script marked by an l of the same #
+lX    Location (Event) number - Sets where the script starts when an event is called
+~     Same as <FMU - Fade music to low volume
+/     Makes the credits stop scrolling 
+<<<   [comment? Could do nothing at all; only instance is after / and thus ignored]
+```
