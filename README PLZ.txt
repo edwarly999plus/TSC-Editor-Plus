@@ -1,48 +1,44 @@
 ================================================================================
-                    TSC EDITOR+ - VERSION 2.0
+                    TSC EDITOR+ - VERSION 2.1
 ================================================================================
 
 Thank you for using TSC Editor+, the professional editor for Cave Story .tsc files.
 
-Version 2.0 is a major stability and feature release, focused on fixing long-standing
-issues and adding highly requested improvements.
+Version 2.1 is a major update focused on full internationalization, backup system,
+batch character replacement, and many stability improvements.
 
 --------------------------------------------------------------------------------
-WHAT'S NEW IN VERSION 2.0
+WHAT'S NEW IN VERSION 2.1
 --------------------------------------------------------------------------------
 
-1. SWITCH ANIMATED FACES (10XX, 11XX, 01XX)
-   • Full support for Nintendo Switch animated face commands:
-        - <FAC10XX – Idle animation (blinking) using `anim1`, `anim4`, `anim5`
-        - <FAC11XX – Talk animation (mouth movement) using `anim1`, `anim2`, `anim3`
-        - <FAC00XX – Static Switch face (no animation) using `anim1`
-		- <FAC01XX – Talk animation (mouth movement) using `anim1`, `anim2`, `anim3`
-   • Automatic mode detection – right-click on any Switch FAC code and the correct
-   • Animation starts immediately (Idle or Talk) without extra dialogs.
-   • Placeholder green images (#00FF21) are automatically skipped – only real sprites are used.
-   • Face name shown in the command info now correctly reads from the base ID (e.g., "Curly Smile").
+1. FULL INTERNATIONALIZATION (English / Español / 日本語)
+   • All menus, dialogs, messages, history entries, and status bar texts are now fully translatable.
+   • No more hardcoded English strings – the interface adapts to your selected language.
+   • Language can be changed at any time in Settings (Ctrl+K).
 
-2. ENCODING & CIPHER OVERHAUL
-   • Fallback chain for Shift‑JIS files: shift_jis → cp850 → cp932 → latin‑1.
-   • Automatically switches to the first encoding that does not produce '�' characters.
-   • Cipher 0 (plain text) now forces UTF-8 encoding in auto mode – no more garbled text.
-   • Manual encoding/cipher dialog shows a live preview to help you choose the correct settings.
+2. BACKUP SYSTEM
+   • Backup current TSC file (Ctrl+B) – creates a dated subfolder and copies the file.
+   • Backup all TSC files in the loaded folder (Ctrl+Shift+B) – batch backup with progress bar.
+   • Configurable backup directory in Settings (custom folder or default "backups/" in project root).
+   • Backups are never overwritten (new timestamp each time).
 
-3. UTF-8 EXPORT FIX (No Extra Blank Lines)
-   • When exporting to .txt or .cstsc, line endings are normalized to LF (`\n`).
-   • Prevents the game from misinterpreting empty lines (common with Windows CRLF).
-   • The editor now loads files with `\r\n` and converts them to `\n` internally.
+3. SMART REPLACE ALL TSC FILES
+   • Applies the same smart character replacement (ñ→n, accents removal, ¡¿ removal) to every .tsc file in the loaded folder.
+   • Shows a progress bar with file names and reports results (processed, modified, errors).
+   • Ideal for mass‑cleaning TSC files before distribution.
 
-4. SWITCH STATIC FACES (01XX)
-   • For `<FAC00XX>`, the editor shows a static image from the `anim1` folder
-     (same as the Switch’s “no animation” mode).
+4. ENCODING & CIPHER IMPROVEMENTS
+   • Auto‑detection now properly distinguishes between cp1252 (Spanish) and shift_jis (Japanese/English).
+   • Fallback chain for Shift‑JIS: shift_jis → cp1252 → cp932 → latin‑1.
+   • Suspicious characters (»½«°©¾±÷×) trigger an automatic correction to shift_jis or cp1252.
+   • Removed forced UTF‑8 when cipher=0 – TSC files are never saved as UTF‑8 unless explicitly chosen in manual export mode.
 
-5. COMMAND INFO ENHANCEMENTS
-   • `<FAIxxxx>` and `<FAOxxxx>` now display the direction name (Left, Up, Right, Down, Center, INVALID).
-   • `<TRAxxxx>` shows the full map name (Arthur's House, Egg Corridor, etc.).
-   • `<AM+>`, `<AM->`, `<AMJ>`, `<GIT>`, `<TAM>` show weapon names (Snake, Polar Star, etc.).
-   • `<GIT>`, `<IT+>`, `<IT->`, `<ITJ>` show item names (Arthur's Key, Map System, etc.).
-   • `<SOUxxxx>` now includes descriptive sound effect names (e.g., "Message typing", "Door", "Explosion").
+5. COMMAND INFO ENHANCEMENTS (continued)
+   • <FAIxxxx> and <FAOxxxx> now display the direction name (Left, Up, Right, Down, Center, INVALID).
+   • <TRAxxxx> shows the full map name (Arthur's House, Egg Corridor, etc.).
+   • <AM+>, <AM->, <AMJ>, <GIT>, <TAM> show weapon names (Snake, Polar Star, etc.).
+   • <GIT>, <IT+>, <IT->, <ITJ> show item names (Arthur's Key, Map System, etc.).
+   • <SOUxxxx> includes descriptive sound effect names (e.g., "Message typing", "Door", "Explosion").
 
 6. QUICK DOCS HINTS
    • A rotating hint panel appears at the bottom of the Quick Docs tab.
@@ -52,9 +48,14 @@ WHAT'S NEW IN VERSION 2.0
 7. MINOR UI & STABILITY IMPROVEMENTS
    • Unsaved changes detection is now reliable (no false positives).
    • The currently opened file in the sidebar is highlighted in a distinct colour.
-   • Settings window respects the selected theme (dark/vapor/cosmo).
+   • Settings window respects the selected theme (dark/vapor/cosmo) and includes a scrollbar.
    • Removed all pygame dependencies – works natively on Python 3.14.
    • No AI assistant – removed due to API quotas and reliability concerns.
+   • Fixed many small bugs (KeyError, UnboundLocalError, etc.) reported by users.
+
+8. NEW KEYBOARD SHORTCUTS (v2.1)
+   • Ctrl+B       – Backup current TSC file
+   • Ctrl+Shift+B – Backup all TSC files in the list
 
 --------------------------------------------------------------------------------
 PERSISTENT RECENT FOLDER
@@ -68,7 +69,7 @@ ENCODING & CIPHER SELECTION – MANUAL CONTROL
 --------------------------------------------------------------------------------
 
 • When opening a .tsc file, you can manually choose:
-     - Encoding (Shift-JIS, CP932, Latin-1, UTF-8, CP850)
+     - Encoding (Shift-JIS, CP932, Latin-1, UTF-8, CP850, CP1252)
      - Cipher (Auto-detect, None (0), or a manual value 0-255)
 • A live preview shows the first 816 bytes decoded with your current settings.
 • This completely solves the "?" character problem for Japanese TSC files.
@@ -83,6 +84,15 @@ Three loading behaviours can be selected in the Settings window:
    • Always ask per file (the new manual dialog)
    • Always use a fixed encoding & cipher (manual override)
 Your choice is saved in settings.json.
+
+--------------------------------------------------------------------------------
+EXPORT MODES (Settings)
+--------------------------------------------------------------------------------
+
+Three export behaviours are available:
+   • Auto – uses the same encoding and cipher as the opened file (recommended)
+   • Ask per export – shows a dialog to choose encoding and cipher each time
+   • Manual – always uses a fixed encoding and cipher (set in Settings)
 
 --------------------------------------------------------------------------------
 UNSAVED CHANGES DETECTION
@@ -118,7 +128,7 @@ LANGUAGE SUPPORT
 --------------------------------------------------------------------------------
 
 The interface is fully translated into English, Spanish and Japanese.
-The editor automatically detects your system language on first run, but you can change it manually in Settings.
+The editor automatically detects your system language on first run, but you can change it manually in Settings (Ctrl+K).
 
 --------------------------------------------------------------------------------
 DEPENDENCIES (Libraries used by TSC Editor+)
@@ -165,7 +175,9 @@ KEYBOARD SHORTCUTS
 | Ctrl + Shift + O      | Open project (.cstsc)          |
 | Ctrl + Shift + Alt + O| Open folder                    |
 | Ctrl + S              | Save project                   |
-| Ctrl + Shift + S      | Export .tsc                    |
+| Ctrl + Shift + S      | Export .tsc (or .txt)          |
+| Ctrl + B              | Backup current TSC             |
+| Ctrl + Shift + B      | Backup all TSC files           |
 | Ctrl + F              | Focus search tab               |
 | Ctrl + R              | Smart replace                  |
 | Ctrl + Z              | Undo                           |
@@ -211,7 +223,7 @@ KNOWN ISSUES / NOTES
 
 • Face sprites (Freeware) require `faces/free/` with `fac_sprite_free00.png` to `fac_sprite_free30.png`
 • Face sprites (Steam) require `faces/steam/` with `fac_sprite_steam00.png` to `fac_sprite_steam30.png`
-• The hex dump view only shows the first 816 bytes (to avoid performance issues).
+• The hex dump view only shows the first 512 bytes (to avoid performance issues).
 • For Japanese TSC files, always choose **Shift-JIS** or **CP932** encoding in the load dialog.
 • The cipher value is rarely needed; “Auto-detect” works for 99.7% of original Cave Story TSC files.
 
